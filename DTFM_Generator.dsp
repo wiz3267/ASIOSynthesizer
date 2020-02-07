@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 winmm.lib /nologo /subsystem:windows /machine:I386 /out:"MidiInPiano_release.exe"
+# ADD LINK32 winmm.lib /nologo /subsystem:windows /machine:I386 /out:"ASIOSynthesizer_release.exe"
 
 !ELSEIF  "$(CFG)" == "DTFM_Generator - Win32 Debug"
 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 winmm.lib /nologo /subsystem:windows /debug /machine:I386 /out:"MidiInPiano_debug.exe" /pdbtype:sept
+# ADD LINK32 winmm.lib /nologo /subsystem:windows /debug /machine:I386 /out:"ASIOSynthesizer_debug.exe" /pdbtype:sept
 
 !ENDIF 
 

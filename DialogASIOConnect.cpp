@@ -66,6 +66,7 @@ void CDialogASIOConnect::OnOK()
 
 void CDialogASIOConnect::OnClose() 
 {
+	EndDialog(FALSE);
 	CDialog::OnClose();
 }
 

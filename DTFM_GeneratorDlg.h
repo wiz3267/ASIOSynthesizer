@@ -79,6 +79,7 @@ public:
 	double	m_slider_decrement_double;
 	double	m_base_a;
 	int		m_scale;
+	double	m_wave_len;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

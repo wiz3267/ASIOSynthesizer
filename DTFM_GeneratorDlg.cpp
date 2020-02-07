@@ -236,6 +236,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_slider_decrement_double = 0.0;
 	m_base_a = 440.0;
 	m_scale = 12;
+	m_wave_len = 0.0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -287,6 +288,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SLIDER_DECREMENT, m_slider_decrement_double);
 	DDX_Text(pDX, IDC_EDIT_BASE_A, m_base_a);
 	DDX_Text(pDX, IDC_EDIT_SCALE, m_scale);
+	DDX_Text(pDX, IDC_EDIT_WAVE_LEN, m_wave_len);
 	//}}AFX_DATA_MAP
 }
 
@@ -1482,9 +1484,17 @@ void CDTFM_GeneratorDlg::AddBuffer()
 
 	m_blockcounter=BlockCounter;
 
-	//?????????
-	if (freq_1_count==int(ASIO_PROC_BUFLEN/2)) m_edit_freq=freq_1;
-	else m_edit_freq=-1;
+	//если генерируется чисто синусоидальный сигнао
+	if (freq_1_count==int(ASIO_PROC_BUFLEN/2)) 
+	{
+		m_edit_freq=freq_1;
+		m_wave_len=330.0/freq_1;//длина волны
+	}
+	else 
+	{
+		m_edit_freq=-1;
+		m_wave_len=-1;
+	}
 	
 	PutData;
 

@@ -74,6 +74,7 @@
 #define IDC_EDIT_SLIDER_DECREMENT       1070
 #define IDC_EDIT_BASE_A                 1071
 #define IDC_BUTTON_BREAK                1072
+#define IDC_EDIT_WAVE_LEN               1072
 
 // Next default values for new objects
 // 

@@ -15,8 +15,8 @@ Class3=CAboutDlg
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DIALOG_ASIO_CONNECT
-Resource4=IDD_DTFM_GENERATOR_DIALOG
+Resource3=IDD_DTFM_GENERATOR_DIALOG
+Resource4=IDD_DIALOG_ASIO_CONNECT
 Resource5=IDD_DIALOG_SETTINGS
 Class4=CDialogASIOConnect
 Resource6=IDD_ABOUTBOX (English (U.S.))
@@ -35,7 +35,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_EDIT_BASE_A
+LastObject=IDC_EDIT_WAVE_LEN
 
 [CLS:CAboutDlg]
 Type=0
@@ -56,7 +56,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=56
+ControlCount=58
 Control1=IDOK,button,1342242817
 Control2=IDC_STOP,button,1476460544
 Control3=IDC_EDIT_BUFFER_COUNT,edit,1350568064
@@ -113,6 +113,8 @@ Control53=IDC_STATIC,static,1342308352
 Control54=IDC_EDIT_SCALE,edit,1350566016
 Control55=IDC_STATIC,static,1342308352
 Control56=IDC_STATIC,button,1342177287
+Control57=IDC_STATIC,static,1342308352
+Control58=IDC_EDIT_WAVE_LEN,edit,1350633600
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1
