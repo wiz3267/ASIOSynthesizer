@@ -97,6 +97,7 @@ int main(int, char **)
 	// start device info for buffer size range, begin with default
 	BASS_ASIO_GetInfo(&info);
 	ASIO_buflen=info.bufpref;
+	//BASS_ASIO_SetInfo(&info);
 
 	samrate=(int)BASS_ASIO_GetRate();
 

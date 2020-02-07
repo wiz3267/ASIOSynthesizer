@@ -3,54 +3,29 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: DTFM_Generator - Win32 Release--------------------
+--------------------Configuration: DTFM_Generator - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating command line "rc.exe /l 0x419 /fo"Release/DTFM_Generator.res" /d "NDEBUG" /d "_AFXDLL" "G:\!!CPY_NEW!!\!ƒÀﬂ√»“’¿¡¿!\MidiInPiano\DTFM_Generator.rc"" 
-Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPB5CF.tmp" with contents
+Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPC3C7.tmp" with contents
 [
-/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fr"Release/" /Fp"Release/DTFM_Generator.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
-"G:\!!CPY_NEW!!\!ƒÀﬂ√»“’¿¡¿!\MidiInPiano\DialogASIOConnect.cpp"
-"G:\!!CPY_NEW!!\!ƒÀﬂ√»“’¿¡¿!\MidiInPiano\DTFM_Generator.cpp"
-"G:\!!CPY_NEW!!\!ƒÀﬂ√»“’¿¡¿!\MidiInPiano\DTFM_GeneratorDlg.cpp"
-"G:\!!CPY_NEW!!\!ƒÀﬂ√»“’¿¡¿!\MidiInPiano\BassASIO\c\synth\synth.cpp"
+winmm.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/MidiInPiano_debug.pdb" /debug /machine:I386 /out:"MidiInPiano_debug.exe" /pdbtype:sept 
+.\Debug\DialogASIOConnect.obj
+.\Debug\DTFM_Generator.obj
+.\Debug\DTFM_GeneratorDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\synth.obj
+.\Debug\DTFM_Generator.res
+.\BassASIO\c\synth\bass.lib
+.\BassASIO\c\bassasio.lib
 ]
-Creating command line "cl.exe @C:\Users\Wiz\AppData\Local\Temp\RSPB5CF.tmp" 
-Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPB5D0.tmp" with contents
-[
-/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fr"Release/" /Fp"Release/DTFM_Generator.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
-"G:\!!CPY_NEW!!\!ƒÀﬂ√»“’¿¡¿!\MidiInPiano\StdAfx.cpp"
-]
-Creating command line "cl.exe @C:\Users\Wiz\AppData\Local\Temp\RSPB5D0.tmp" 
-Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPB5E0.tmp" with contents
-[
-winmm.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/MidiInPiano_release.pdb" /machine:I386 /out:"MidiInPiano_release.exe" 
-".\Release\DialogASIOConnect.obj"
-".\Release\DTFM_Generator.obj"
-".\Release\DTFM_GeneratorDlg.obj"
-".\Release\StdAfx.obj"
-".\Release\synth.obj"
-".\Release\DTFM_Generator.res"
-".\BassASIO\c\synth\bass.lib"
-".\BassASIO\c\bassasio.lib"
-]
-Creating command line "link.exe @C:\Users\Wiz\AppData\Local\Temp\RSPB5E0.tmp"
+Creating command line "link.exe @C:\Users\Wiz\AppData\Local\Temp\RSPC3C7.tmp"
 <h3>Output Window</h3>
-Compiling resources...
-Compiling...
-StdAfx.cpp
-Compiling...
-DialogASIOConnect.cpp
-DTFM_Generator.cpp
-DTFM_GeneratorDlg.cpp
-synth.cpp
-Generating Code...
 Linking...
 
 
 
 <h3>Results</h3>
-MidiInPiano_release.exe - 0 error(s), 0 warning(s)
+MidiInPiano_debug.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

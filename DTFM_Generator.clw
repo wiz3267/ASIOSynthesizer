@@ -15,11 +15,11 @@ Class3=CAboutDlg
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_ABOUTBOX (English (U.S.))
-Resource4=IDD_DIALOG_SETTINGS
-Resource5=IDD_DTFM_GENERATOR_DIALOG
+Resource3=IDD_DIALOG_SETTINGS
+Resource4=IDD_DTFM_GENERATOR_DIALOG
+Resource5=IDD_DIALOG_ASIO_CONNECT
 Class4=CDialogASIOConnect
-Resource6=IDD_DIALOG_ASIO_CONNECT
+Resource6=IDD_ABOUTBOX (English (U.S.))
 
 [CLS:CDTFM_GeneratorApp]
 Type=0

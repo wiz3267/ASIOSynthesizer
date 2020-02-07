@@ -51,7 +51,7 @@ BOOL CDialogASIOConnect::OnInitDialog()
 	CDialog::OnInitDialog();
 	
 
-	SetTimer(1,1,NULL);
+	SetTimer(1,500,NULL);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
