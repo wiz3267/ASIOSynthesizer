@@ -1,0 +1,350 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+// Generated Help ID header file
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.hm"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\DTFM_Generator.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\DTFM_Generator.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DTFM_GENERATOR_DIALOG DIALOGEX 0, 0, 651, 170
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_APPWINDOW
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Generate Sound Mode",IDOK,280,80,90,14
+    PUSHBUTTON      "Stop Generate Sound",IDC_STOP,380,80,100,14,WS_DISABLED
+    EDITTEXT        IDC_EDIT_BUFFER_COUNT,170,36,29,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    PUSHBUTTON      "Abort",IDC_ABORT,620,17,31,12
+    EDITTEXT        IDC_AMPLITUDE,170,52,29,12,ES_AUTOHSCROLL
+    LTEXT           "Amplitude",IDC_STATIC,125,54,32,8
+    LTEXT           "Buffers quee",IDC_STATIC,125,38,41,8
+    EDITTEXT        IDC_EDIT1,484,2,122,104,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    WS_VSCROLL
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,376,0,14,68
+    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,396,0,14,68
+    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,414,0,14,68
+    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,434,0,14,68
+    CONTROL         "Slider1",IDC_SLIDERM2,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,360,0,14,68
+    LTEXT           "base",IDC_STATIC,375,70,16,8
+    CONTROL         "Slider1",IDC_SLIDERM3,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,338,0,14,68
+    CONTROL         "Slider1",IDC_SLIDERM4,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,316,0,14,68
+    LTEXT           "-2",IDC_STATIC,358,69,8,8
+    LTEXT           "-4",IDC_STATIC,318,69,8,8
+    LTEXT           "-3",IDC_STATIC,338,69,8,8
+    LTEXT           "2",IDC_STATIC,398,69,8,8
+    LTEXT           "3",IDC_STATIC,418,69,8,8
+    LTEXT           "4",IDC_STATIC,438,69,8,8
+    PUSHBUTTON      "Midi Open",IDC_BUTTON_MIDI_OPEN,25,5,42,14
+    PUSHBUTTON      "Midi Close",IDC_BUTTON_MIDI_CLOSE,70,5,38,14,
+                    WS_DISABLED
+    EDITTEXT        IDC_EDIT_MIDI_OPEN,5,5,15,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Write",IDC_BUTTON_WRITE,5,40,48,14
+    PUSHBUTTON      "Write Stop",IDC_BUTTON_WRITE_STOP,5,55,48,14,
+                    WS_DISABLED
+    PUSHBUTTON      "Play Writen",IDC_BUTTON_PLAY_WRITEN,60,40,49,14
+    PUSHBUTTON      "Reset Sound (All mute)",IDC_BUTTON_RESET,5,75,104,15
+    PUSHBUTTON      "X",IDC_CLOSE,636,0,15,12
+    PUSHBUTTON      "Stop Playing",IDC_STOP_PLAY,60,55,49,14,WS_DISABLED
+    EDITTEXT        IDC_EDIT_STATUS_TEXT,5,95,103,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Actual Freq",IDC_STATIC,125,83,37,8
+    EDITTEXT        IDC_EDIT_FREQ,170,81,29,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "H",IDC_HIDE,619,0,15,12,WS_DISABLED
+    CONTROL         "Slider5",IDC_SLIDER_DECREMENT,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,210,50,60,10
+    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,450,0,14,68
+    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,468,0,14,68
+    LTEXT           "5",IDC_STATIC,454,69,8,8
+    LTEXT           "6",IDC_STATIC,468,69,8,8
+    CONTROL         "Slider1",IDC_SLIDERM5,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,298,0,14,68
+    CONTROL         "Slider1",IDC_SLIDERM6,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | WS_TABSTOP,280,1,14,68
+    LTEXT           "-5",IDC_STATIC,300,69,8,8
+    LTEXT           "-6",IDC_STATIC,284,69,8,8
+    EDITTEXT        IDC_EDIT_TOTAL_BUFFER_COUNT,170,5,29,14,ES_AUTOHSCROLL | 
+                    NOT WS_TABSTOP
+    LTEXT           "Buffers:",IDC_STATIC,125,5,25,8
+    LTEXT           "Bufer size",IDC_STATIC,125,20,32,8
+    EDITTEXT        IDC_EDIT_BUFFER_SIZE,170,20,29,14,ES_AUTOHSCROLL | NOT 
+                    WS_TABSTOP
+    EDITTEXT        IDC_EDIT_MIDI_NAME2,5,20,103,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_EDIT_SLIDER_DECREMENT,217,65,45,15,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "A(La)_NOTE",IDC_STATIC,126,69,42,8
+    EDITTEXT        IDC_EDIT_BASE_A,170,67,29,12,ES_AUTOHSCROLL
+    LTEXT           "SCALE",IDC_STATIC,210,5,24,8
+    EDITTEXT        IDC_EDIT_SCALE,240,5,29,14,ES_AUTOHSCROLL | NOT 
+                    WS_TABSTOP,0,HIDC_EDIT_SCALE
+    LTEXT           "(decrement amp)",IDC_STATIC,215,35,54,8
+    GROUPBOX        "Release sound",IDC_STATIC,205,20,70,70
+END
+
+IDD_DIALOG_SETTINGS DIALOG DISCARDABLE  0, 0, 186, 93
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Settings ..."
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+END
+
+IDD_DIALOG_ASIO_CONNECT DIALOG DISCARDABLE  0, 0, 186, 93
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ASIO Connect ..."
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Please wait ...",IDC_STATIC,60,20,60,8
+    PUSHBUTTON      "Ok",IDOK,45,60,50,14
+    PUSHBUTTON      "Break",IDC_BUTTON_BREAK,105,60,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_DTFM_GENERATOR_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_DIALOG_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+
+    IDD_DIALOG_ASIO_CONNECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 195, 129
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About ..."
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,5,5,21,20
+    LTEXT           "ASIO Synthesizer",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2020 Wiz (evg-lapshin@mail.ru)",
+                    IDC_STATIC,20,60,160,8
+    DEFPUSHBUTTON   "OK",IDOK,70,90,45,20,WS_GROUP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 188
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 122
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "ASIO synthesizer  MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "ASIO Synthesizer \0"
+            VALUE "LegalCopyright", "Copyright (C) 2020\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "ASIOSynthesizer.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "ASIO Synthesizer Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About DTFM_Generator..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\DTFM_Generator.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
