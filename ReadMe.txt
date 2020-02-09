@@ -1,8 +1,8 @@
-How to download.
+How to download and run.
 Click Clone or Download, then download the * .ZIP archive, unzip it and run ASIOSynthesizer_release.exe
 The project was created in Visual Studio 6.0
 
-Как скачивать.
+Как скачивать и запускать.
 Нажимаем Clone or Download, затем скачиваем *.ZIP архив, разархивируем его и запускаем ASIOSynthesizer_release.exe
 Проект создавался в Visual Studio 6.0
 
