@@ -14,8 +14,10 @@ int NeedUpdateMidiEvent=1;	//обновл€ть Midi сообщени€
 int NeedUpdateBaseFreq=0;	//мен€ть базовую частоту при изменени€ слайдера
 
 int NeedUpdateModulation=1;	//реагировать на слайдер модул€ции
+
 double modulation=0;
 double step_modulation=0;	//скорость модул€ции
+double ModulationWheel=0;
 
 CString m_edit_list_midi;
 
@@ -237,6 +239,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_base_a = 440.0;
 	m_scale = 12;
 	m_wave_len = 0.0;
+	m_edit_modilation = _T("1");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -250,6 +253,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_SLIDER_TOTAL_VOLUME, m_slider_total_volume);
 	DDX_Control(pDX, IDC_EDIT_BASE_A, m_edit_base_a);
 	DDX_Control(pDX, IDC_EDIT_STATUS_TEXT, m_status_text);
 	DDX_Control(pDX, IDC_AMPLITUDE, m_amplitude_edit);
@@ -289,6 +293,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_BASE_A, m_base_a);
 	DDX_Text(pDX, IDC_EDIT_SCALE, m_scale);
 	DDX_Text(pDX, IDC_EDIT_WAVE_LEN, m_wave_len);
+	DDX_Text(pDX, IDC_EDIT_MODULATION, m_edit_modilation);
 	//}}AFX_DATA_MAP
 }
 
@@ -381,6 +386,7 @@ END_MESSAGE_MAP()
 
 int sl1, sl2, sl3, sl4, sl5, sl6;
 int slm2, slm3, slm4, slm5, slm6;
+int slvolume;
 
 //функци€ вычисл€ет сумму синусов 
 //сигнал в соответствии с эквалайзером в графическом интерфейсе программы
@@ -414,7 +420,7 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	double limit=20000;	//ограничение частоты
 
 	double AMP=Ampl;
-	AMP+=10000*sin(modulation);
+	AMP+=30000*sin(modulation);
 
 	double f;	//частота
 
@@ -423,47 +429,47 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	{
 		//f=1*freq;
 		//if (f<limit) k+=sl1/100.0*AMP*sin(f*t);
-		k+=sl1/100.0*AMP*sin(freq*t);
+		k+=sl1/100.0*sin(freq*t);
 	}
 
 	//если подн€т второй слайдер (втора€ гаромника, в 2 раза выше базовой)
 	if (sl2)
 	{
 		f=2*freq;
-		if (f<limit) k+=sl2/100.0*AMP*sin(f*t);
+		if (f<limit) k+=sl2/100.0*sin(f*t);
 	}
 
 	if (sl3)
 	{
 		f=3*freq;
-		if (f<limit) k+=sl3/100.0*AMP*sin(f*t);
+		if (f<limit) k+=sl3/100.0*sin(f*t);
 	}
 
 	if (sl4)
 	{
 		f=4*freq;
-		if (f<limit) k+=sl4/100.0*AMP*sin(f*t);
+		if (f<limit) k+=sl4/100.0*sin(f*t);
 	}
 
 	if (sl5)
 	{
 		f=5*freq;
-		if (f<limit) k+=sl5/100.0*AMP*sin(f*t);
+		if (f<limit) k+=sl5/100.0*sin(f*t);
 	}
 
 	if (sl6)
 	{
 		f=6*freq;
-		if (f<limit) k+=sl6/100.0*AMP*sin(f*t);
+		if (f<limit) k+=sl6/100.0*sin(f*t);
 	}
 
 
 	//в два и более раза меньшие гармоники
-	if(slm2) k+=slm2/100.0*AMP*sin(freq/2*t);
-	if(slm3) k+=slm3/100.0*AMP*sin(freq/3*t);
-	if(slm4) k+=slm4/100.0*AMP*sin(freq/4*t);
-	if(slm5) k+=slm5/100.0*AMP*sin(freq/5*t);
-	if(slm6) k+=slm6/100.0*AMP*sin(freq/6*t);
+	if(slm2) k+=slm2/100.0*sin(freq/2*t);
+	if(slm3) k+=slm3/100.0*sin(freq/3*t);
+	if(slm4) k+=slm4/100.0*sin(freq/4*t);
+	if(slm5) k+=slm5/100.0*sin(freq/5*t);
+	if(slm6) k+=slm6/100.0*sin(freq/6*t);
 
 	
 /*for(int i=2; i<2; i++)
@@ -477,7 +483,7 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	}
 */
 
-	return k;
+	return k *  (slvolume/100.0) * AMP  ;
 }
 
 
@@ -575,6 +581,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 
 	m_slider_decrement.SetScrollRange(SB_CTL,0, 100);
+	m_slider_total_volume.SetScrollRange(SB_CTL,0, 100);
 
 	if (ini.IsExist())
 //	if (0)
@@ -596,6 +603,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 
 	m_slider_decrement.SetPos(100-ini.QueryValue("sldecrement"));
+	m_slider_total_volume.SetPos(ini.QueryValue("sltotalvolume"));
 
 	}
 	else
@@ -615,6 +623,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 		m_slm6.SetPos(100);
 
 		m_slider_decrement.SetPos(10);
+		m_slider_total_volume.SetPos(100);
 
 	}
 	
@@ -1278,7 +1287,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 				phase=0;
 
 				m+=Piano(Keys[k].Ampl,freq,Keys[k].t,phase, flag_one, freq_actual);
-				//m+=Piano(Keys[k].Ampl,freq,t,phase, flag_one, freq_actual);
+				
 				Keys[k].t+=K;
 
 				Keys[k].Ampl+=Keys[k].A_add;
@@ -1333,24 +1342,6 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		if (m>MaxSound) MaxSound=m;
 
 		short int z=(short int)m;
-		/*delta=last_z - z;
-		if (abs(delta)>1000) 
-		{
-			//_asm int 3
-			int a=3;
-			a++;
-			a--;
-
-			_time_++;
-			i--;
-			continue;
-
-		}
-		last_z=z;
-		*/
-
-		//z=0;
-		//BYTE *s=(BYTE*)&z;
 
 		plbuf[i]=z;
 	}
@@ -1889,6 +1880,9 @@ void CDTFM_GeneratorDlg::ExitDialog()
 
 	ini.SetValue(100-m_slider_decrement.GetPos(), "sldecrement");
 
+	//????
+	ini.SetValue(m_slider_total_volume.GetPos(), "sltotalvolume");
+
 	
 	EndDialog(0);
 }
@@ -2302,6 +2296,14 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	GetData;
 
+	CString s=m_edit_modilation;
+	
+	
+	double modul=strtod(s.GetBuffer(0),NULL);
+
+	ModulationWheel=modul;
+	
+
 	if (NeedUpdateMidiEvent)
 	{
 		//обновл€ем если есть изменени€
@@ -2331,6 +2333,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	slm4=100-m_slm4.GetPos();
 	slm5=100-m_slm5.GetPos();
 	slm6=100-m_slm6.GetPos();
+	slvolume=m_slider_total_volume.GetPos();
 
 
 	AMPLITUDE_DECREMENT=(m_slider_decrement.GetPos()*2+1)/128.0;
@@ -2341,6 +2344,8 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	CDC *pdc=GetDC();
 	DrawButton(pdc, 0,0, 60);
 	ReleaseDC(pdc);
+
+
 
 	if (ini.QueryValue("HideWindow")) ShowWindow(SW_HIDE);
 	else ShowWindow(SW_SHOW);
@@ -2494,9 +2499,11 @@ void CALLBACK MidiInProc(
 
 			if (NeedUpdateModulation)
 			{
-				if (z==11 && nChar==1)
+				if (z==11 && nChar==15)
 				{
-					step_modulation=1.5*Volume/127.0/2048.0;
+					//??????¬ј∆Ќќ
+					//step_modulation=ModulationWheel * Volume/127.0/2048.0;
+					step_modulation=ModulationWheel * Volume/127.0/512;
 				}
 			}
 
@@ -3439,14 +3446,3 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 	CDialog::OnMouseMove(nFlags, point);
 }
 
-
-
-/*
-
-
-
-
-
-
-
-*/
