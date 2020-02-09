@@ -2499,7 +2499,7 @@ void CALLBACK MidiInProc(
 
 			if (NeedUpdateModulation)
 			{
-				if (z==11 && nChar==15)
+				if (z==11 && nChar==1)
 				{
 					//??????ÂÀÆÍÎ
 					//step_modulation=ModulationWheel * Volume/127.0/2048.0;
