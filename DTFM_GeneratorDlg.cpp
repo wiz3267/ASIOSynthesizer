@@ -18,6 +18,7 @@ int NeedUpdateModulation=1;	//реагировать на слайдер модул€ции
 double modulation=0;
 double step_modulation=0;	//скорость модул€ции
 double ModulationWheel=0;
+int m_modulation_wheel_2=0;	//значени€ колеса модул€ции
 
 CString m_edit_list_midi;
 
@@ -240,6 +241,8 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_scale = 12;
 	m_wave_len = 0.0;
 	m_edit_modilation = _T("1");
+	m_modulation_wheel = 0;
+	m_asio_device = 0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -294,6 +297,8 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SCALE, m_scale);
 	DDX_Text(pDX, IDC_EDIT_WAVE_LEN, m_wave_len);
 	DDX_Text(pDX, IDC_EDIT_MODULATION, m_edit_modilation);
+	DDX_Text(pDX, IDC_EDIT_MODULATION_WHEEL, m_modulation_wheel);
+	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE, m_asio_device);
 	//}}AFX_DATA_MAP
 }
 
@@ -2302,6 +2307,8 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	double modul=strtod(s.GetBuffer(0),NULL);
 
 	ModulationWheel=modul;
+
+	m_modulation_wheel=m_modulation_wheel_2;
 	
 
 	if (NeedUpdateMidiEvent)
@@ -2504,6 +2511,7 @@ void CALLBACK MidiInProc(
 					//??????¬ј∆Ќќ
 					//step_modulation=ModulationWheel * Volume/127.0/2048.0;
 					step_modulation=ModulationWheel * Volume/127.0/512;
+					m_modulation_wheel_2=Volume;
 				}
 			}
 

@@ -51,7 +51,7 @@ DWORD CALLBACK WriteStream(HSTREAM handle, short *buffer, DWORD length, void *us
 	return length;
 }
 
-int main(int, char **)
+int main(int asio_index, char **)
 {
 	BASS_ASIO_INFO info;
 
@@ -88,7 +88,7 @@ int main(int, char **)
 	}
 
 	// setup ASIO - first device
-	if (!BASS_ASIO_Init(1,BASS_ASIO_THREAD))
+	if (!BASS_ASIO_Init(asio_index,BASS_ASIO_THREAD))
 	{
 		Error("BASS_ASIO_THREAD Can't initialize ASIO device");
 		return 0;

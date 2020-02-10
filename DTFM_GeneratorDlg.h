@@ -82,6 +82,8 @@ public:
 	int		m_scale;
 	double	m_wave_len;
 	CString	m_edit_modilation;
+	int		m_modulation_wheel;
+	int		m_asio_device;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

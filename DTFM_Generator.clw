@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CDTFM_GeneratorDlg
+LastClass=CDialogASIOConnect
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "DTFM_Generator.h"
@@ -15,8 +15,8 @@ Class3=CAboutDlg
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DTFM_GENERATOR_DIALOG
-Resource4=IDD_DIALOG_ASIO_CONNECT
+Resource3=IDD_DIALOG_ASIO_CONNECT
+Resource4=IDD_DTFM_GENERATOR_DIALOG
 Resource5=IDD_DIALOG_SETTINGS
 Class4=CDialogASIOConnect
 Resource6=IDD_ABOUTBOX (English (U.S.))
@@ -35,7 +35,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_MODULATION
+LastObject=IDC_EDIT_MODULATION_WHEEL
 
 [CLS:CAboutDlg]
 Type=0
@@ -56,7 +56,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=61
+ControlCount=65
 Control1=IDOK,button,1342242817
 Control2=IDC_STOP,button,1476460544
 Control3=IDC_EDIT_BUFFER_COUNT,edit,1350568064
@@ -118,6 +118,10 @@ Control58=IDC_EDIT_WAVE_LEN,edit,1350633600
 Control59=IDC_SLIDER_TOTAL_VOLUME,msctls_trackbar32,1342242840
 Control60=IDC_EDIT_MODULATION,edit,1350631552
 Control61=IDC_STATIC,static,1342308352
+Control62=IDC_EDIT_MODULATION_WHEEL,edit,1484849280
+Control63=IDC_EDIT_ASIO_DEVICE,edit,1484783744
+Control64=IDC_STATIC,static,1342308352
+Control65=IDC_CHECK_USE_MODULATION,button,1476460547
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1
@@ -138,10 +142,11 @@ Control2=IDCANCEL,button,1342242816
 [DLG:IDD_DIALOG_ASIO_CONNECT]
 Type=1
 Class=CDialogASIOConnect
-ControlCount=3
-Control1=IDC_STATIC,static,1342308352
-Control2=IDOK,button,1342242816
-Control3=IDC_BUTTON_BREAK,button,1342242816
+ControlCount=4
+Control1=IDOK,button,1342242816
+Control2=IDC_BUTTON_BREAK,button,1342242816
+Control3=IDC_EDIT_ASIO_DEVICE_INDEX,edit,1350631552
+Control4=IDC_STATIC,static,1342308352
 
 [CLS:CDialogASIOConnect]
 Type=0

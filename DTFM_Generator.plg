@@ -6,6 +6,23 @@
 --------------------Configuration: DTFM_Generator - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x419 /fo"Debug/DTFM_Generator.res" /d "_DEBUG" /d "_AFXDLL" "G:\github\ASIOSynthesizer\DTFM_Generator.rc"" 
+Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSP50BE.tmp" with contents
+[
+winmm.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/ASIOSynthesizer_debug.pdb" /debug /machine:I386 /out:"ASIOSynthesizer_debug.exe" /pdbtype:sept 
+.\Debug\DialogASIOConnect.obj
+.\Debug\DTFM_Generator.obj
+.\Debug\DTFM_GeneratorDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\synth.obj
+.\Debug\DTFM_Generator.res
+.\BassASIO\c\synth\bass.lib
+.\BassASIO\c\bassasio.lib
+]
+Creating command line "link.exe @C:\Users\Wiz\AppData\Local\Temp\RSP50BE.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Linking...
 
 
 

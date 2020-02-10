@@ -19,7 +19,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDialogASIOConnect)
 	enum { IDD = IDD_DIALOG_ASIO_CONNECT };
-		// NOTE: the ClassWizard will add data members here
+	int		m_asio_index;
 	//}}AFX_DATA
 
 

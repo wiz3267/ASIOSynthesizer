@@ -19,7 +19,7 @@ CDialogASIOConnect::CDialogASIOConnect(CWnd* pParent /*=NULL*/)
 	: CDialog(CDialogASIOConnect::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogASIOConnect)
-		// NOTE: the ClassWizard will add member initialization here
+	m_asio_index = 0;
 	//}}AFX_DATA_INIT
 }
 
@@ -28,7 +28,7 @@ void CDialogASIOConnect::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDialogASIOConnect)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
+	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE_INDEX, m_asio_index);
 	//}}AFX_DATA_MAP
 }
 
@@ -51,7 +51,7 @@ BOOL CDialogASIOConnect::OnInitDialog()
 	CDialog::OnInitDialog();
 	
 
-	SetTimer(1,500,NULL);
+	//SetTimer(1,500,NULL);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -59,9 +59,12 @@ BOOL CDialogASIOConnect::OnInitDialog()
 
 void CDialogASIOConnect::OnOK() 
 {
-	EndDialog(TRUE);
+	//EndDialog(TRUE);
+	UpdateData(1);
+	int res=main(m_asio_index,0);
+	EndDialog(res);
 	
-	CDialog::OnOK();
+	//CDialog::OnOK();
 }
 
 void CDialogASIOConnect::OnClose() 
@@ -72,9 +75,9 @@ void CDialogASIOConnect::OnClose()
 
 void CDialogASIOConnect::OnTimer(UINT nIDEvent) 
 {
-	KillTimer(1);
-	int res=main(0,0);	
-	EndDialog(res);
+	//KillTimer(1);
+	//int res=main(0,0);	
+	//EndDialog(res);
 
 	CDialog::OnTimer(nIDEvent);
 }

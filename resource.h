@@ -19,6 +19,7 @@
 #define IDC_EDIT_BUFFER_SIZE            1014
 #define IDC_ABORT                       1015
 #define IDC_EDIT_SCALE                  1016
+#define IDC_EDIT_ASIO_DEVICE            1017
 #define IDC_MF_CCITT                    1018
 #define IDC_AMPLITUDE                   1019
 #define IDC_DO                          1022
@@ -77,6 +78,9 @@
 #define IDC_EDIT_WAVE_LEN               1072
 #define IDC_SLIDER_TOTAL_VOLUME         1073
 #define IDC_EDIT_MODULATION             1074
+#define IDC_EDIT_MODULATION_WHEEL       1075
+#define IDC_CHECK_USE_MODULATION        1076
+#define IDC_EDIT_ASIO_DEVICE_INDEX      1077
 
 // Next default values for new objects
 // 
@@ -84,7 +88,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        143
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1075
+#define _APS_NEXT_CONTROL_VALUE         1078
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
