@@ -12,3 +12,5 @@ Debug/vc60.idb
 Debug/vc60.pdb
 *.obj
 *.pch
+Debug/vc60.idb
+Release/vc60.idb
