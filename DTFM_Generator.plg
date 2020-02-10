@@ -3,37 +3,54 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: DTFM_Generator - Win32 Debug--------------------
+--------------------Configuration: DTFM_Generator - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSP8788.tmp" with contents
+Creating command line "rc.exe /l 0x419 /fo"Release/DTFM_Generator.res" /d "NDEBUG" /d "_AFXDLL" "G:\github\ASIOSynthesizer\DTFM_Generator.rc"" 
+Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPFD1E.tmp" with contents
 [
-/nologo /MDd /W3 /Gm /GX /ZI /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/DTFM_Generator.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fr"Release/" /Fp"Release/DTFM_Generator.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"G:\github\ASIOSynthesizer\DialogASIOConnect.cpp"
+"G:\github\ASIOSynthesizer\DTFM_Generator.cpp"
 "G:\github\ASIOSynthesizer\DTFM_GeneratorDlg.cpp"
+"G:\github\ASIOSynthesizer\BassASIO\c\synth\synth.cpp"
 ]
-Creating command line "cl.exe @C:\Users\Wiz\AppData\Local\Temp\RSP8788.tmp" 
-Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSP8798.tmp" with contents
+Creating command line "cl.exe @C:\Users\Wiz\AppData\Local\Temp\RSPFD1E.tmp" 
+Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPFD1F.tmp" with contents
 [
-winmm.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/ASIOSynthesizer_debug.pdb" /debug /machine:I386 /out:"ASIOSynthesizer_debug.exe" /pdbtype:sept 
-.\Debug\DialogASIOConnect.obj
-.\Debug\DTFM_Generator.obj
-.\Debug\DTFM_GeneratorDlg.obj
-.\Debug\StdAfx.obj
-.\Debug\synth.obj
-.\Debug\DTFM_Generator.res
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fr"Release/" /Fp"Release/DTFM_Generator.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"G:\github\ASIOSynthesizer\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\Users\Wiz\AppData\Local\Temp\RSPFD1F.tmp" 
+Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPFD20.tmp" with contents
+[
+winmm.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/ASIOSynthesizer_release.pdb" /machine:I386 /out:"ASIOSynthesizer_release.exe" 
+.\Release\DialogASIOConnect.obj
+.\Release\DTFM_Generator.obj
+.\Release\DTFM_GeneratorDlg.obj
+.\Release\StdAfx.obj
+.\Release\synth.obj
+.\Release\DTFM_Generator.res
 .\BassASIO\c\synth\bass.lib
 .\BassASIO\c\bassasio.lib
 ]
-Creating command line "link.exe @C:\Users\Wiz\AppData\Local\Temp\RSP8798.tmp"
+Creating command line "link.exe @C:\Users\Wiz\AppData\Local\Temp\RSPFD20.tmp"
 <h3>Output Window</h3>
+Compiling resources...
 Compiling...
+StdAfx.cpp
+Compiling...
+DialogASIOConnect.cpp
+DTFM_Generator.cpp
 DTFM_GeneratorDlg.cpp
+synth.cpp
+Generating Code...
 Linking...
 
 
 
 <h3>Results</h3>
-ASIOSynthesizer_debug.exe - 0 error(s), 0 warning(s)
+ASIOSynthesizer_release.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
