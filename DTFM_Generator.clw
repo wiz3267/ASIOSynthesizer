@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CDialogASIOConnect
+LastClass=CDTFM_GeneratorDlg
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "DTFM_Generator.h"
@@ -16,8 +16,8 @@ ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
 Resource3=IDD_DIALOG_ASIO_CONNECT
-Resource4=IDD_DTFM_GENERATOR_DIALOG
-Resource5=IDD_DIALOG_SETTINGS
+Resource4=IDD_DIALOG_SETTINGS
+Resource5=IDD_DTFM_GENERATOR_DIALOG
 Class4=CDialogASIOConnect
 Resource6=IDD_ABOUTBOX (English (U.S.))
 
@@ -145,7 +145,7 @@ Class=CDialogASIOConnect
 ControlCount=4
 Control1=IDOK,button,1342242816
 Control2=IDC_BUTTON_BREAK,button,1342242816
-Control3=IDC_EDIT_ASIO_DEVICE_INDEX,edit,1350631552
+Control3=IDC_EDIT_ASIO_DEVICE_INDEX,edit,1342242944
 Control4=IDC_STATIC,static,1342308352
 
 [CLS:CDialogASIOConnect]

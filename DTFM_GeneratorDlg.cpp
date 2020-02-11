@@ -10,15 +10,15 @@
 
 const double PI=3.1415926;
 
-int NeedUpdateMidiEvent=1;	//Г®ГЎГ­Г®ГўГ«ГїГІГј Midi Г±Г®Г®ГЎГ№ГҐГ­ГЁГї
-int NeedUpdateBaseFreq=0;	//Г¬ГҐГ­ГїГІГј ГЎГ Г§Г®ГўГіГѕ Г·Г Г±ГІГ®ГІГі ГЇГ°ГЁ ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї Г±Г«Г Г©Г¤ГҐГ°Г 
+int NeedUpdateMidiEvent=1;	//обновлять Midi сообщения
+int NeedUpdateBaseFreq=0;	//менять базовую частоту при изменения слайдера
 
-int NeedUpdateModulation=1;	//Г°ГҐГ ГЈГЁГ°Г®ГўГ ГІГј Г­Г  Г±Г«Г Г©Г¤ГҐГ° Г¬Г®Г¤ГіГ«ГїГ¶ГЁГЁ
+int NeedUpdateModulation=1;	//реагировать на слайдер модуляции
 
-//double modulation=0;
-double step_modulation=0;	//Г±ГЄГ®Г°Г®Г±ГІГј Г¬Г®Г¤ГіГ«ГїГ¶ГЁГЁ
+double modulation=0;
+double step_modulation=0;	//скорость модуляции
 double ModulationWheel=0;
-int m_modulation_wheel_2=0;	//Г§Г­Г Г·ГҐГ­ГЁГї ГЄГ®Г«ГҐГ±Г  Г¬Г®Г¤ГіГ«ГїГ¶ГЁГЁ
+int m_modulation_wheel_2=0;	//значения колеса модуляции
 
 CString m_edit_list_midi;
 
@@ -63,11 +63,11 @@ BYTE *PlayWriten=NULL;
 DWORD PlayWritenSize=0;
 WORD PlayWritenPosition=0;
 
-bool write=false; //Г­ГіГ¦Г­Г® Г«ГЁ Г§Г ГЇГЁГ±Г»ГўГ ГІГј Гў ГґГ Г©Г«
+bool write=false; //нужно ли записывать в файл
 
 int CurrentAmplitude=0;
 
-bool Overload=false; //ГЇГҐГ°ГҐГЈГ°ГіГ§ГЄГ  Г§ГўГіГЄГ®Гў. ГіГ°Г®ГўГ­Гї >32767 OR <-32767
+bool Overload=false; //перегрузка звуков. уровня >32767 OR <-32767
 
 union DWORD_BYTES
 {
@@ -83,7 +83,7 @@ struct MIDI_DATA
 	DWORD time;
 };
 
-double MaxSound=0;	//Г¬Г ГЄГ±ГЁГ¬Г Г«ГјГ­Г»Г© ГіГ°Г®ГўГҐГ­Гј Г§ГўГіГЄГ  Г­Г  Г¤Г Г­Г­Г»Г© Г¬Г®Г¬ГҐГ­ГІ (Г¤Г® 32768)
+double MaxSound=0;	//максимальный уровень звука на данный момент (до 32768)
 
 #define GetData UpdateData(true)
 #define PutData UpdateData(false)
@@ -92,18 +92,17 @@ double Piano(double Ampl, double freq, double t, double phase);
 
 static int _time_;
 
-const double
-	
-	AMPLITUDE_START=6000;
+const double AMPLITUDE_START=6000;
 
 double	AMPLITUDE_DECREMENT;//5/2048.0;
 
 int IdMidiOpen=-1;
 
 int 
-	SAMPLE_RATE=44100,
-	BUFFER_MAX=60,
-	BUFFER_SIZE=200;
+	SAMPLE_RATE=44100;
+
+//	BUFFER_MAX=60,
+//	BUFFER_SIZE=200;
 
 struct KEY
 {
@@ -111,9 +110,9 @@ struct KEY
 	double decrement;
 	double Ampl;
 
-	double t;	//ГўГ°ГҐГ¬Гї(Гў ГіГ±Г«Г®ГўГ­Г»Гµ ГҐГ¤ГЁГ­ГЁГ¶Г Гµ) Г±ГЁГЈГ­Г Г«Г 
-	double A,D,S,R;	//ГЎГ«Г®ГЄ ADSR (Attack-Decay-Sustain-Release)
-	double A_add;	//Г±ГЄГ®Г°Г®Г±ГІГј ГіГўГҐГ«ГЁГ·ГҐГ­ГЁГї A
+	double t;	//время(в условных единицах) сигнала
+	double A,D,S,R;	//блок ADSR (Attack-Decay-Sustain-Release)
+	double A_add;	//скорость увеличения A
 
 	KEY() { press=0; decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;}
 } Keys[256];
@@ -393,15 +392,17 @@ int sl1, sl2, sl3, sl4, sl5, sl6;
 int slm2, slm3, slm4, slm5, slm6;
 int slvolume;
 
-//ГґГіГ­ГЄГ¶ГЁГї ГўГ»Г·ГЁГ±Г«ГїГҐГІ Г±ГіГ¬Г¬Гі Г±ГЁГ­ГіГ±Г®Гў 
-//Г±ГЁГЈГ­Г Г« Гў Г±Г®Г®ГІГўГҐГІГ±ГІГўГЁГЁ Г± ГЅГЄГўГ Г«Г Г©Г§ГҐГ°Г®Г¬ Гў ГЈГ°Г ГґГЁГ·ГҐГ±ГЄГ®Г¬ ГЁГ­ГІГҐГ°ГґГҐГ©Г±ГҐ ГЇГ°Г®ГЈГ°Г Г¬Г¬Г»
-//Ampl Г Г¬ГЇГ«ГЁГІГіГ¤Г 
-//freq Г·Г Г±ГІГ®ГІГ 
-//flag_one Г·ГЁГ±Г«Г® ГЁГ±ГЇГ®Г«ГјГ§ГіГҐГ¬Г»Гµ ГЁ ГўГ»Г·ГЁГ±Г«ГҐГ­Г­Г»Гµ ГЈГ Г°Г¬Г®Г­ГЁГЄ
 
-//freq_actual Г§Г ГЇГЁГ±Г»ГўГ ГҐГІГ±Гї ГЇГ®Г±Г«ГҐГ¤Г­ГїГї ГўГ»Г·ГЁГ±Г«ГҐГ­Г­Г Гї Г·Г Г±ГІГ®ГІГ 
-//ГҐГ±Г«ГЁ flag_one==1, Г§Г­Г Г·ГЁГІ ГЎГ»Г«Г  ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ Г­Г  ГІГ®Г«ГјГЄГ® Г®Г¤Г­Г  ГЈГ Г°Г¬Г®Г­ГЁГЄГ ,
-//Г  Г®Г±ГІГ Г«ГјГ­Г»ГҐ Г±Г«Г Г©Г¤ГҐГ°Г» Г®ГЇГіГ№ГҐГ­Г» ГўГ­ГЁГ§
+//функция используется для генерации звука
+
+//сигнал в соответствии с эквалайзером в графическом интерфейсе программы
+//Ampl амплитуда
+//freq частота
+//flag_one число используемых и вычисленных гармоник
+
+//freq_actual записывается последняя вычисленная частота
+//если flag_one==1, значит была использована только одна гармоника,
+//а остальные слайдеры опущены вниз
 double Piano(double Ampl, double freq, double t, double phase, int & flag_one, double & freq_actual)
 {
 
@@ -420,56 +421,29 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	if (slm5) {flag_one++;freq_actual=freq/5;}
 	if (slm6) {flag_one++;freq_actual=freq/6;}
 
-	double k=0;	//ГЁГІГ®ГЈГ®ГўГ Гї ГўГ»Г·ГЁГ±Г«ГҐГ­Г­Г Гї Г±ГіГ¬Г¬Г  
+	double k=0;	//итоговая вычисленная сумма 
 
-	double limit=20000;	//Г®ГЈГ°Г Г­ГЁГ·ГҐГ­ГЁГҐ Г·Г Г±ГІГ®ГІГ»
+	double limit=20000;	//ограничение частоты
 
 	double AMP=Ampl;
-	AMP+=30000*sin(modulation);
+	AMP+=
+		5000//глубина модуляции
+		*sin(modulation);
 
-	double f;	//Г·Г Г±ГІГ®ГІГ 
+	double f;	//частота
 
-	//ГҐГ±Г«ГЁ ГЇГ®Г¤Г­ГїГІ ГЇГҐГ°ГўГ»Г© Г±Г«Г Г©Г¤ГҐГ° (ГЎГ Г§Г®ГўГ Гї ГЈГ Г°Г¬Г®Г­ГЁГЄГ )
-	if (sl1)
-	{
-		//f=1*freq;
-		//if (f<limit) k+=sl1/100.0*AMP*sin(f*t);
-		k+=sl1/100.0*sin(freq*t);
-	}
+	//если поднят первый слайдер (базовая гармоника)
+	if (sl1) {						  k+=sl1/100.0*sin(freq*t); }
 
-	//ГҐГ±Г«ГЁ ГЇГ®Г¤Г­ГїГІ ГўГІГ®Г°Г®Г© Г±Г«Г Г©Г¤ГҐГ° (ГўГІГ®Г°Г Гї ГЈГ Г°Г®Г¬Г­ГЁГЄГ , Гў 2 Г°Г Г§Г  ГўГ»ГёГҐ ГЎГ Г§Г®ГўГ®Г©)
-	if (sl2)
-	{
-		f=2*freq;
-		if (f<limit) k+=sl2/100.0*sin(f*t);
-	}
-
-	if (sl3)
-	{
-		f=3*freq;
-		if (f<limit) k+=sl3/100.0*sin(f*t);
-	}
-
-	if (sl4)
-	{
-		f=4*freq;
-		if (f<limit) k+=sl4/100.0*sin(f*t);
-	}
-
-	if (sl5)
-	{
-		f=5*freq;
-		if (f<limit) k+=sl5/100.0*sin(f*t);
-	}
-
-	if (sl6)
-	{
-		f=6*freq;
-		if (f<limit) k+=sl6/100.0*sin(f*t);
-	}
+	//если поднят второй слайдер (вторая гаромника, в 2 раза выше базовой)
+	if (sl2) { f=2*freq; if (f<limit) k+=sl2/100.0*sin(f*t); }
+	if (sl3) { f=3*freq; if (f<limit) k+=sl3/100.0*sin(f*t); }
+	if (sl4) { f=4*freq; if (f<limit) k+=sl4/100.0*sin(f*t); }
+	if (sl5) { f=5*freq; if (f<limit) k+=sl5/100.0*sin(f*t); }
+	if (sl6) { f=6*freq; if (f<limit) k+=sl6/100.0*sin(f*t); }
 
 
-	//Гў Г¤ГўГ  ГЁ ГЎГ®Г«ГҐГҐ Г°Г Г§Г  Г¬ГҐГ­ГјГёГЁГҐ ГЈГ Г°Г¬Г®Г­ГЁГЄГЁ
+	//в два и более раза меньшие гармоники
 	if(slm2) k+=slm2/100.0*sin(freq/2*t);
 	if(slm3) k+=slm3/100.0*sin(freq/3*t);
 	if(slm4) k+=slm4/100.0*sin(freq/4*t);
@@ -477,17 +451,6 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	if(slm6) k+=slm6/100.0*sin(freq/6*t);
 
 	
-/*for(int i=2; i<2; i++)
-	{
-		k+=Ampl/i*sin(i*freq*t+0.3*i);
-	}
-
-	for(i=2; i<2; i++)
-	{
-		k+=Ampl/i*sin(freq/i*t+0.3*i);
-	}
-*/
-
 	return k *  (slvolume/100.0) * AMP  ;
 }
 
@@ -566,9 +529,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	InitToneData();
 	CDialog::OnInitDialog();
 
-
-
-	OnOK();
+	//OnOK();
 
 	m_sl1.SetScrollRange(SB_CTL,0,100);
 	m_sl2.SetScrollRange(SB_CTL,0,100);
@@ -589,7 +550,6 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	m_slider_total_volume.SetScrollRange(SB_CTL,0, 100);
 
 	if (ini.IsExist())
-//	if (0)
 	{
 
 	m_sl1.SetPos(100-ini.QueryValue("sl1"));
@@ -634,28 +594,26 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	
 
 	SetTimer(0,500,NULL);
-	//SetTimer(1,100,NULL);
 
 	OnButtonMidiOpen();
 
-	SetWindowText("Midi In Piano");
+	//SetWindowText("Midi In Piano");
 
 	if (ini.QueryValue("HideWindow")==1)
 	{
 		ShowWindow(SW_HIDE);
 	}
 
-
-//BOOL SetPriorityClass(
-//  HANDLE hProcess,        // handle to process
-//  DWORD dwPriorityClass   // priority class
-//);
 	HANDLE hProcess=GetCurrentProcess();
 	SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS);
 
 	//HANDLE hThread=GetCurrentThread();
 
 	//SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST);
+	scale=pow(2.0,1.0/m_scale);
+	BASE_A=m_base_a;
+	mode=0;
+
 	
 	return FALSE;
 }
@@ -894,53 +852,11 @@ HCURSOR CDTFM_GeneratorDlg::OnQueryDragIcon()
 
 
 
+//начали режим генерации
 void CDTFM_GeneratorDlg::OnOK() 
 {
-	if (!GetData) return;
-
-	scale=pow(2.0,1.0/m_scale);
-
-	BASE_A=m_base_a;
-
-	mode=0;
-	
-	int channels=1;	//Г·ГЁГ±Г«Г® ГЄГ Г­Г Г«Г®Гў
-	samplerate=SAMPLE_RATE;	//Г·Г Г±ГІГ®ГІГ  Г¤ГЁГ±ГЄГ°ГҐГІГЁГ§Г Г¶ГЁГЁ
-	//ГЇГ® Г§Г ГЄГ®Г­Гі Г¤Г®Г«Г¦Г­Г  ГЎГ»ГІГј ГЄГ ГЄ Г¬ГЁГ­ГЁГ¬ГіГ¬ Гў Г¤ГўГ  Г°Г Г§Г  ГўГ»ГёГҐ Г¬Г ГЄГ±ГЁГ¬Г Г«ГјГ­Г® ГЁГ±ГЇГ®Г«ГјГ§ГіГҐГ¬Г®Г©
-
-	WAVEFORMATEX wform;	//ГґГ®Г°Г¬Г ГІ Г¤Г Г­Г­Г»Гµ ГіГ±ГІГ°Г®Г©Г±ГІГўГ 
-	wform.wFormatTag=WAVE_FORMAT_PCM;	//ГЁГ±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї PCM-Г¤Г Г­Г­Г»
-	wform.nChannels=WORD(channels);			 //Г¬Г®Г­Г® (1 ГЄГ Г­Г Г«)
-	wform.nSamplesPerSec=samplerate;	//Г·Г Г±ГІГ®ГІГ  Г¤ГЁГ±ГЄГ°ГҐГІГЁГ Г§Г Г¶ГЁГЁ
-	wform.nAvgBytesPerSec=samplerate*channels;	//Г±ГЄГ®Г°Г®Г±ГІГј ГЇГ®ГІГ®ГЄГ  Г¤Г Г­Г­Г»Гµ (Г¤Г«Гї Г¬Г®Г­Г®
-	//wform.nBlockAlign=(1*8)/8;	//ГўГ»Г°Г ГўГ­ГЁГўГ Г­ГЁГҐ ГЎГ«Г®ГЄГ  Г¤Г Г­Г­Г»Гµ
-	wform.nBlockAlign=2;	//ГўГ»Г°Г ГўГ­ГЁГўГ Г­ГЁГҐ ГЎГ«Г®ГЄГ  Г¤Г Г­Г­Г»Гµ
-	wform.wBitsPerSample=16;		//Г·ГЁГ±Г«Г® ГЎГЁГІГ®Гў Г­Г  ГўГ»ГЎГ®Г°ГЄГі
-
-	//ГЇГ»ГІГ ГҐГ¬Г±Гї Г®ГІГЄГ°Г»ГІГј wave-device
-	UINT rc=waveOutOpen(&hWaveOut, WAVE_MAPPER, &wform, (DWORD) m_hWnd,0, CALLBACK_WINDOW);
-
-	//Г­ГҐГіГ¤Г Г·Г  ?
-	if (rc) {
-		TextError(rc);
-		return;
-	}
-
-	BUFFER_MAX=m_bufer_total_count;
-	BUFFER_SIZE=m_buffer_size;
-	//waveOutPause(hWaveOut);
-	for(int i=0; i<BUFFER_MAX; i++) AddBuffer(0,0,0, BUFFER_SIZE);
-	//waveOutRestart(hWaveOut);
-
-	m_generate.EnableWindow(false);
-	m_stop.EnableWindow();
-
-	m_buffer_size_edit.EnableWindow(false);
-	m_edit_total_buffer_count.EnableWindow(false);
-	m_amplitude_edit.EnableWindow(false);
-	m_edit_base_a.EnableWindow(false);
-
-	SetFocus();
+if (!GetData) return;
+//SetFocus();
 }
 
 
@@ -1083,6 +999,7 @@ TONEDATA digit[DigitCount]=
 
 BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg) 
 {
+	//блок записан
 	if (pMsg->message == MM_WOM_DONE)
 	{
 		WAVEHDR *wh=(WAVEHDR*) pMsg->lParam;
@@ -1097,6 +1014,7 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 
 		int bufsize=wh->dwBufferLength;
 
+		//если все блоки закончились
 		if (mode==MODE_NEED_CLOSE_WAVEOUT && !BlockCounter)
 		{
 			TextError(waveOutClose(hWaveOut));
@@ -1122,8 +1040,8 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 		delete wh->lpData;
 		delete wh;
 
-		//Г¤Г®ГЎГ ГўГ«ГїГҐГ¬ Гў Г®Г·ГҐГ°ГҐГ¤Гј Г­Г®ГўГ»Г© ГЎГіГґГҐГ°!!!!!!!!!!!!
-		//ГҐГ±Г«ГЁ Г­ГҐ Г­ГіГ¦Г­Г® Г§Г ГЄГ°Г»ГўГ ГІГј
+		//добавляем в очередь новый буфер!!!!!!!!!!!!
+		//если не нужно закрывать
 		if (mode==0)
 		{
 			AddBuffer();
@@ -1135,7 +1053,8 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 
 
 	
-	if (pMsg->message == WM_KEYDOWN && hWaveOut)
+	//if (pMsg->message == WM_KEYDOWN && hWaveOut)
+	if (pMsg->message == WM_KEYDOWN)
 	{
 
 		// (nChar==VK_UP)
@@ -1184,7 +1103,7 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 		return 0;
 	}
 
-	if (pMsg->message == WM_KEYUP && hWaveOut)
+	if (pMsg->message == WM_KEYUP) // && hWaveOut)
 	{
 		//OnChar(nChar,0,0);
 		for(int i=0; i<256; i++)
@@ -1359,106 +1278,17 @@ extern DWORD ASIO_PROC_BUFLEN;
 
 void CDTFM_GeneratorDlg::AddBuffer()
 {
-	WAVEHDR * wh1=new WAVEHDR;
+/*	WAVEHDR * wh1=new WAVEHDR;
 	WAVEHDR& wh=*wh1;
 
-	int size=BUFFER_SIZE;
-	BYTE *plbuf=new BYTE[size];
+//	int size=BUFFER_SIZE;
+//	BYTE *plbuf=new BYTE[size];
 
 
-	ZeroMemory(plbuf,size);
+//	ZeroMemory(plbuf,size);
 
 	double m=0;
 
-	//MaxSound=0;
-	//Overload=0;
-
-	/*
-	for(int i=0; i<size; i+=2, _time_++)
-	{
-		double t=_time_*2*PI/samplerate;
-
-		m=0;
-		for(int k=0; k<256; k++) 
-		{
-			if (Keys[k].press) 
-			{
-				double freq=BASE_A*pow(scale,k-60+3);
-				
-
-				int flag_one=0;
-
-				double freq_actual=0;
-
-				static double phase;
-				phase=0;
-				m+=Piano(Keys[k].Ampl,freq,t,phase, flag_one, freq_actual);
-				//m+=0;
-
-				if (flag_one==1)
-				{
-					if (Keys[k].Ampl)
-					{
-						freq_1=freq_actual;
-						freq_1_count++;
-					}
-
-				}
-			}
-		}
-
-
-		//m*=2;
-
-		if (m>32767) 
-		{
-			m=32767;
-			Overload=true;
-		}
-
-		if (m < - 32767) 
-		{
-			m = -32767;
-			Overload=true;
-		}
-
-		if (m>MaxSound) MaxSound=m;
-
-		short int z=(short int)m;
-
-		BYTE *s=(BYTE*)&z;
-
-		plbuf[i+0]=s[0];
-		plbuf[i+1]=s[1];
-	}
-
-
-	*/
-
-//	double SumAmpl=0;
-
-	for(int i=0; i<256; i++)
-	{
-//		SumAmpl+=Keys[i].Ampl;
-
-//		if (Keys[i].Ampl>0) 
-//		{
-//			Keys[i].Ampl-=Keys[i].decrement;
-//		}
-
-		if (Keys[i].Ampl<=0) 
-		{
-			Keys[i].Ampl=0;
-			Keys[i].decrement=0;
-			Keys[i].press=0;
-			Keys[i].t=0;
-		}
-	}
-	
-//	if (fabs(SumAmpl)<1) 
-//	{
-//		_time_=0;
-//	}
 
 	wh.dwFlags=0;
 	wh.dwBufferLength=size;
@@ -1480,11 +1310,11 @@ void CDTFM_GeneratorDlg::AddBuffer()
 
 	m_blockcounter=BlockCounter;
 
-	//ГҐГ±Г«ГЁ ГЈГҐГ­ГҐГ°ГЁГ°ГіГҐГІГ±Гї Г·ГЁГ±ГІГ® Г±ГЁГ­ГіГ±Г®ГЁГ¤Г Г«ГјГ­Г»Г© Г±ГЁГЈГ­Г Г®
+	//если генерируется чисто синусоидальный сигнао
 	if (freq_1_count==int(ASIO_PROC_BUFLEN/2)) 
 	{
 		m_edit_freq=freq_1;
-		m_wave_len=330.0/freq_1;//Г¤Г«ГЁГ­Г  ГўГ®Г«Г­Г»
+		m_wave_len=330.0/freq_1;//длина волны
 	}
 	else 
 	{
@@ -1498,6 +1328,7 @@ void CDTFM_GeneratorDlg::AddBuffer()
 	{
 		ini.SetValue(0,"HideWindow");
 	}
+	*/
 }
 
 
@@ -1717,13 +1548,6 @@ void CDTFM_GeneratorDlg::OnStop()
 
 	if (BlockCounter==0)
 	{
-		//m_generate.EnableWindow();
-		//m_stop.EnableWindow(false);
-
-		//m_buffer_size_edit.ShowWindow(SW_HIDE);
-		//m_edit_total_buffer_count.ShowWindow(0);
-
-
 		SetFocus();
 		TextError(waveOutClose(hWaveOut));
 
@@ -2104,7 +1928,6 @@ void DrawButton(CDC *dc, int x, int y, int start)
 {
 	CBrush br_level,br2;
 	br2.CreateSolidBrush(RGB(250,250,250));
-	//br_level.CreateSolidBrush(RGB(255*MaxSound/32768.0,0,0));
 	br_level.CreateSolidBrush(RGB(255,0,0));
 	dc->SelectObject(br_level);
 
@@ -2171,19 +1994,7 @@ void DrawButton(CDC *dc, int x, int y, int start)
 	int Z[]={0,2,4,5,7,9,11};
 	int R[]={1,3,6,8,10};
 
-	/*CFont font;
-	LOGFONT lf={0};
-	lf.lfWidth=L-5;
-	lf.lfHeight=lf.lfWidth*2;
-	font.CreateFontIndirect(&lf);
-	dc->SelectObject(font);
-
-	dc->SetBkMode(TRANSPARENT);
-	*/
-
 	start=12;
-
-//	CBrush * oldbr=dc->SelectObject(&br_red);
 
 	for(int T=0; T<10; T++)
 	{
@@ -2215,7 +2026,6 @@ void DrawButton(CDC *dc, int x, int y, int start)
 				dc->Ellipse(x1+3, y+H-1, x1+L-6, y+H-8);
 			}
 
-			//dc->TextOut(x1+1,y+H-lf.lfHeight,"A");
 		}
 
 		int p=0;
@@ -2301,6 +2111,19 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	GetData;
 
+	//гашение клавиш
+	for(int i=0; i<256; i++)
+	{
+		if (Keys[i].Ampl<=0) 
+		{
+			Keys[i].Ampl=0;
+			Keys[i].decrement=0;
+			Keys[i].press=0;
+			Keys[i].t=0;
+		}
+	}
+
+
 	CString s=m_edit_modilation;
 	
 	
@@ -2313,7 +2136,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	if (NeedUpdateMidiEvent)
 	{
-		//Г®ГЎГ­Г®ГўГ«ГїГҐГ¬ ГҐГ±Г«ГЁ ГҐГ±ГІГј ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї
+		//обновляем если есть изменения
 		if (m_edit!=m_edit_list_midi)
 		{
 			m_edit=m_edit_list_midi;
@@ -2348,10 +2171,10 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	m_slider_decrement_double=AMPLITUDE_DECREMENT;
 
 
+	//перересовка пианоролла
 	CDC *pdc=GetDC();
 	DrawButton(pdc, 0,0, 60);
 	ReleaseDC(pdc);
-
 
 
 	if (ini.QueryValue("HideWindow")) ShowWindow(SW_HIDE);
@@ -2411,14 +2234,14 @@ void CDTFM_GeneratorDlg::OnButtonMidiClose()
 
 		if (err!=MMSYSERR_NOERROR) 
 		{
-			m_midi_name="ГЋГёГЁГЎГЄГ  midiInStop";
+			m_midi_name="Ошибка midiInStop";
 			return;
 		}
 
 		err=midiInClose(hmidiIn);
 		if (err!=MMSYSERR_NOERROR) 
 		{
-			m_midi_name="ГЋГёГЁГЎГЄГ  midiInClose";
+			m_midi_name="Ошибка midiInClose";
 		}
 
 		m_midi_close.EnableWindow(false);
@@ -2462,7 +2285,7 @@ void CDTFM_GeneratorDlg::OnButtonMidiClose()
 
 
 
-//ГЇГ°ГЁГҐГ¬ Г¬ГЁГ¤ГЁ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ©
+//прием миди сообщений
 void CALLBACK MidiInProc(
    HMIDIIN   hMidiIn,
    UINT      wMsg,
@@ -2478,8 +2301,6 @@ void CALLBACK MidiInProc(
 
 		if (mm.b[0] != 254)
 		{
-			//GetData;
-			
 			if (NeedUpdateMidiEvent)
 			{
 				CString s;
@@ -2508,7 +2329,7 @@ void CALLBACK MidiInProc(
 			{
 				if (z==11 && nChar==1)
 				{
-					//??????Г‚ГЂГ†ГЌГЋ
+					//??????ВАЖНО
 					//step_modulation=ModulationWheel * Volume/127.0/2048.0;
 					step_modulation=ModulationWheel * Volume/127.0/512;
 					m_modulation_wheel_2=Volume;
@@ -2611,7 +2432,7 @@ void CDTFM_GeneratorDlg::OnButtonMidiOpen()
 
 	m_midi_open.EnableWindow(false);
 	m_midi_close.EnableWindow(true);
-	OnOK();
+	//OnOK();
 	SetFocus();
 
 	PutData;
@@ -3221,7 +3042,7 @@ void CDTFM_GeneratorDlg::SetFocus()
 void MidiKeyPress2(BYTE key, BYTE value)
 {
 
-	if (hWaveOut_global==NULL) return;
+	//if (hWaveOut_global==NULL) return;
 
 	if (value!=0)
 	{
@@ -3235,7 +3056,7 @@ void MidiKeyPress2(BYTE key, BYTE value)
 		Keys[key].Ampl=1;
 
 		Keys[key].decrement=0;
-		Keys[key].t=0;	//ГўГ°ГҐГ¬Гї ГґГіГ­ГЄГ¶ГЁГЁ sin
+		Keys[key].t=0;	//время функции sin
 		
 	}
 	else 
@@ -3263,7 +3084,7 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 
 			CStdioFile file;
 
-			//Г­Г Г¦Г Г«ГЁ Г­Г  ГЄГ«Г ГўГЁГёГі
+			//нажали на клавишу
 			if (value>0)
 			{
 				if (file.Open("notes.h", file.modeWrite))
@@ -3271,7 +3092,7 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 					file.SeekToEnd();
 
 					CString s;
-					//Г§Г ГЇГЁГ±Г»ГўГ ГҐГ¬ ГўГ°ГҐГ¬Гї Г®ГІ Г®ГІГЇГіГ±ГЄГ Г­ГЁГї ГЇГ°ГҐГ¤Г»Г¤ГіГ№ГҐГ© Г¤Г® Г­Г Г¦Г ГІГЁГї ГЅГІГ®Г©
+					//записываем время от отпускания предыдущей до нажатия этой
 					s.Format("{0, %i},\n", md.time-last_time);
 					
 					file.WriteString(s);
@@ -3284,7 +3105,7 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 			}
 
 
-			//Г®ГІГЇГіГ±ГІГЁГ«ГЁ ГЄГ«Г ГўГЁГёГі
+			//отпустили клавишу
 			if (value==0)
 			{
 
@@ -3294,7 +3115,7 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 
 
 					CString s;
-					//Г§Г ГЇГЁГ±Г»ГўГ ГҐГ¬ Г¤Г«ГЁГІГҐГ«ГјГ­Г®Г±ГІГј Г­Г Г¦Г ГІГЁГї ГЄГ«Г ГўГЁГёГЁ
+					//записываем длительность нажатия клавиши
 					s.Format("{%i, %i},",md.key, md.time-last_time);
 					
 					file.WriteString(s);
@@ -3453,4 +3274,3 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 	
 	CDialog::OnMouseMove(nFlags, point);
 }
-
