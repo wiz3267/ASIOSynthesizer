@@ -6,12 +6,8 @@ DTFM_Generator.opt
 DTFM_Generator.opt
 DTFM_Generator.ncb
 Debug/vc60.idb
-*.obj
 Debug/DTFM_Generator.pch
-Debug/vc60.idb
 Debug/vc60.pdb
-*.obj
 *.pch
-Debug/vc60.idb
 Release/vc60.idb
 ASIOSynthesizer_debug.exe
