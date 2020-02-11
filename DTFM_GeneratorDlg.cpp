@@ -8,6 +8,8 @@
 #include <math.h>
 #include "inifile.h"
 
+int global_asio_index=0;
+
 const double PI=3.1415926;
 
 int NeedUpdateMidiEvent=1;	//обновлять Midi сообщения
@@ -26,11 +28,6 @@ double scale;//=pow(2.0,1.0/12.0);
 //double scale;//=pow(2.0,1.0/SCALE);
 
 
-//TIME_CRITICAL
-//#import "D:\Program Files\Microsoft Visual Studio\VC98\Lib\winmm.lib"
-
-
-HWAVEOUT hWaveOut_global=0;
 CString m_amplitude_global="";
 
 void MidiKeyPress2(BYTE key, BYTE value);
@@ -85,14 +82,16 @@ struct MIDI_DATA
 
 double MaxSound=0;	//максимальный уровень звука на данный момент (до 32768)
 
+
+//получить данные из формы в переменные
 #define GetData UpdateData(true)
+
+//положить (обновить) данные из переменных в форму
 #define PutData UpdateData(false)
 
 double Piano(double Ampl, double freq, double t, double phase);
 
 static int _time_;
-
-const double AMPLITUDE_START=6000;
 
 double	AMPLITUDE_DECREMENT;//5/2048.0;
 
@@ -101,8 +100,6 @@ int IdMidiOpen=-1;
 int 
 	SAMPLE_RATE=44100;
 
-//	BUFFER_MAX=60,
-//	BUFFER_SIZE=200;
 
 struct KEY
 {
@@ -127,13 +124,13 @@ int KEY_X=10;
 int KEY_Y=200;
 
 
-struct _KEYSA_
+struct KEYSA
 {
 	BYTE code;
 	char * help;
 };
 
-_KEYSA_ Keysa[]=
+KEYSA Keysa[]=
 {
 	{9, "TAB"},
 	{'Q', "Q"},
@@ -226,29 +223,21 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 {
 
 	//{{AFX_DATA_INIT(CDTFM_GeneratorDlg)
-	i_buffer_count = 0;
-	m_blockcounter = 0;
 	m_edit = _T("");
 	m_midi_open_str = _T("3");
 	m_amplitude = _T("32767");
 	m_edit_freq = 0.0;
-	m_bufer_total_count = 20;
-	m_buffer_size = 200;
 	m_midi_name = _T("");
 	m_slider_decrement_double = 0.0;
-	m_base_a = 440.0;
-	m_scale = 12;
 	m_wave_len = 0.0;
 	m_edit_modilation = _T("1");
 	m_modulation_wheel = 0;
-	m_asio_device = 0;
+	m_asio_device = -1;
+	m_edit_scale = _T("12");
+	m_string_base_a = _T("440");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	BlockCounter=0;
-	hWaveOut=0;
-	NeedClose=false;
-	CurrentDigit=' ';
 }
 
 void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
@@ -259,9 +248,6 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_BASE_A, m_edit_base_a);
 	DDX_Control(pDX, IDC_EDIT_STATUS_TEXT, m_status_text);
 	DDX_Control(pDX, IDC_AMPLITUDE, m_amplitude_edit);
-	DDX_Control(pDX, IDC_EDIT_TOTAL_BUFFER_COUNT, m_edit_total_buffer_count);
-	DDX_Control(pDX, IDC_EDIT_BUFFER_SIZE, m_buffer_size_edit);
-	DDX_Control(pDX, IDC_EDIT_BUFFER_COUNT, m_buffer_count);
 	DDX_Control(pDX, IDC_SLIDERM6, m_slm6);
 	DDX_Control(pDX, IDC_SLIDERM5, m_slm5);
 	DDX_Control(pDX, IDC_SLIDER6, m_sl6);
@@ -281,23 +267,18 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SLIDER3, m_sl3);
 	DDX_Control(pDX, IDC_SLIDER2, m_sl2);
 	DDX_Control(pDX, IDC_SLIDER1, m_sl1);
-	DDX_Control(pDX, IDC_STOP, m_stop);
-	DDX_Control(pDX, IDOK, m_generate);
-	DDX_Text(pDX, IDC_EDIT_BUFFER_COUNT, i_buffer_count);
 	DDX_Text(pDX, IDC_EDIT1, m_edit);
 	DDX_Text(pDX, IDC_EDIT_MIDI_OPEN, m_midi_open_str);
 	DDX_Text(pDX, IDC_AMPLITUDE, m_amplitude);
 	DDX_Text(pDX, IDC_EDIT_FREQ, m_edit_freq);
-	DDX_Text(pDX, IDC_EDIT_TOTAL_BUFFER_COUNT, m_bufer_total_count);
-	DDX_Text(pDX, IDC_EDIT_BUFFER_SIZE, m_buffer_size);
 	DDX_Text(pDX, IDC_EDIT_MIDI_NAME2, m_midi_name);
 	DDX_Text(pDX, IDC_EDIT_SLIDER_DECREMENT, m_slider_decrement_double);
-	DDX_Text(pDX, IDC_EDIT_BASE_A, m_base_a);
-	DDX_Text(pDX, IDC_EDIT_SCALE, m_scale);
 	DDX_Text(pDX, IDC_EDIT_WAVE_LEN, m_wave_len);
 	DDX_Text(pDX, IDC_EDIT_MODULATION, m_edit_modilation);
 	DDX_Text(pDX, IDC_EDIT_MODULATION_WHEEL, m_modulation_wheel);
 	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE, m_asio_device);
+	DDX_Text(pDX, IDC_EDIT_SCALE, m_edit_scale);
+	DDX_Text(pDX, IDC_EDIT_BASE_A, m_string_base_a);
 	//}}AFX_DATA_MAP
 }
 
@@ -307,7 +288,6 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_CLOSE()
-	ON_BN_CLICKED(IDC_STOP, OnStop)
 	ON_WM_CREATE()
 	ON_BN_CLICKED(IDC_PLAY_STRING, OnPlayString)
 	ON_BN_CLICKED(IDC_ABORT, OnAbort)
@@ -319,10 +299,7 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_PLAY_WRITEN, OnButtonPlayWriten)
 	ON_BN_CLICKED(IDC_BUTTON_RESET, OnButtonReset)
 	ON_WM_MOVE()
-	ON_BN_CLICKED(IDC_CLOSE, OnClose2)
-	ON_WM_CHAR()
 	ON_BN_CLICKED(IDC_STOP_PLAY, OnStopPlay)
-	ON_BN_CLICKED(IDC_HIDE, OnHide)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	//}}AFX_MSG_MAP
@@ -529,7 +506,9 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	InitToneData();
 	CDialog::OnInitDialog();
 
-	//OnOK();
+	m_asio_device=global_asio_index;
+
+	PutData;
 
 	m_sl1.SetScrollRange(SB_CTL,0,100);
 	m_sl2.SetScrollRange(SB_CTL,0,100);
@@ -552,23 +531,23 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	if (ini.IsExist())
 	{
 
-	m_sl1.SetPos(100-ini.QueryValue("sl1"));
-	m_sl2.SetPos(100-ini.QueryValue("sl2"));
-	m_sl3.SetPos(100-ini.QueryValue("sl3"));
-	m_sl4.SetPos(100-ini.QueryValue("sl4"));
-	m_sl5.SetPos(100-ini.QueryValue("sl5"));
-	m_sl6.SetPos(100-ini.QueryValue("sl6"));
+		m_sl1.SetPos(100-ini.QueryValue("sl1"));
+		m_sl2.SetPos(100-ini.QueryValue("sl2"));
+		m_sl3.SetPos(100-ini.QueryValue("sl3"));
+		m_sl4.SetPos(100-ini.QueryValue("sl4"));
+		m_sl5.SetPos(100-ini.QueryValue("sl5"));
+		m_sl6.SetPos(100-ini.QueryValue("sl6"));
 
 
-	m_slm2.SetPos(100-ini.QueryValue("slm2"));
-	m_slm3.SetPos(100-ini.QueryValue("slm3"));
-	m_slm4.SetPos(100-ini.QueryValue("slm4"));
-	m_slm5.SetPos(100-ini.QueryValue("slm5"));
-	m_slm6.SetPos(100-ini.QueryValue("slm6"));
+		m_slm2.SetPos(100-ini.QueryValue("slm2"));
+		m_slm3.SetPos(100-ini.QueryValue("slm3"));
+		m_slm4.SetPos(100-ini.QueryValue("slm4"));
+		m_slm5.SetPos(100-ini.QueryValue("slm5"));
+		m_slm6.SetPos(100-ini.QueryValue("slm6"));
 
 
-	m_slider_decrement.SetPos(100-ini.QueryValue("sldecrement"));
-	m_slider_total_volume.SetPos(ini.QueryValue("sltotalvolume"));
+		m_slider_decrement.SetPos(100-ini.QueryValue("sldecrement"));
+		m_slider_total_volume.SetPos(ini.QueryValue("sltotalvolume"));
 
 	}
 	else
@@ -593,11 +572,10 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	}
 	
 
-	SetTimer(0,500,NULL);
+	SetTimer(0,500,NULL);	//для обновления отрисовки клавиш
+	SetTimer(2,50,NULL);	//для гашений клавиш
 
 	OnButtonMidiOpen();
-
-	//SetWindowText("Midi In Piano");
 
 	if (ini.QueryValue("HideWindow")==1)
 	{
@@ -608,13 +586,8 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS);
 
 	//HANDLE hThread=GetCurrentThread();
-
 	//SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST);
-	scale=pow(2.0,1.0/m_scale);
-	BASE_A=m_base_a;
-	mode=0;
 
-	
 	return FALSE;
 }
 
@@ -855,8 +828,6 @@ HCURSOR CDTFM_GeneratorDlg::OnQueryDragIcon()
 //начали режим генерации
 void CDTFM_GeneratorDlg::OnOK() 
 {
-if (!GetData) return;
-//SetFocus();
 }
 
 
@@ -999,69 +970,10 @@ TONEDATA digit[DigitCount]=
 
 BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	//блок записан
-	if (pMsg->message == MM_WOM_DONE)
-	{
-		WAVEHDR *wh=(WAVEHDR*) pMsg->lParam;
-		TextError(waveOutUnprepareHeader(hWaveOut, wh,
-			sizeof(WAVEHDR)));
-		
-		BlockCounter--;
-
-		//GetData;
-		i_buffer_count=BlockCounter;
-		//PutData;
-
-		int bufsize=wh->dwBufferLength;
-
-		//если все блоки закончились
-		if (mode==MODE_NEED_CLOSE_WAVEOUT && !BlockCounter)
-		{
-			TextError(waveOutClose(hWaveOut));
-			hWaveOut=0;
-			
-			//????????????
-			m_stop.EnableWindow(false);
-			m_generate.EnableWindow(true);
-
-			m_buffer_size_edit.EnableWindow(true);
-			m_edit_total_buffer_count.EnableWindow(true);
-			m_amplitude_edit.EnableWindow(true);
-			m_edit_base_a.EnableWindow(true);
-
-			
-			SetFocus();
-		}
-
-		if (BlockCounter==0 && NeedClose==true) 
-		{
-			OnClose();
-		}
-		delete wh->lpData;
-		delete wh;
-
-		//добавляем в очередь новый буфер!!!!!!!!!!!!
-		//если не нужно закрывать
-		if (mode==0)
-		{
-			AddBuffer();
-		}
-
-	}
-
 	UINT nChar=pMsg->wParam;
 
-
-	
-	//if (pMsg->message == WM_KEYDOWN && hWaveOut)
 	if (pMsg->message == WM_KEYDOWN)
 	{
-
-		// (nChar==VK_UP)
-		//
-		//etKeys(0, 4000);
-		//}
-
 
 		if (nChar==VK_LEFT)
 		{
@@ -1087,10 +999,11 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 
 		}
 
-		//OnChar(nChar,0,0);
 		for(int i=0; i<256; i++)
 		{
 			if (Keysa[i].code==0) break;
+
+
 			if (Keysa[i].code==nChar)
 			{
 				int r=i+BaseKeyboard;
@@ -1105,7 +1018,6 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 
 	if (pMsg->message == WM_KEYUP) // && hWaveOut)
 	{
-		//OnChar(nChar,0,0);
 		for(int i=0; i<256; i++)
 		{
 			if (Keysa[i].code==0) break;
@@ -1239,28 +1151,27 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		t+=K;
 
 
-		static double CorrectAmplitude=1;
-
-		m*=CorrectAmplitude;
+		//static double CorrectAmplitude=1;
+		//m*=CorrectAmplitude;
 
 		if (m>32767) 
 		{
 			m=32767;
 			Overload=true;
-			CorrectAmplitude-=0.01;
+			//CorrectAmplitude-=0.01;
 		}
 
 		if (m < - 32767) 
 		{
 			m = -32767;
 			Overload=true;
-			CorrectAmplitude-=0.01;
+			//CorrectAmplitude-=0.01;
 		}
 
 		if (Overload) 
 		{
 
-			if (CorrectAmplitude<0) CorrectAmplitude=0.1;
+			//if (CorrectAmplitude<0) CorrectAmplitude=0.1;
 		}
 
 		if (m>MaxSound) MaxSound=m;
@@ -1278,63 +1189,7 @@ extern DWORD ASIO_PROC_BUFLEN;
 
 void CDTFM_GeneratorDlg::AddBuffer()
 {
-/*	WAVEHDR * wh1=new WAVEHDR;
-	WAVEHDR& wh=*wh1;
-
-//	int size=BUFFER_SIZE;
-//	BYTE *plbuf=new BYTE[size];
-
-
-//	ZeroMemory(plbuf,size);
-
-	double m=0;
-
-
-	wh.dwFlags=0;
-	wh.dwBufferLength=size;
-	wh.dwLoops=1;
-	wh.lpData=(char*)plbuf;
-	wh.dwUser='b';
-
-	int rc;
-	
-	rc=waveOutPrepareHeader(hWaveOut, &wh, sizeof(wh));
-	TextError(rc);
-
-	rc=waveOutWrite(hWaveOut, &wh, sizeof(wh));
-	TextError(rc);
-
-	BlockCounter++;
-
-//	GetData;
-
-	m_blockcounter=BlockCounter;
-
-	//если генерируется чисто синусоидальный сигнао
-	if (freq_1_count==int(ASIO_PROC_BUFLEN/2)) 
-	{
-		m_edit_freq=freq_1;
-		m_wave_len=330.0/freq_1;//длина волны
-	}
-	else 
-	{
-		m_edit_freq=-1;
-		m_wave_len=-1;
-	}
-	
-	PutData;
-
-	if (Keys[60].press && Keys[60+12].press)
-	{
-		ini.SetValue(0,"HideWindow");
-	}
-	*/
 }
-
-
-
-
-
 
 
 
@@ -1409,31 +1264,6 @@ void CDTFM_GeneratorDlg::AddBuffer()
 
 void CDTFM_GeneratorDlg::AddBuffer(double freq1, double freq2, char sym, int size)
 {
-	WAVEHDR * wh1=new WAVEHDR;
-	WAVEHDR& wh=*wh1;
-
-//	int size=1024;
-	BYTE *plbuf=new BYTE[size];
-
-	for(int i=0; i<size; i++)
-	{
-		plbuf[i]=0;
-	}
-
-	wh.dwFlags=0;//WHDR_BEGINLOOP | WHDR_ENDLOOP;
-	wh.dwBufferLength=size;
-	wh.dwLoops=1;
-	wh.lpData=(char*)plbuf;
-	wh.dwUser=sym;
-
-	int rc=waveOutPrepareHeader(hWaveOut, &wh, sizeof(wh));
-	TextError(rc);
-
-	rc=waveOutWrite(hWaveOut, &wh, sizeof(wh));
-
-	TextError(rc);
-
-	BlockCounter++;
 }
 
 
@@ -1474,18 +1304,8 @@ void CDTFM_GeneratorDlg::AddBuffer(double freq1, double freq2, char sym, int siz
 
 void CDTFM_GeneratorDlg::OnClose() 
 {
-	if (!BlockCounter) 
-	{
-
-		OnButtonMidiClose();
-
-		ExitDialog();
-	}
-	else
-	{
-		mode=MODE_NEED_CLOSE_WAVEOUT;
-		NeedClose=true;
-	}
+	OnButtonMidiClose();
+	ExitDialog();
 }
 
 
@@ -1536,24 +1356,6 @@ void CDTFM_GeneratorDlg::OnClose()
 
 
 
-
-
-void CDTFM_GeneratorDlg::OnStop() 
-{
-	if (BlockCounter) mode=MODE_NEED_CLOSE_WAVEOUT;
-
-	GetData;
-	i_buffer_count=BlockCounter;
-	PutData;
-
-	if (BlockCounter==0)
-	{
-		SetFocus();
-		TextError(waveOutClose(hWaveOut));
-
-		hWaveOut=0;
-	}
-}
 
 
 
@@ -1926,9 +1728,14 @@ void CDTFM_GeneratorDlg::InitToneData()
 
 void DrawButton(CDC *dc, int x, int y, int start)
 {
-	CBrush br_level,br2;
+	CBrush br_level,br2, brush_red;
+
 	br2.CreateSolidBrush(RGB(250,250,250));
-	br_level.CreateSolidBrush(RGB(255,0,0));
+
+	brush_red.CreateSolidBrush(RGB(255,0,0));
+	
+	br_level.CreateSolidBrush(RGB(0,255,0));
+	
 	dc->SelectObject(br_level);
 
 	int L;
@@ -1940,9 +1747,11 @@ void DrawButton(CDC *dc, int x, int y, int start)
 	L=300;
 	H=10;
 
+	//если перегрузка
 	if (Overload)
 	{
-		dc->SelectObject(br_level);
+		//красный квадратик
+		dc->SelectObject(brush_red);
 		dc->Rectangle(x+L+2,y,x+L+2+10,y+H);	
 	}
 	else
@@ -1968,6 +1777,8 @@ void DrawButton(CDC *dc, int x, int y, int start)
 			|| KeysOld[i].Ampl != Keys[i].Ampl) change=true;
 	}
 
+	//если есть изменения продолжим иначе возврат
+	//для экономии ресурсов
 	if (change)
 	{
 		for(i=0; i<256; i++) KeysOld[i]=Keys[i];
@@ -2111,20 +1922,29 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	GetData;
 
-	//гашение клавиш
-	for(int i=0; i<256; i++)
+	if (nIDEvent==2)
 	{
-		if (Keys[i].Ampl<=0) 
+		//гашение клавиш
+		for(int i=0; i<256; i++)
 		{
-			Keys[i].Ampl=0;
-			Keys[i].decrement=0;
-			Keys[i].press=0;
-			Keys[i].t=0;
+			if (Keys[i].Ampl<=0) 
+			{
+				Keys[i].Ampl=0;
+				Keys[i].decrement=0;
+				Keys[i].press=0;
+				Keys[i].t=0;
+			}
 		}
 	}
 
 
 	CString s=m_edit_modilation;
+
+	double m_scale=atoi(m_edit_scale.GetBuffer(0));
+	scale=pow(2.0,1.0/m_scale);
+
+	double m_base_a=atoi(m_string_base_a.GetBuffer(0));
+	BASE_A=m_base_a;
 	
 	
 	double modul=strtod(s.GetBuffer(0),NULL);
@@ -2144,7 +1964,6 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 		}
 	}
 
-	hWaveOut_global=hWaveOut;
 	m_amplitude_global=m_amplitude;
 
 
@@ -2171,14 +1990,13 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	m_slider_decrement_double=AMPLITUDE_DECREMENT;
 
 
+	PutData;
+
 	//перересовка пианоролла
 	CDC *pdc=GetDC();
 	DrawButton(pdc, 0,0, 60);
 	ReleaseDC(pdc);
 
-
-	if (ini.QueryValue("HideWindow")) ShowWindow(SW_HIDE);
-	else ShowWindow(SW_SHOW);
 
 	CDialog::OnTimer(nIDEvent);
 
@@ -2253,8 +2071,6 @@ void CDTFM_GeneratorDlg::OnButtonMidiClose()
 		PutData;
 
 		hmidiIn=NULL;
-
-		OnStop();
 
 	}
 	
@@ -2377,7 +2193,7 @@ void CALLBACK MidiInProc(
 
 
 
-
+//открытие миди-устройства
 void CDTFM_GeneratorDlg::OnButtonMidiOpen() 
 {
 	GetData;
@@ -2870,14 +2686,7 @@ void CDTFM_GeneratorDlg::OnButtonReset()
 
 void CDTFM_GeneratorDlg::OnMove(int x, int y) 
 {
-//	CDialog::OnMove(x, y);
 	
-	
-}
-
-void CDTFM_GeneratorDlg::OnClose2() 
-{
-	OnClose();
 }
 
 void CDTFM_GeneratorDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
@@ -2932,8 +2741,6 @@ void CDTFM_GeneratorDlg::OnStopPlay()
 
 	KillTimer(5555);
 }
-
-
 
 
 
@@ -3041,12 +2848,12 @@ void CDTFM_GeneratorDlg::SetFocus()
 
 void MidiKeyPress2(BYTE key, BYTE value)
 {
-
-	//if (hWaveOut_global==NULL) return;
-
 	if (value!=0)
 	{
+		//if (Keys[key].press==true) return;
+
 		Keys[key].press=true;
+
 		Keys[key].Ampl=atoi(m_amplitude_global)*value/127.0;
 
 		//????
@@ -3166,18 +2973,11 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 
 
 
-
-
-
-
-
-void CDTFM_GeneratorDlg::OnHide() 
+/*void CDTFM_GeneratorDlg::OnHide() 
 {
 	ini.SetValue(1,"HideWindow");
 	ShowWindow(SW_HIDE);	
-}
-
-
+}*/
 
 
 
@@ -3207,9 +3007,13 @@ void CDTFM_GeneratorDlg::OnHide()
 
 int MouseMove=FALSE;
 
+//отработка нажатия левой клавиши мыши
+//нужно начать воспроизведение звука
+//если курсор попадает в зону пианоролла
 void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	Overload=false;
+
 	CDialog::OnLButtonDown(nFlags, point);
 
 	if (point.y<KEY_Y) return;
@@ -3239,38 +3043,23 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 			MouseMove=FALSE;
 			return;
 		}
+
 		Keys[key_real].press=TRUE;
 		Keys[key_real].Ampl=atoi(m_amplitude_global);
 		Keys[key_real].decrement=AMPLITUDE_DECREMENT;
 		Keys[key_real].t=0;
 	}
 
-	//OnMouseMove(nFlags,point);
 }
 
 
 void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point) 
 {
-
-	//int KEY_L=14;
-	//int KEY_H=65;
-
-	//int KEY_X=10;
-	//int KEY_Y=200;
-
-
-	//CString s;
-	//s.Format("%i:%i %i", point.x, point.y, (point.x-KEY_X)/KEY_L);
-
-	//m_status_text.SetWindowText(s);
-
-	//??????????????????
 	if (nFlags&MK_LBUTTON)
 	{
 		MouseMove=true;
 		OnLButtonDown(nFlags, point);
 	}
-	
-	
+
 	CDialog::OnMouseMove(nFlags, point);
 }

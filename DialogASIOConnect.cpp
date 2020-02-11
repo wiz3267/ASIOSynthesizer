@@ -57,10 +57,15 @@ BOOL CDialogASIOConnect::OnInitDialog()
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
+extern int global_asio_index;
+
 void CDialogASIOConnect::OnOK() 
 {
 	//EndDialog(TRUE);
 	UpdateData(1);
+	
+	global_asio_index=m_asio_index;
+
 	int res=main(m_asio_index,0);
 	EndDialog(res);
 	
@@ -76,8 +81,9 @@ void CDialogASIOConnect::OnClose()
 void CDialogASIOConnect::OnTimer(UINT nIDEvent) 
 {
 	KillTimer(1);
-	int res=main(1,0);	
-	EndDialog(res);
+	global_asio_index=1;
+	
+	EndDialog(main(global_asio_index,0));
 
 	CDialog::OnTimer(nIDEvent);
 }

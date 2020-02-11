@@ -22,10 +22,7 @@ public:
 	void TextError(MMRESULT);
 	void ExitDialog();
 	//void OnChar(UINT sym);
-	int BlockCounter;
 	UINT samplerate;
-//	WAVEHDR	wavehdr[BUFFER_MAX]
-	char CurrentDigit;
 
 	#define MODE_NEED_CLOSE_WAVEOUT 1	
 	int mode;
@@ -78,12 +75,12 @@ public:
 	UINT	m_buffer_size;
 	CString	m_midi_name;
 	double	m_slider_decrement_double;
-	double	m_base_a;
-	int		m_scale;
 	double	m_wave_len;
 	CString	m_edit_modilation;
 	int		m_modulation_wheel;
 	int		m_asio_device;
+	CString	m_edit_scale;
+	CString	m_string_base_a;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -109,7 +106,6 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	virtual void OnOK();
 	afx_msg void OnClose();
-	afx_msg void OnStop();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnPlayString();
 	afx_msg void OnAbort();
