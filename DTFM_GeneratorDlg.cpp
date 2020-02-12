@@ -237,6 +237,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_edit_scale = _T("12");
 	m_string_base_a = _T("440");
 	m_modulation_amplitude = _T("10000");
+	m_string_status_text = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -284,6 +285,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SCALE, m_edit_scale);
 	DDX_Text(pDX, IDC_EDIT_BASE_A, m_string_base_a);
 	DDX_Text(pDX, IDC_EDIT_MODULATION_FREQ, m_modulation_amplitude);
+	DDX_Text(pDX, IDC_EDIT_STATUS_TEXT, m_string_status_text);
 	//}}AFX_DATA_MAP
 }
 
@@ -307,6 +309,11 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_BN_CLICKED(IDC_STOP_PLAY, OnStopPlay)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
+	ON_EN_SETFOCUS(IDC_EDIT_MODULATION, OnSetfocusEditModulation)
+	ON_EN_KILLFOCUS(IDC_EDIT_STATUS_TEXT, OnKillfocusEditStatusText)
+	ON_EN_KILLFOCUS(IDC_EDIT_MODULATION, OnKillfocusEditModulation)
+	ON_EN_SETFOCUS(IDC_EDIT_SCALE, OnSetfocusEditScale)
+	ON_EN_KILLFOCUS(IDC_EDIT_SCALE, OnKillfocusEditScale)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1909,19 +1916,20 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	CString					s =	m_edit_modilation;
 	double		m_scale		=	atoi(m_edit_scale.GetBuffer(0));
-
-				scale		=	pow(2.0,1.0/m_scale);
-
-				double		m_base_a	=	atoi(m_string_base_a.GetBuffer(0));
-
-				BASE_A		=	m_base_a;
-
-			ModulationWheel	=	strtod(s.GetBuffer(0),NULL);
 	
-		m_modulation_wheel	=	m_modulation_wheel_2;
-
-
 	if (m_scale<2 || m_scale>48) m_scale=12;
+	scale		=	pow(2.0,1.0/m_scale);
+
+	double		m_base_a	=	atoi(m_string_base_a.GetBuffer(0));
+
+	BASE_A		=	m_base_a;
+
+	ModulationWheel	=	strtod(s.GetBuffer(0),NULL);
+	
+	m_modulation_wheel	=	m_modulation_wheel_2;
+
+
+	
 	
 	
 
@@ -3049,4 +3057,39 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 	}
 
 	CDialog::OnMouseMove(nFlags, point);
+}
+
+void CDTFM_GeneratorDlg::OnSetfocusEditModulation() 
+{
+	GetData;
+	m_string_status_text="Если указать ноль, модуляция отключается";
+	PutData;
+	
+}
+
+void CDTFM_GeneratorDlg::OnKillfocusEditStatusText() 
+{
+	
+}
+
+void CDTFM_GeneratorDlg::OnKillfocusEditModulation() 
+{
+	GetData;
+	m_string_status_text="";
+	PutData;
+}
+
+void CDTFM_GeneratorDlg::OnSetfocusEditScale() 
+{
+	m_string_status_text="Темперация клавиатуры (на сколько равных частей делится октава). 12 по умолчанию. Можно попробовать 24, например.";	
+	PutData;
+}
+
+void CDTFM_GeneratorDlg::OnKillfocusEditScale() 
+{
+	// TODO: Add your control notification handler code here
+	GetData;
+	m_string_status_text="";
+	PutData;
+	
 }

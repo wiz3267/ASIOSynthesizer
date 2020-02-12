@@ -84,6 +84,7 @@ public:
 	CString	m_edit_scale;
 	CString	m_string_base_a;
 	CString	m_modulation_amplitude;
+	CString	m_string_status_text;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -126,6 +127,11 @@ protected:
 	afx_msg void OnHide();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnSetfocusEditModulation();
+	afx_msg void OnKillfocusEditStatusText();
+	afx_msg void OnKillfocusEditModulation();
+	afx_msg void OnSetfocusEditScale();
+	afx_msg void OnKillfocusEditScale();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

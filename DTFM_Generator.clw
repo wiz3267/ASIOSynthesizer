@@ -15,11 +15,11 @@ Class3=CAboutDlg
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_ABOUTBOX (English (U.S.))
+Resource3=IDD_DTFM_GENERATOR_DIALOG
 Resource4=IDD_DIALOG_SETTINGS
 Resource5=IDD_DIALOG_ASIO_CONNECT
 Class4=CDialogASIOConnect
-Resource6=IDD_DTFM_GENERATOR_DIALOG
+Resource6=IDD_ABOUTBOX (English (U.S.))
 
 [CLS:CDTFM_GeneratorApp]
 Type=0
@@ -35,13 +35,14 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_EDIT_FREQ
+LastObject=IDC_EDIT_SCALE
 
 [CLS:CAboutDlg]
 Type=0
 HeaderFile=DTFM_GeneratorDlg.h
 ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
+LastObject=CAboutDlg
 
 [DLG:IDD_ABOUTBOX]
 Type=1
