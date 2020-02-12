@@ -76,6 +76,9 @@
 #define IDC_EDIT_MODULATION_WHEEL       1075
 #define IDC_CHECK_USE_MODULATION        1076
 #define IDC_EDIT_ASIO_DEVICE_INDEX      1077
+#define IDC_EDIT_MODULATION_FREQ        1077
+#define IDC_EDIT_PIANOROLL              1079
+#define IDC_LEVEL_CONTROL               1080
 
 // Next default values for new objects
 // 
@@ -83,7 +86,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        143
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1078
+#define _APS_NEXT_CONTROL_VALUE         1081
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

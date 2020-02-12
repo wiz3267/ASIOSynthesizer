@@ -36,6 +36,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDTFM_GeneratorDlg)
 	enum { IDD = IDD_DTFM_GENERATOR_DIALOG };
+	CEdit	m_level_control;
+	CEdit	m_pianoroll;
 	CSliderCtrl	m_slider_total_volume;
 	CEdit	m_edit_base_a;
 	CEdit	m_status_text;
@@ -81,6 +83,7 @@ public:
 	int		m_asio_device;
 	CString	m_edit_scale;
 	CString	m_string_base_a;
+	CString	m_modulation_amplitude;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

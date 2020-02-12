@@ -8,6 +8,7 @@
 #include <math.h>
 #include "inifile.h"
 
+int m_modulation_amplitude_value;
 int global_asio_index=0;
 
 const double PI=3.1415926;
@@ -25,8 +26,6 @@ int m_modulation_wheel_2=0;	//значения колеса модуляции
 CString m_edit_list_midi;
 
 double scale;//=pow(2.0,1.0/12.0);
-//double scale;//=pow(2.0,1.0/SCALE);
-
 
 CString m_amplitude_global="";
 
@@ -38,8 +37,6 @@ void MidiKeyPress2(BYTE key, BYTE value);
 static char THIS_FILE[] = __FILE__;
 #endif
 
-
-void DrawButton(CDC *dc, int x, int y, int start);
 
 CINIFiles ini;
 
@@ -117,12 +114,16 @@ struct KEY
 
 KEY KeysOld[256];
 
-int KEY_L=14;
-int KEY_H=65;
+//////////////////////////////////////////////////////
+//параметры отрисовки клавиш пианноролла			//
+int KEY_L=14;										//
+int KEY_H=65;										//
+													//
+int KEY_X=0;										//
+int KEY_Y=0;										//
 
-int KEY_X=10;
-int KEY_Y=200;
-
+int DrawPiannoRoll(CDC *dc, CEdit *dc_level, int x, int y, int start);//													//
+//////////////////////////////////////////////////////
 
 struct KEYSA
 {
@@ -235,6 +236,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_asio_device = -1;
 	m_edit_scale = _T("12");
 	m_string_base_a = _T("440");
+	m_modulation_amplitude = _T("10000");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -244,6 +246,8 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_LEVEL_CONTROL, m_level_control);
+	DDX_Control(pDX, IDC_EDIT_PIANOROLL, m_pianoroll);
 	DDX_Control(pDX, IDC_SLIDER_TOTAL_VOLUME, m_slider_total_volume);
 	DDX_Control(pDX, IDC_EDIT_BASE_A, m_edit_base_a);
 	DDX_Control(pDX, IDC_EDIT_STATUS_TEXT, m_status_text);
@@ -279,6 +283,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE, m_asio_device);
 	DDX_Text(pDX, IDC_EDIT_SCALE, m_edit_scale);
 	DDX_Text(pDX, IDC_EDIT_BASE_A, m_string_base_a);
+	DDX_Text(pDX, IDC_EDIT_MODULATION_FREQ, m_modulation_amplitude);
 	//}}AFX_DATA_MAP
 }
 
@@ -402,9 +407,11 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 
 	double limit=20000;	//ограничение частоты
 
+	//амплитуда сигнала
 	double AMP=Ampl;
+
 	AMP+=
-		5000//глубина модуляции
+		m_modulation_amplitude_value//глубина модуляции
 		*sin(modulation);
 
 	double f;	//частота
@@ -427,8 +434,14 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	if(slm5) k+=slm5/100.0*sin(freq/5*t);
 	if(slm6) k+=slm6/100.0*sin(freq/6*t);
 
-	
-	return k *  (slvolume/100.0) * AMP  ;
+	if (m_modulation_amplitude_value)
+	{
+		return k *  (slvolume/100.0) * AMP  ;
+	}
+	else
+	{
+		return k *  (slvolume/100.0);
+	}
 }
 
 
@@ -572,9 +585,9 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	}
 	
 
-	SetTimer(0,500,NULL);	//для обновления отрисовки клавиш
-	SetTimer(2,50,NULL);	//для гашений клавиш
+	SetTimer(0,50,NULL);	//для обновления отрисовки клавиш
 
+	//открываем MIDI-устройство
 	OnButtonMidiOpen();
 
 	if (ini.QueryValue("HideWindow")==1)
@@ -982,9 +995,6 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 		
 			change=true;
 
-			CDC *pdc=GetDC();
-			DrawButton(pdc, 0,0, 60);
-			ReleaseDC(pdc);
 		}
 
 		if (nChar==VK_RIGHT)
@@ -993,10 +1003,6 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 			if (BaseKeyboard<127) BaseKeyboard++;
 
 			change=true;
-			CDC *pdc=GetDC();
-			DrawButton(pdc, 0,0, 60);
-			ReleaseDC(pdc);
-
 		}
 
 		for(int i=0; i<256; i++)
@@ -1038,93 +1044,51 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 	return 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 double freq_1=0;
 int freq_1_count=0;
-double old_base_a=440;
 
+
+//самая важная функция - заполнение буфера звуковыми сгенерированными данными
 void FillBuffer(short *plbuf, int size, int samplerate)
 {
 
-	freq_1=0;
-	freq_1_count=0;
-	static int last_z=0;
-	int delta=0;
+					freq_1			=	0;
+					freq_1_count	=	0;
+	static int		last_z			=	0;
+	int				delta			=	0;
 
-	double K=2*PI/samplerate;
-	double t=_time_*K;
-
-
-	double m=0;
+	double			K				=	2*PI/samplerate;
+	double			t				=	_time_*K;
+	double			m				=	0;
+	
 	for(int i=0; i<size/2; i++, _time_++)
 	{
 
 		m=0;
 
-		modulation+=step_modulation;
+		modulation	+=	step_modulation;
 
+		//проходимся по массиву клавиш MIDI-клавиатуры
 		for(int k=0; k<128; k++) 
 		{
 			if (Keys[k].press) 
 			{
-				double freq=BASE_A*pow(scale,k-60+3);
+				//считаем частоту базовой гармоники для нажатой клавиши
+				double		freq	=	BASE_A * pow(scale, k-60+3);
 				
+				//сколько чистых гармоник было в сигнале
+				int			flag_one=	1;
 
-				int flag_one=1;
-
-				double freq_actual=0;
-
+				//частота сигнала, если была только одна гармоника
+				double		freq_actual=0;
+				
 				static double phase;
+				
 				phase=0;
 
-				m+=Piano(Keys[k].Ampl,freq,Keys[k].t,phase, flag_one, freq_actual);
+				m			+=Piano(Keys[k].Ampl,freq,Keys[k].t,phase, flag_one, freq_actual);
 				
-				Keys[k].t+=K;
+				Keys[k].t	+=K;
 
 				Keys[k].Ampl+=Keys[k].A_add;
 
@@ -1133,7 +1097,13 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 					Keys[k].A_add=0;
 				}
 				
-				Keys[k].Ampl-=Keys[k].decrement;
+				if (Keys[k].Ampl-=Keys[k].decrement)
+
+				if (Keys[k].Ampl<=0)
+				{
+					Keys[k].press=false;
+					Keys[k].Ampl=0;
+				}
 
 				if (flag_one==1)
 				{
@@ -1154,17 +1124,22 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//static double CorrectAmplitude=1;
 		//m*=CorrectAmplitude;
 
+		//m - получаемое значение выборки
+		//диапазон от -32767 до +32767
+
+		//если выходит за пределы
 		if (m>32767) 
 		{
-			m=32767;
-			Overload=true;
+			m=32767;		//установка максимального значения
+			Overload=true;	//установка флага перегрузки
 			//CorrectAmplitude-=0.01;
 		}
 
-		if (m < - 32767) 
+		//если выходит за пределы
+		if (m < -32767) 
 		{
-			m = -32767;
-			Overload=true;
+			m = -32767;		//установка максимального значения
+			Overload=true;	//установка флага перегрузки
 			//CorrectAmplitude-=0.01;
 		}
 
@@ -1174,7 +1149,8 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 			//if (CorrectAmplitude<0) CorrectAmplitude=0.1;
 		}
 
-		if (m>MaxSound) MaxSound=m;
+		//устанавливаем уровень максимума за этот звуковой блок
+		if (abs(int(m)) > MaxSound) MaxSound=abs(int(m));	//округляем double в int. все рассчеты ведутся в double, а здесь округление
 
 		short int z=(short int)m;
 
@@ -1510,8 +1486,6 @@ void CDTFM_GeneratorDlg::ExitDialog()
 
 
 	ini.SetValue(100-m_slider_decrement.GetPos(), "sldecrement");
-
-	//????
 	ini.SetValue(m_slider_total_volume.GetPos(), "sltotalvolume");
 
 	
@@ -1726,11 +1700,11 @@ void CDTFM_GeneratorDlg::InitToneData()
 
 
 
-void DrawButton(CDC *dc, int x, int y, int start)
+int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 {
-	CBrush br_level,br2, brush_red;
+	CBrush br_level,br_white, brush_red;
 
-	br2.CreateSolidBrush(RGB(250,250,250));
+	br_white.CreateSolidBrush(RGB(250,250,250));
 
 	brush_red.CreateSolidBrush(RGB(255,0,0));
 	
@@ -1738,52 +1712,62 @@ void DrawButton(CDC *dc, int x, int y, int start)
 	
 	dc->SelectObject(br_level);
 
-	int L;
-	int H;
+	RECT rt;
+	level_control->GetClientRect(&rt);
 
-	x=10;
-	y=180;
+	CDC *dc_level=level_control->GetDC();
 
-	L=300;
-	H=10;
+	int L=rt.right;	//длина level_control
+	int H=rt.bottom;	//высота level_control
 
-	//если перегрузка
+	int delta_l=4;	//разница между уровнем звука и значком перегрузки
+
+		//если перегрузка
 	if (Overload)
 	{
 		//красный квадратик
-		dc->SelectObject(brush_red);
-		dc->Rectangle(x+L+2,y,x+L+2+10,y+H);	
+		dc_level->SelectObject(brush_red);
+		dc_level->Rectangle(L-H,0, L,H);	
 	}
 	else
 	{
-		dc->SelectObject(br2);
-		dc->Rectangle(x+L+2,y,x+L+2+10,y+H);	
+		//
+		dc_level->SelectObject(br_white);
+		dc_level->Rectangle(L-H,0,L,H);	
 	}
-
-	//if (MaxSound)
+	
+	if (MaxSound)
 	{
-		int k=int(MaxSound/32768.0*L);
+		int k=int(MaxSound/32768.0*(L-delta_l-H));
 
-		dc->SelectObject(br_level);
-		dc->Rectangle(x,y,x+k,y+H);
-		dc->SelectObject(br2);
-		dc->Rectangle(x+k,y,x+L,y+H);
+		dc_level->SelectObject(br_level);
+		dc_level->Rectangle(0,0, k,H);
+
+		dc_level->SelectObject(br_white);
+		dc_level->Rectangle(k,0,L-H-delta_l,H);
 	}
 
+	level_control->ReleaseDC(dc_level);
+	
 
-	for(int i=0; i<256; i++)
+
+
+	//проверяем, были ли изменения в нажатиях клавиш на MIDI-клавиатуре
+	for(int i=0; i<128; i++)
 	{
 		if ( (KeysOld[i].press!=Keys[i].press) 
 			|| KeysOld[i].Ampl != Keys[i].Ampl) change=true;
 	}
 
-	//если есть изменения продолжим иначе возврат
-	//для экономии ресурсов
+	//если есть изменения, продолжим рисование
+	//иначе возврат для экономии ресурсов,
+	//т.к. функция вызываеться циклически по таймеру
 	if (change)
 	{
-		for(i=0; i<256; i++) KeysOld[i]=Keys[i];
+		//копируем массив "новых" в массивых "старых" клавиш
+		for(i=0; i<128; i++) KeysOld[i]=Keys[i];
 	}
-	else return;
+	else return 0;
 
 	change=false;
 
@@ -1791,9 +1775,7 @@ void DrawButton(CDC *dc, int x, int y, int start)
 	L=KEY_L;
 	H=KEY_H;
 
-	y=KEY_Y;
-	x=KEY_X;
-
+	//y=0;
 
 	CBrush br_red,br_bl;
 	br_red.CreateSolidBrush(RGB(0,250,200));
@@ -1826,7 +1808,7 @@ void DrawButton(CDC *dc, int x, int y, int start)
 			if (Keys[RR].press)
 				dc->SelectObject(bra);
 			else
-				dc->SelectObject(br2);
+				dc->SelectObject(br_white);
 
 			int x1=x+L*i;
 
@@ -1863,7 +1845,7 @@ void DrawButton(CDC *dc, int x, int y, int start)
 
 			if ( RR==BaseKeyboard)
 			{
-				dc->SelectObject(br2);
+				dc->SelectObject(br_white);
 				dc->Ellipse(x1+1, y+H-1, x1+L2, y+H-8);
 			}
 
@@ -1876,7 +1858,8 @@ void DrawButton(CDC *dc, int x, int y, int start)
 		start+=12;
 	}
 
-//	dc->SelectObject(oldbr);
+
+	return 1;
 }
 
 
@@ -1922,36 +1905,24 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	GetData;
 
-	if (nIDEvent==2)
-	{
-		//гашение клавиш
-		for(int i=0; i<256; i++)
-		{
-			if (Keys[i].Ampl<=0) 
-			{
-				Keys[i].Ampl=0;
-				Keys[i].decrement=0;
-				Keys[i].press=0;
-				Keys[i].t=0;
-			}
-		}
-	}
+	m_modulation_amplitude_value= atoi(m_modulation_amplitude.GetBuffer(0));
 
+	CString					s =	m_edit_modilation;
+	double		m_scale		=	atoi(m_edit_scale.GetBuffer(0));
 
-	CString s=m_edit_modilation;
+				scale		=	pow(2.0,1.0/m_scale);
 
-	double m_scale=atoi(m_edit_scale.GetBuffer(0));
-	scale=pow(2.0,1.0/m_scale);
+				double		m_base_a	=	atoi(m_string_base_a.GetBuffer(0));
 
-	double m_base_a=atoi(m_string_base_a.GetBuffer(0));
-	BASE_A=m_base_a;
+				BASE_A		=	m_base_a;
+
+			ModulationWheel	=	strtod(s.GetBuffer(0),NULL);
 	
+		m_modulation_wheel	=	m_modulation_wheel_2;
+
+
+	if (m_scale<2 || m_scale>48) m_scale=12;
 	
-	double modul=strtod(s.GetBuffer(0),NULL);
-
-	ModulationWheel=modul;
-
-	m_modulation_wheel=m_modulation_wheel_2;
 	
 
 	if (NeedUpdateMidiEvent)
@@ -1960,12 +1931,10 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 		if (m_edit!=m_edit_list_midi)
 		{
 			m_edit=m_edit_list_midi;
-			PutData;
 		}
 	}
 
 	m_amplitude_global=m_amplitude;
-
 
 	CurrentAmplitude=atoi(m_amplitude);
 
@@ -1982,6 +1951,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	slm4=100-m_slm4.GetPos();
 	slm5=100-m_slm5.GetPos();
 	slm6=100-m_slm6.GetPos();
+
 	slvolume=m_slider_total_volume.GetPos();
 
 
@@ -1989,12 +1959,30 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	m_slider_decrement_double=AMPLITUDE_DECREMENT;
 
+	//double freq_1=0;
+	//int freq_1_count=0;
+
+	m_edit_freq=freq_1;
+	if (freq_1 != 0) m_wave_len = 330/m_edit_freq;
+	else	m_wave_len = 0;
+	
 
 	PutData;
 
+
+	//????
+	RECT rt;
+	m_pianoroll.GetWindowRect(&rt);
+	int pianoroll_x = rt.left;
+	int pianoroll_y = rt.top;
 	//перересовка пианоролла
-	CDC *pdc=GetDC();
-	DrawButton(pdc, 0,0, 60);
+	RECT rtwin;
+	GetWindowRect(&rtwin);
+	int x=rtwin.left;
+	int y=rtwin.top;
+
+	CDC *pdc=m_pianoroll.GetDC();
+	DrawPiannoRoll(pdc, &m_level_control, pianoroll_x-x, 0, 60);
 	ReleaseDC(pdc);
 
 
@@ -3019,7 +3007,6 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (point.y<KEY_Y) return;
 	if (point.y>KEY_Y+KEY_H) return;
 	if (point.x<KEY_X) return;
-
 	int key=(point.x-KEY_X)/KEY_L;
 	int octave=key/7;
 	key=key%7;

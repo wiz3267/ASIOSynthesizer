@@ -15,11 +15,11 @@ Class3=CAboutDlg
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DTFM_GENERATOR_DIALOG
-Resource4=IDD_DIALOG_ASIO_CONNECT
-Resource5=IDD_DIALOG_SETTINGS
+Resource3=IDD_ABOUTBOX (English (U.S.))
+Resource4=IDD_DIALOG_SETTINGS
+Resource5=IDD_DIALOG_ASIO_CONNECT
 Class4=CDialogASIOConnect
-Resource6=IDD_ABOUTBOX (English (U.S.))
+Resource6=IDD_DTFM_GENERATOR_DIALOG
 
 [CLS:CDTFM_GeneratorApp]
 Type=0
@@ -35,7 +35,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_EDIT_BASE_A
+LastObject=IDC_EDIT_FREQ
 
 [CLS:CAboutDlg]
 Type=0
@@ -56,7 +56,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=54
+ControlCount=59
 Control1=IDC_AMPLITUDE,edit,1350631552
 Control2=IDC_STATIC,static,1342308352
 Control3=IDC_EDIT1,edit,1352728644
@@ -111,6 +111,11 @@ Control51=IDC_EDIT_MODULATION_WHEEL,edit,1484849280
 Control52=IDC_EDIT_ASIO_DEVICE,edit,1484783744
 Control53=IDC_STATIC,static,1342308352
 Control54=IDC_CHECK_USE_MODULATION,button,1476460547
+Control55=IDC_EDIT_PIANOROLL,edit,1484849280
+Control56=IDC_LEVEL_CONTROL,edit,1484849280
+Control57=IDC_EDIT_MODULATION_FREQ,edit,1350631552
+Control58=IDC_STATIC,static,1342308352
+Control59=IDC_STATIC,static,1342308352
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1
