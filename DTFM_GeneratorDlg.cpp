@@ -1089,7 +1089,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 			if (Keys[k].press) 
 			{
 				//считаем частоту базовой гармоники для нажатой клавиши
-				double		freq	=	BASE_A * pow(scale, k-60+3);
+				double		freq	=	BASE_A * pow(scale, k-60+3 - 12);
 				
 				//сколько чистых гармоник было в сигнале
 				int			flag_one=	1;
@@ -1977,7 +1977,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	m_slider_decrement_double=AMPLITUDE_DECREMENT;
 
-	m_edit_freq=freq_1;
+	m_edit_freq=freq_1*2;
 	if (freq_1 != 0) m_wave_len = 330/m_edit_freq;
 	else	m_wave_len = 0;
 
