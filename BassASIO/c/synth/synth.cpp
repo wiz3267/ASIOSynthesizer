@@ -14,7 +14,6 @@ void Msg(char *);
 
 extern int SAMPLE_RATE;
 int ASIO_buflen;
-
 // display error messages
 void Error(const char *text) 
 {

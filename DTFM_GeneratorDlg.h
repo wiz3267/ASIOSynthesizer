@@ -85,6 +85,7 @@ public:
 	CString	m_string_base_a;
 	CString	m_modulation_amplitude;
 	CString	m_string_status_text;
+	int		m_size_asio_buffer;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

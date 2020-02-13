@@ -242,6 +242,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_string_base_a = _T("440");
 	m_modulation_amplitude = _T("10000");
 	m_string_status_text = _T("");
+	m_size_asio_buffer = 0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -290,6 +291,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_BASE_A, m_string_base_a);
 	DDX_Text(pDX, IDC_EDIT_MODULATION_FREQ, m_modulation_amplitude);
 	DDX_Text(pDX, IDC_EDIT_STATUS_TEXT, m_string_status_text);
+	DDX_Text(pDX, IDC_EDIT_SIZE_ASIO_BUFFER, m_size_asio_buffer);
 	//}}AFX_DATA_MAP
 }
 
@@ -523,7 +525,7 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 
 
 
-
+extern int ASIO_buflen;
 
 BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
@@ -531,6 +533,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	m_asio_device=global_asio_index;
+	m_size_asio_buffer=ASIO_buflen;
 
 	PutData;
 

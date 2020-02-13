@@ -16,6 +16,7 @@
 #define IDC_ABORT                       1015
 #define IDC_EDIT_SCALE                  1016
 #define IDC_EDIT_ASIO_DEVICE            1017
+#define IDC_EDIT_SIZE_ASIO_BUFFER       1018
 #define IDC_AMPLITUDE                   1019
 #define IDC_DO                          1022
 #define IDC_RE                          1023
