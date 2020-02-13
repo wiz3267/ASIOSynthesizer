@@ -1754,7 +1754,7 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 		dc_level->Rectangle(L-H,0,L,H);	
 	}
 	
-	if (MaxSound)
+	//if (MaxSound)
 	{
 		int k=int(MaxSound/32768.0*(L-delta_l-H));
 
