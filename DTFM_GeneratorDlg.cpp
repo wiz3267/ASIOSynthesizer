@@ -1,5 +1,9 @@
 // DTFM_GeneratorDlg.cpp : implementation file
-//
+// 
+//добавить размер буфера ASIO
+//запись/чтения номера ASIO, перевыбор ASIO через диалоговое окно
+
+
 #include "stdafx.h"
 #include "DTFM_Generator.h"
 #include "DTFM_GeneratorDlg.h"
@@ -61,7 +65,7 @@ bool write=false; //нужно ли записывать в файл
 
 int CurrentAmplitude=0;
 
-bool Overload=false; //перегрузка звуков. уровня >32767 OR <-32767
+int Overload=-100; //перегрузка звуков. уровня >32767 OR <-32767
 
 union DWORD_BYTES
 {
@@ -592,7 +596,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	}
 	
 
-	SetTimer(0,50,NULL);	//для обновления отрисовки клавиш
+	SetTimer(0,100,NULL);	//для обновления отрисовки клавиш
 
 	//открываем MIDI-устройство
 	OnButtonMidiOpen();
@@ -1067,10 +1071,11 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	double			K				=	2*PI/samplerate;
 	double			t				=	_time_*K;
 	double			m				=	0;
+
+	int OverloadCount=0;	//сколько раз был клиппинг (за пределы 32767...32767)
 	
 	for(int i=0; i<size/2; i++, _time_++)
 	{
-
 		m=0;
 
 		modulation	+=	step_modulation;
@@ -1138,19 +1143,21 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		if (m>32767) 
 		{
 			m=32767;		//установка максимального значения
-			Overload=true;	//установка флага перегрузки
+			Overload=-10;	//установка флага перегрузки
+			OverloadCount++;
 			//CorrectAmplitude-=0.01;
 		}
 
 		//если выходит за пределы
-		if (m < -32767) 
+		else if (m < -32767) 
 		{
 			m = -32767;		//установка максимального значения
-			Overload=true;	//установка флага перегрузки
+			Overload=-10;	//установка флага перегрузки
+			OverloadCount++;
 			//CorrectAmplitude-=0.01;
 		}
 
-		if (Overload) 
+		if (Overload<0) 
 		{
 
 			//if (CorrectAmplitude<0) CorrectAmplitude=0.1;
@@ -1164,6 +1171,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		plbuf[i]=z;
 	}
 
+	if (OverloadCount==0) Overload++;
 }
 
 
@@ -1730,7 +1738,7 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 	int delta_l=4;	//разница между уровнем звука и значком перегрузки
 
 		//если перегрузка
-	if (Overload)
+	if (Overload<0)
 	{
 		//красный квадратик
 		dc_level->SelectObject(brush_red);
@@ -1790,11 +1798,11 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 	br_bl.CreateSolidBrush(RGB(10,10,10));
 
 
-
 	int Z[]={0,2,4,5,7,9,11};
 	int R[]={1,3,6,8,10};
 
 	start=12;
+	x=0;
 
 	for(int T=0; T<10; T++)
 	{
@@ -1805,10 +1813,13 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 			if (RR>127) continue;
 			int ampl=int(Keys[RR].Ampl);
 
-			int a=250*ampl/4000;
-			if (a>250) a=250;
-			int b=200*ampl/4000;
-			if (b>200) b=200;
+			//int a=250*ampl/4000;
+			int a=255*ampl/32767;
+			//if (a>250) a=250;
+
+			//int b=200*ampl/4000;
+			int b=255*ampl/32767;
+			//if (b>200) b=200;
 
 			bra.CreateSolidBrush(RGB(0,a,b));
 
@@ -1929,10 +1940,6 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	m_modulation_wheel	=	m_modulation_wheel_2;
 
 
-	
-	
-	
-
 	if (NeedUpdateMidiEvent)
 	{
 		//обновляем если есть изменения
@@ -1967,16 +1974,11 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	m_slider_decrement_double=AMPLITUDE_DECREMENT;
 
-	//double freq_1=0;
-	//int freq_1_count=0;
-
 	m_edit_freq=freq_1;
 	if (freq_1 != 0) m_wave_len = 330/m_edit_freq;
 	else	m_wave_len = 0;
-	
 
 	PutData;
-
 
 	//????
 	RECT rt;
@@ -1997,9 +1999,12 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	CDialog::OnTimer(nIDEvent);
 
 	MaxSound=0;
-	Overload=0;
+	//Overload=0;
 
 }
+
+
+//при нажатии на амплитуду подсказка
 
 
 
@@ -3008,7 +3013,7 @@ int MouseMove=FALSE;
 //если курсор попадает в зону пианоролла
 void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	Overload=false;
+	//Overload=false;
 
 	CDialog::OnLButtonDown(nFlags, point);
 
