@@ -57,6 +57,7 @@
 #define IDC_BUTTON_RESET                1058
 #define IDC_SLIDER5                     1059
 #define IDC_CLOSE                       1060
+#define IDC_BUTTON_ASIO_CONTROL_PANEL   1060
 #define IDC_STOP_PLAY                   1061
 #define IDC_HIDE                        1062
 #define IDC_EDIT_MIDI_NAME              1063

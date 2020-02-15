@@ -8,6 +8,10 @@
 #include "DTFM_Generator.h"
 #include "DTFM_GeneratorDlg.h"
 
+#include "BASSASIO\c\synth\bassasio.h"
+#include "BASSASIO\c\synth\bass.h"
+
+
 #include <atlbase.h>
 #include <math.h>
 #include "inifile.h"
@@ -320,6 +324,7 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_EN_KILLFOCUS(IDC_EDIT_MODULATION, OnKillfocusEditModulation)
 	ON_EN_SETFOCUS(IDC_EDIT_SCALE, OnSetfocusEditScale)
 	ON_EN_KILLFOCUS(IDC_EDIT_SCALE, OnKillfocusEditScale)
+	ON_BN_CLICKED(IDC_BUTTON_ASIO_CONTROL_PANEL, OnButtonAsioControlPanel)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2007,47 +2012,6 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 }
 
 
-//при нажатии на амплитуду подсказка
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CDTFM_GeneratorDlg::OnButtonMidiClose() 
 {
 	if (hmidiIn!=NULL)
@@ -2136,9 +2100,6 @@ void CALLBACK MidiInProc(
 				m_edit_list_midi += s+ENDL;
 			}
 
-			//CDC *dc;//new CDC;
-			//dc->TextOut(0,0,s);
-
 			BYTE nChar=mm.b[1];
 			BYTE Volume=mm.b[2];
 
@@ -2149,9 +2110,9 @@ void CALLBACK MidiInProc(
 			{
 				if (z==11 && nChar==1)
 				{
-					//??????ВАЖНО
 					//step_modulation=ModulationWheel * Volume/127.0/2048.0;
-					step_modulation=ModulationWheel * Volume/127.0/512;
+					//step_modulation=ModulationWheel * Volume/127.0/512;
+					step_modulation=ModulationWheel * Volume/127.0/ASIO_buflen;
 					m_modulation_wheel_2=Volume;
 				}
 			}
@@ -2160,7 +2121,6 @@ void CALLBACK MidiInProc(
 			{
 				if (z==11 && nChar==7)
 				{
-					//????????
 					BASE_A=440+Volume;
 				}
 			}
@@ -3099,5 +3059,12 @@ void CDTFM_GeneratorDlg::OnKillfocusEditScale()
 	GetData;
 	m_string_status_text="";
 	PutData;
+	
+}
+
+void CDTFM_GeneratorDlg::OnButtonAsioControlPanel() 
+{
+	// TODO: Add your control notification handler code here
+	BASS_ASIO_ControlPanel();
 	
 }

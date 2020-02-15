@@ -133,6 +133,7 @@ protected:
 	afx_msg void OnKillfocusEditModulation();
 	afx_msg void OnSetfocusEditScale();
 	afx_msg void OnKillfocusEditScale();
+	afx_msg void OnButtonAsioControlPanel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
