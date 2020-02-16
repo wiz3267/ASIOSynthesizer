@@ -75,27 +75,34 @@ int main(int asio_index, char **)
 	// not playing anything via BASS, so don't need an update thread
 	if (!BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD,0))
 	{
-		Error("BASS_SetConfig Can't initialize ASIO device");
+		Error("BASS_SetConfig BASS_CONFIG_UPDATEPERIOD error");
 		return 0;
 	}
 
 	// setup BASS - "no sound" device
 	if (!BASS_Init(0,SAMPLE_RATE,0,0,NULL))
 	{
-		Error("BASS_Init Can't initialize ASIO device");
+		Error("BASS_Init SAMPLE_RATE error");
 		return 0;
 	}
 
 	// setup ASIO - first device
 	if (!BASS_ASIO_Init(asio_index,BASS_ASIO_THREAD))
 	{
-		Error("BASS_ASIO_THREAD Can't initialize ASIO device");
+		Error("BASS_ASIO_Init asio_index BASS_ASIO_THREAD");
 		return 0;
 	}
 
 	// start device info for buffer size range, begin with default
 	BASS_ASIO_GetInfo(&info);
 	ASIO_buflen=info.bufpref;
+
+	if (info.outputs==0)
+	{
+		Msg("Error - No avialable outputs channels");
+		return 0;
+
+	}
 	//BASS_ASIO_SetInfo(&info);
 
 	samrate=(int)BASS_ASIO_GetRate();
@@ -107,19 +114,19 @@ int main(int asio_index, char **)
 
 	if(!BASS_ASIO_ChannelEnable(0,0,&AsioProc,(void*)str)) // enable 1st output channel...
 	{
-		Error("Can't BASS_ASIO_ChannelEnable");
+		Error("BASS_ASIO_ChannelEnable AsioProc error");
 		return 0;
 	}
 	
 	if(!BASS_ASIO_ChannelJoin(0,1,0)) // and join the next channel to it (stereo)
 	{
-		Error("Can't BASS_ASIO_ChannelJoin");
+		Error("BASS_ASIO_ChannelJoin error");
 		return 0;
 	}
 
 	if(!BASS_ASIO_ChannelSetFormat(0,0,BASS_ASIO_FORMAT_16BIT)) // set the source format (16-bit)
 	{
-		Error("Can't BASS_ASIO_ChannelSetFormat");
+		Error("BASS_ASIO_ChannelSetFormat BASS_ASIO_FORMAT_16BIT error");
 		return 0;
 	}
 
