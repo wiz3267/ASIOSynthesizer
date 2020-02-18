@@ -306,8 +306,6 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_CLOSE()
 	ON_WM_CREATE()
-	ON_BN_CLICKED(IDC_PLAY_STRING, OnPlayString)
-	ON_BN_CLICKED(IDC_ABORT, OnAbort)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_MIDI_CLOSE, OnButtonMidiClose)
 	ON_BN_CLICKED(IDC_BUTTON_MIDI_OPEN, OnButtonMidiOpen)
@@ -330,63 +328,6 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int sl1, sl2, sl3, sl4, sl5, sl6;
 int slm2, slm3, slm4, slm5, slm6;
@@ -462,79 +403,10 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 extern int ASIO_buflen;
 
 BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
-	InitToneData();
 	CDialog::OnInitDialog();
 
 	m_asio_device=global_asio_index;
@@ -624,50 +496,6 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CDTFM_GeneratorDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
@@ -680,59 +508,6 @@ void CDTFM_GeneratorDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		CDialog::OnSysCommand(nID, lParam);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void CDTFM_GeneratorDlg::OnPaint() 
 {
@@ -762,35 +537,6 @@ void CDTFM_GeneratorDlg::OnPaint()
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // The system calls this to obtain the cursor to display while the user drags
 //  the minimized window.
 HCURSOR CDTFM_GeneratorDlg::OnQueryDragIcon()
@@ -799,133 +545,12 @@ HCURSOR CDTFM_GeneratorDlg::OnQueryDragIcon()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//начали режим генерации
-void CDTFM_GeneratorDlg::OnOK() 
-{
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 struct TONEDATA
 {
 	double f1;
 	BYTE sym;
 	int idc;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const double DO=1, RE=9/8.0, ME=5/4.0, FA=4/3.0, SOL=3/2.0, LA=5/3.0, SI=15/8.0;
 
@@ -955,49 +580,6 @@ TONEDATA digit[DigitCount]=
 	{ DO*18, 77, IDC_FA2 },
 	{ DO*19, 78, IDC_SOL2 }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg) 
@@ -1071,14 +653,14 @@ int freq_1_count=0;
 void FillBuffer(short *plbuf, int size, int samplerate)
 {
 
-					freq_1			=	0;
-					freq_1_count	=	0;
-	static int		last_z			=	0;
-	int				delta			=	0;
+	freq_1 = 0;
+	freq_1_count = 0;
+	static int last_z =	0;
+	int	delta =	0;
 
-	double			K				=	2*PI/samplerate;
-	double			t				=	_time_*K;
-	double			m				=	0;
+	double	K =	2*PI/samplerate;
+	double	t =	_time_*K;
+	double	m =	0;
 
 	int OverloadCount=0;	//сколько раз был клиппинг (за пределы 32767...32767)
 	
@@ -1182,123 +764,8 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	if (OverloadCount==0) Overload++;
 }
 
-
 extern int ASIO_buflen;
 extern DWORD ASIO_PROC_BUFLEN;
-
-void CDTFM_GeneratorDlg::AddBuffer()
-{
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void CDTFM_GeneratorDlg::AddBuffer(double freq1, double freq2, char sym, int size)
-{
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void CDTFM_GeneratorDlg::OnClose() 
@@ -1306,93 +773,6 @@ void CDTFM_GeneratorDlg::OnClose()
 	OnButtonMidiClose();
 	ExitDialog();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int CDTFM_GeneratorDlg::OnCreate(LPCREATESTRUCT lpCreateStruct) 
 {
@@ -1407,92 +787,17 @@ int CDTFM_GeneratorDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 BOOL CDTFM_GeneratorDlg::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext) 
 {
 	return CDialog::Create(IDD, pParentWnd);
 }
-
-//void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-//{
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void CDTFM_GeneratorDlg::ExitDialog()
 {
 	GetData;
 
-
+	//save data to .ini file
 	ini.SetValue(100-m_sl1.GetPos(),"sl1");
 	ini.SetValue(100-m_sl2.GetPos(),"sl2");
 	ini.SetValue(100-m_sl3.GetPos(),"sl3");
@@ -1515,67 +820,6 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	EndDialog(0);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void CDTFM_GeneratorDlg::OnPlayString() 
-{
-}
-
-void CDTFM_GeneratorDlg::OnAbort() 
-{
-	OnButtonMidiClose();
-	CDialog::OnOK();
-}
-
 void CDTFM_GeneratorDlg::TextError(MMRESULT rc)
 {
 	if (!rc) return;
@@ -1589,139 +833,11 @@ BOOL CDTFM_GeneratorDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	return CDialog::OnCommand(wParam, lParam);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 LRESULT CDTFM_GeneratorDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
 {
 	
 	return CDialog::WindowProc(message, wParam, lParam);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void CDTFM_GeneratorDlg::InitToneData()
-{
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 {
@@ -1888,65 +1004,26 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent) 
 {
 
 	GetData;
 
-	m_modulation_amplitude_value= atoi(m_modulation_amplitude.GetBuffer(0));
+	m_modulation_amplitude_value = atoi(m_modulation_amplitude.GetBuffer(0));
 
-	CString					s =	m_edit_modilation;
-	double		m_scale		=	atoi(m_edit_scale.GetBuffer(0));
+	CString	s =	m_edit_modilation;
+	double m_scale = atoi(m_edit_scale.GetBuffer(0));
 	
-	if (m_scale<2 || m_scale>48) m_scale=12;
-	scale		=	pow(2.0,1.0/m_scale);
+	if (m_scale<2 || m_scale>48) m_scale = 12;
+	scale = pow(2.0,1.0/m_scale);
 
-	double		m_base_a	=	atoi(m_string_base_a.GetBuffer(0));
+	double m_base_a	= atoi(m_string_base_a.GetBuffer(0));
 
-	BASE_A		=	m_base_a;
+	BASE_A = m_base_a;
 
-	ModulationWheel	=	strtod(s.GetBuffer(0),NULL);
+	ModulationWheel	= strtod(s.GetBuffer(0),NULL);
 	
-	m_modulation_wheel	=	m_modulation_wheel_2;
-
+	m_modulation_wheel=	m_modulation_wheel_2;
 
 	if (NeedUpdateMidiEvent)
 	{
@@ -2043,32 +1120,6 @@ void CDTFM_GeneratorDlg::OnButtonMidiClose()
 	}
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //прием миди сообщений
 void CALLBACK MidiInProc(
    HMIDIIN   hMidiIn,
@@ -2144,18 +1195,7 @@ void CALLBACK MidiInProc(
 		b++;
 	}
 
-
 }
-
-
-
-
-
-
-
-
-
-
 
 //открытие миди-устройства
 void CDTFM_GeneratorDlg::OnButtonMidiOpen() 
@@ -2212,57 +1252,11 @@ void CDTFM_GeneratorDlg::OnButtonMidiOpen()
 
 	m_midi_open.EnableWindow(false);
 	m_midi_close.EnableWindow(true);
-	//OnOK();
+
 	SetFocus();
 
 	PutData;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void CDTFM_GeneratorDlg::OnButtonWrite() 
 {
@@ -2288,64 +1282,6 @@ void CDTFM_GeneratorDlg::OnButtonWrite()
 	
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CDTFM_GeneratorDlg::OnButtonWriteStop() 
 {
 	m_button_write.EnableWindow(true);
@@ -2367,74 +1303,10 @@ void CDTFM_GeneratorDlg::OnButtonWriteStop()
 		
 		f.Close();
 	}
-
-
-
-
 	
 }
 
 DWORD START_TIME;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void CALLBACK TimerProc_PlayMidi(
   HWND hwnd,         // handle to window
@@ -2479,72 +1351,6 @@ void CALLBACK TimerProc_PlayMidi(
 	}
 */	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void CDTFM_GeneratorDlg::OnButtonPlayWriten() 
 {
@@ -2595,49 +1401,6 @@ void CDTFM_GeneratorDlg::OnButtonPlayWriten()
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CDTFM_GeneratorDlg::OnButtonReset() 
 {
 	for(int i=0; i<256; i++)
@@ -2658,41 +1421,6 @@ void CDTFM_GeneratorDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	CDialog::OnChar(nChar, nRepCnt, nFlags);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CDTFM_GeneratorDlg::OnStopPlay() 
 {
 	delete PlayWriten;
@@ -2706,108 +1434,10 @@ void CDTFM_GeneratorDlg::OnStopPlay()
 	KillTimer(5555);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CDTFM_GeneratorDlg::SetFocus()
 {
 	m_midi_name_ctrl.SetFocus();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void MidiKeyPress2(BYTE key, BYTE value)
@@ -2898,75 +1528,10 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 				}
 
 			}
-
-			
-
 			
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*void CDTFM_GeneratorDlg::OnHide() 
-{
-	ini.SetValue(1,"HideWindow");
-	ShowWindow(SW_HIDE);	
-}*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 int MouseMove=FALSE;

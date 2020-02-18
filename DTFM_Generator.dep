@@ -1,0 +1,36 @@
+# Microsoft Developer Studio Generated Dependency File, included by DTFM_Generator.mak
+
+.\DialogASIOConnect.cpp : \
+	".\DialogASIOConnect.h"\
+	".\DTFM_Generator.h"\
+	
+
+.\DTFM_Generator.cpp : \
+	".\DialogASIOConnect.h"\
+	".\DTFM_Generator.h"\
+	".\DTFM_GeneratorDlg.h"\
+	
+
+.\DTFM_Generator.rc : \
+	".\res\DTFM_Generator.ico"\
+	".\res\DTFM_Generator.rc2"\
+	".\resource.hm"\
+	
+
+.\DTFM_GeneratorDlg.cpp : \
+	".\bassasio\c\synth\bass.h"\
+	".\bassasio\c\synth\bassasio.h"\
+	".\DTFM_Generator.h"\
+	".\DTFM_GeneratorDlg.h"\
+	".\inifile.h"\
+	
+
+.\StdAfx.cpp : \
+	".\StdAfx.h"\
+	"c:\program files (x86)\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\BassASIO\c\synth\synth.cpp : \
+	".\bassasio\c\synth\bass.h"\
+	".\bassasio\c\synth\bassasio.h"\
+	
