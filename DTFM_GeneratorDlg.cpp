@@ -11,7 +11,6 @@
 #include "BASSASIO\c\synth\bassasio.h"
 #include "BASSASIO\c\synth\bass.h"
 
-
 #include <atlbase.h>
 #include <math.h>
 #include "inifile.h"
@@ -104,7 +103,6 @@ int IdMidiOpen=-1;
 
 int 
 	SAMPLE_RATE=44100;
-
 
 struct KEY
 {
