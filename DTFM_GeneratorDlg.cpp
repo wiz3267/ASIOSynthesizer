@@ -152,7 +152,6 @@ KEYSA Keysa[]=
 	{'Y', "Y"},
 	{'7', "7"},
 	{'U', "U"},
-//	{'8', "8"},
 	{'I', "I"},
 	{'9', "9"},
 	{'O', "O"},
@@ -454,7 +453,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	}
 	else
 	{
-		m_sl1.SetPos(0);
+		m_sl1.SetPos(50);
 		m_sl2.SetPos(100);
 		m_sl3.SetPos(100);
 		m_sl4.SetPos(100);
