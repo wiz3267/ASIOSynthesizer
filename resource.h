@@ -18,7 +18,10 @@
 #define IDC_EDIT_ASIO_DEVICE            1017
 #define IDC_EDIT_SIZE_ASIO_BUFFER       1018
 #define IDC_AMPLITUDE                   1019
+#define IDC_EDIT_GARMONIC_5             1020
+#define IDC_EDIT_GARMONIC_6             1021
 #define IDC_DO                          1022
+#define IDC_EDIT_ATTACK                 1022
 #define IDC_RE                          1023
 #define IDC_ME                          1024
 #define IDC_FA                          1025
@@ -81,6 +84,8 @@
 #define IDC_EDIT_MODULATION_FREQ        1077
 #define IDC_EDIT_PIANOROLL              1079
 #define IDC_LEVEL_CONTROL               1080
+#define IDC_CHECK_GARMONIC_5            1081
+#define IDC_CHECK_GARMONIC_6            1082
 
 // Next default values for new objects
 // 

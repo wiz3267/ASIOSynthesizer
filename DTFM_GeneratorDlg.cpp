@@ -15,6 +15,11 @@
 #include <math.h>
 #include "inifile.h"
 
+
+double garmonic_5=0;
+double garmonic_6=0;
+double ADSR_Attack=0;
+
 int m_modulation_amplitude_value;
 int global_asio_index=0;
 
@@ -111,8 +116,8 @@ struct KEY
 	double Ampl;
 
 	double t;	//время(в условных единицах) сигнала
-	double A,D,S,R;	//блок ADSR (Attack-Decay-Sustain-Release)
-	double A_add;	//скорость увеличения A
+	double A,D,S,R;	//блок констант ADSR (Attack-Decay-Sustain-Release)
+	double A_add;	//скорость увеличения A (атака)
 
 	KEY() { press=0; decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;}
 } Keys[256];
@@ -124,7 +129,8 @@ KEY KeysOld[256];
 //параметры отрисовки клавиш пианноролла			//
 int KEY_L=14;										//
 int KEY_H=65;										//
-													//
+
+//координаты отрисовки пианно ролла					//
 int KEY_X=0;										//
 int KEY_Y=0;										//
 
@@ -244,6 +250,9 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_modulation_amplitude = _T("10000");
 	m_string_status_text = _T("");
 	m_size_asio_buffer = 0;
+	m_garmonic_5 = _T("1.25992");
+	m_garmonic_6 = _T("1.49830");
+	m_attack = _T("5");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -293,6 +302,9 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_MODULATION_FREQ, m_modulation_amplitude);
 	DDX_Text(pDX, IDC_EDIT_STATUS_TEXT, m_string_status_text);
 	DDX_Text(pDX, IDC_EDIT_SIZE_ASIO_BUFFER, m_size_asio_buffer);
+	DDX_Text(pDX, IDC_EDIT_GARMONIC_5, m_garmonic_5);
+	DDX_Text(pDX, IDC_EDIT_GARMONIC_6, m_garmonic_6);
+	DDX_Text(pDX, IDC_EDIT_ATTACK, m_attack);
 	//}}AFX_DATA_MAP
 }
 
@@ -350,8 +362,12 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	if (sl2) {flag_one++;freq_actual=freq*2;}
 	if (sl3) {flag_one++;freq_actual=freq*3;}
 	if (sl4) {flag_one++;freq_actual=freq*4;}
-	if (sl5) {flag_one++;freq_actual=freq*5;}
-	if (sl6) {flag_one++;freq_actual=freq*6;}
+	
+	//if (sl5) {flag_one++;freq_actual=freq*5;}
+	if (sl5) {flag_one++;freq_actual=-1;}
+	
+	//if (sl6) {flag_one++;freq_actual=freq*6;}
+	if (sl6) {flag_one++; freq_actual=-1;}
 
 	if (slm2) {flag_one++;freq_actual=freq/2;}
 	if (slm3) {flag_one++;freq_actual=freq/3;}
@@ -379,8 +395,12 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	if (sl2) { f=2*freq; if (f<limit) k+=sl2/100.0*sin(f*t); }
 	if (sl3) { f=3*freq; if (f<limit) k+=sl3/100.0*sin(f*t); }
 	if (sl4) { f=4*freq; if (f<limit) k+=sl4/100.0*sin(f*t); }
-	if (sl5) { f=5*freq; if (f<limit) k+=sl5/100.0*sin(f*t); }
-	if (sl6) { f=6*freq; if (f<limit) k+=sl6/100.0*sin(f*t); }
+	
+	//if (sl5) { f=5*freq; if (f<limit) k+=sl5/100.0*sin(f*t); }
+	if (sl5) { f=garmonic_5*freq; if (f<limit) k+=sl5/100.0*sin(f*t); }
+
+	//if (sl6) { f=6*freq; if (f<limit) k+=sl6/100.0*sin(f*t); }
+	if (sl6) { f=garmonic_6*freq; if (f<limit) k+=sl6/100.0*sin(f*t); }
 
 
 	//в два и более раза меньшие гармоники
@@ -689,7 +709,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 				
 				Keys[k].t	+=K;
 
-				Keys[k].Ampl+=Keys[k].A_add;
+				Keys[k].Ampl+=Keys[k].A_add;	//attack
 
 				if (Keys[k].Ampl > Keys[k].A)
 				{
@@ -968,7 +988,15 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 
 			int L2=int(L*0.6);
 			int H2=int(H*0.6);
-			if (scale != pow(2,1/12.0)) H2=H;
+			if (scale != pow(2,1/12.0)) 
+			{
+				H2=H;
+			}
+			else
+			{
+				//!!!!!!!!!!!!!!!!
+				//H2=H;
+			}
 			if (i==2 || i==6) continue;
 			int s=(2*L-L2)/2;
 
@@ -1006,9 +1034,20 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	GetData;
 
+
+	CString s = m_garmonic_5;
+	garmonic_5=strtod(s.GetBuffer(0),NULL);
+
+	s = m_garmonic_6;
+	garmonic_6=strtod(s.GetBuffer(0),NULL);
+
+	s = m_attack;
+	ADSR_Attack = strtod(s.GetBuffer(0),NULL);
+
+
 	m_modulation_amplitude_value = atoi(m_modulation_amplitude.GetBuffer(0));
 
-	CString	s =	m_edit_modilation;
+	s =	m_edit_modilation;
 	double m_scale = atoi(m_edit_scale.GetBuffer(0));
 	
 	if (m_scale<2 || m_scale>48) m_scale = 12;
@@ -1065,16 +1104,22 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	//????
 	RECT rt;
 	m_pianoroll.GetWindowRect(&rt);
-	int pianoroll_x = rt.left;
-	int pianoroll_y = rt.top;
+	
+	KEY_X=rt.left;
+	KEY_Y=rt.top;
+	
 	//перересовка пианоролла
 	RECT rtwin;
 	GetWindowRect(&rtwin);
 	int x=rtwin.left;
 	int y=rtwin.top;
+	
+	KEY_X-=x;
+	KEY_Y-=y;
 
 	CDC *pdc=m_pianoroll.GetDC();
-	DrawPiannoRoll(pdc, &m_level_control, pianoroll_x-x, 0, 60);
+	//DrawPiannoRoll(pdc, &m_level_control, pianoroll_x-x, 0, 60);
+	DrawPiannoRoll(pdc, &m_level_control, 0, 0, 60);
 	ReleaseDC(pdc);
 
 
@@ -1449,9 +1494,9 @@ void MidiKeyPress2(BYTE key, BYTE value)
 
 		//????
 		Keys[key].A=Keys[key].Ampl;
-		Keys[key].A_add=5;//0.6;
+		Keys[key].A_add=ADSR_Attack;//0.6;
 
-		Keys[key].Ampl=1;
+		Keys[key].Ampl=0;
 
 		Keys[key].decrement=0;
 		Keys[key].t=0;	//время функции sin

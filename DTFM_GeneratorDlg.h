@@ -86,6 +86,9 @@ public:
 	CString	m_modulation_amplitude;
 	CString	m_string_status_text;
 	int		m_size_asio_buffer;
+	CString	m_garmonic_5;
+	CString	m_garmonic_6;
+	CString	m_attack;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
