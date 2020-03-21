@@ -69,12 +69,6 @@ void CDialogASIOConnect::OnOK()
 	int res=main(m_asio_index,0);
 	EndDialog(res);
 
-	//MessageBoxA("Нажмите какую нибудь клавишу", "Информация!", MB_OK);
-	//MessageBoxA("Нажмите клавишу", "Информация два!", MB_OK);
-
-	MessageBoxA("Нажмите какую нибудь клавишу", "Информация!", MB_OK);
-
-	
 	//CDialog::OnOK();
 }
 
