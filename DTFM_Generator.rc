@@ -118,7 +118,7 @@ BEGIN
                     WS_DISABLED
     PUSHBUTTON      "Play Writen",IDC_BUTTON_PLAY_WRITEN,60,67,49,14
     PUSHBUTTON      "Reset Sound (all keys off)",IDC_BUTTON_RESET,4,97,104,
-                    23
+                    35
     PUSHBUTTON      "Stop Playing",IDC_STOP_PLAY,60,82,49,14,WS_DISABLED
     EDITTEXT        IDC_EDIT_STATUS_TEXT,0,207,654,14,ES_AUTOHSCROLL | 
                     ES_READONLY
