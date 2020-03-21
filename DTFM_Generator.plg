@@ -3,29 +3,14 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: DTFM_Generator - Win32 Release--------------------
+--------------------Configuration: DTFM_Generator - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\Wiz\AppData\Local\Temp\RSPF0FC.tmp" with contents
-[
-winmm.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/ASIOSynthesizer_release.pdb" /machine:I386 /out:"ASIOSynthesizer_release.exe" 
-.\Release\DialogASIOConnect.obj
-.\Release\DTFM_Generator.obj
-.\Release\DTFM_GeneratorDlg.obj
-.\Release\StdAfx.obj
-.\Release\synth.obj
-.\Release\DTFM_Generator.res
-.\BassASIO\c\synth\bass.lib
-.\BassASIO\c\bassasio.lib
-]
-Creating command line "link.exe @C:\Users\Wiz\AppData\Local\Temp\RSPF0FC.tmp"
-<h3>Output Window</h3>
-Linking...
 
 
 
 <h3>Results</h3>
-ASIOSynthesizer_release.exe - 0 error(s), 0 warning(s)
+ASIOSynthesizer_debug.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
