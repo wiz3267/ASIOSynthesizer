@@ -70,7 +70,10 @@ void CDialogASIOConnect::OnOK()
 	EndDialog(res);
 
 	//MessageBoxA("Нажмите какую нибудь клавишу", "Информация!", MB_OK);
-	MessageBoxA("Нажмите клавишу", "Информация два!", MB_OK);
+	//MessageBoxA("Нажмите клавишу", "Информация два!", MB_OK);
+
+	MessageBoxA("Нажмите какую нибудь клавишу", "Информация!", MB_OK);
+
 	
 	//CDialog::OnOK();
 }
