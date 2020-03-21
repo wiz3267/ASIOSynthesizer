@@ -84,8 +84,17 @@
 #define IDC_EDIT_MODULATION_FREQ        1077
 #define IDC_EDIT_PIANOROLL              1079
 #define IDC_LEVEL_CONTROL               1080
-#define IDC_CHECK_GARMONIC_5            1081
-#define IDC_CHECK_GARMONIC_6            1082
+#define IDC_CHECK_GARMONIC_5_OFF        1081
+#define IDC_CHECK_GARMONIC_6_OFF        1082
+#define IDC_CHECK_GARMONIC_1_OFF        1083
+#define IDC_CHECK_GARMONIC_2_OFF        1084
+#define IDC_CHECK_GARMONIC_3_OFF        1085
+#define IDC_CHECK_GARMONIC_4_OFF        1086
+#define IDC_CHECK_GARMONIC_M6_OFF       1087
+#define IDC_CHECK_GARMONIC_M5_OFF       1088
+#define IDC_CHECK_GARMONIC_M4_OFF       1089
+#define IDC_CHECK_GARMONIC_M3_OFF       1090
+#define IDC_CHECK_GARMONIC_M2_OFF       1091
 
 // Next default values for new objects
 // 
