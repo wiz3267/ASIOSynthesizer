@@ -41,6 +41,8 @@ ALL : ".\ASIOSynthesizer_release.exe" "$(OUTDIR)\DTFM_Generator.bsc"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\cirlceSlider.obj"
+	-@erase "$(INTDIR)\cirlceSlider.sbr"
 	-@erase "$(INTDIR)\DialogASIOConnect.obj"
 	-@erase "$(INTDIR)\DialogASIOConnect.sbr"
 	-@erase "$(INTDIR)\DTFM_Generator.obj"
@@ -70,7 +72,8 @@ BSC32_SBRS= \
 	"$(INTDIR)\DTFM_Generator.sbr" \
 	"$(INTDIR)\DTFM_GeneratorDlg.sbr" \
 	"$(INTDIR)\StdAfx.sbr" \
-	"$(INTDIR)\synth.sbr"
+	"$(INTDIR)\synth.sbr" \
+	"$(INTDIR)\cirlceSlider.sbr"
 
 "$(OUTDIR)\DTFM_Generator.bsc" : "$(OUTDIR)" $(BSC32_SBRS)
     $(BSC32) @<<
@@ -87,7 +90,8 @@ LINK32_OBJS= \
 	"$(INTDIR)\synth.obj" \
 	"$(INTDIR)\DTFM_Generator.res" \
 	".\BassASIO\c\synth\bass.lib" \
-	".\BassASIO\c\bassasio.lib"
+	".\BassASIO\c\bassasio.lib" \
+	"$(INTDIR)\cirlceSlider.obj"
 
 ".\ASIOSynthesizer_release.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -106,6 +110,8 @@ ALL : ".\ASIOSynthesizer_debug.exe" "$(OUTDIR)\DTFM_Generator.bsc"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\cirlceSlider.obj"
+	-@erase "$(INTDIR)\cirlceSlider.sbr"
 	-@erase "$(INTDIR)\DialogASIOConnect.obj"
 	-@erase "$(INTDIR)\DialogASIOConnect.sbr"
 	-@erase "$(INTDIR)\DTFM_Generator.obj"
@@ -138,7 +144,8 @@ BSC32_SBRS= \
 	"$(INTDIR)\DTFM_Generator.sbr" \
 	"$(INTDIR)\DTFM_GeneratorDlg.sbr" \
 	"$(INTDIR)\StdAfx.sbr" \
-	"$(INTDIR)\synth.sbr"
+	"$(INTDIR)\synth.sbr" \
+	"$(INTDIR)\cirlceSlider.sbr"
 
 "$(OUTDIR)\DTFM_Generator.bsc" : "$(OUTDIR)" $(BSC32_SBRS)
     $(BSC32) @<<
@@ -155,7 +162,8 @@ LINK32_OBJS= \
 	"$(INTDIR)\synth.obj" \
 	"$(INTDIR)\DTFM_Generator.res" \
 	".\BassASIO\c\synth\bass.lib" \
-	".\BassASIO\c\bassasio.lib"
+	".\BassASIO\c\bassasio.lib" \
+	"$(INTDIR)\cirlceSlider.obj"
 
 ".\ASIOSynthesizer_debug.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -205,6 +213,11 @@ LINK32_OBJS= \
 
 
 !IF "$(CFG)" == "DTFM_Generator - Win32 Release" || "$(CFG)" == "DTFM_Generator - Win32 Debug"
+SOURCE=.\cirlceSlider.cpp
+
+"$(INTDIR)\cirlceSlider.obj"	"$(INTDIR)\cirlceSlider.sbr" : $(SOURCE) "$(INTDIR)" "$(INTDIR)\DTFM_Generator.pch"
+
+
 SOURCE=.\DialogASIOConnect.cpp
 
 "$(INTDIR)\DialogASIOConnect.obj"	"$(INTDIR)\DialogASIOConnect.sbr" : $(SOURCE) "$(INTDIR)" "$(INTDIR)\DTFM_Generator.pch"

@@ -15,10 +15,14 @@
 #include <math.h>
 #include "inifile.h"
 
+#include "circleSlider.h"
+
 
 double garmonic_5=0;
 double garmonic_6=0;
 double ADSR_Attack=0;
+
+CircleSlider *cSlider1=NULL;
 
 int m_modulation_amplitude_value;
 int global_asio_index=0;
@@ -426,6 +430,8 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
+
 	m_asio_device=global_asio_index;
 	m_size_asio_buffer=ASIO_buflen;
 
@@ -550,6 +556,10 @@ void CDTFM_GeneratorDlg::OnPaint()
 	}
 	else
 	{
+		CDC *dc=GetDC();
+		cSlider1->Draw(dc);
+		ReleaseDC(dc);
+
 		CDialog::OnPaint();
 	}
 }
@@ -1625,6 +1635,17 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point) 
 {
+
+	cSlider1->OnMouseMove(nFlags,point);
+
+	if (cSlider1->flagPaint)
+	{
+		CDC *dc=GetDC();
+		cSlider1->Draw(dc);
+		ReleaseDC(dc);
+	}
+
+
 	if (nFlags&MK_LBUTTON)
 	{
 		MouseMove=true;
