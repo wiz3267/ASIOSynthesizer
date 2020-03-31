@@ -512,6 +512,10 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	HANDLE hProcess=GetCurrentProcess();
 	SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS);
 
+	//?????
+	//m_asio_device
+	//m_control_asio_device.SetFocus();
+	SetFocus();
 	//HANDLE hThread=GetCurrentThread();
 	//SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST);
 
@@ -1498,6 +1502,9 @@ void MidiKeyPress2(BYTE key, BYTE value)
 	{
 		//if (Keys[key].press==true) return;
 
+		if (Keys[key].press==1) return;
+
+
 		Keys[key].press=true;
 
 		Keys[key].Ampl=atoi(m_amplitude_global)*value/127.0;
@@ -1626,7 +1633,12 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 		Keys[key_real].press=TRUE;
 		Keys[key_real].Ampl=atoi(m_amplitude_global);
-		Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+
+		
+		//если в момент нажатия клавиши нажата CTRL 
+		if (nFlags & MK_CONTROL) Keys[key_real].decrement=0;//звук будет звучать постоянно
+		else Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+		
 		Keys[key_real].t=0;
 	}
 
