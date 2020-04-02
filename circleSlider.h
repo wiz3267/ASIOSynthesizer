@@ -10,8 +10,8 @@ public:
 	double	r1, r2;
 	int		x,y;		//координаты элемента на экране
 
-	double cSliderAng;	//угол, на который установлена ручка
-
+	double	cSliderAng;	//угол, на который установлена ручка
+	int		drawType;
 
 	//! @breif Функция перевода градусов в радианы
 	//! @param f - значение в градусах
@@ -84,14 +84,21 @@ public:
 	//! @brief Функция получения размерности (длины) буффера со спрайтом
 	//! @return длина буффера
 	int GetSpriteBufLen( );
-
+	
+	//! @brief Функция определяет какую функцию перерисовки использовать в дальнейшем
+	//! @param drawType - тип перерисовки (1..4)
+	//! @return
+	void SetDrawType( int drawType );
 
 	//рисует элемент управления
-	void Draw( CDC *pDC);
+	void Draw( CDC *pDC );
 
 	//обрабатывает сообщение от мышки
 	void OnMouseMove(UINT nFlags,CPoint point);
-	
+
+	//! @brief Функция возвращает текущее положение слайдера от 0 до 1
+	//! @return положение слайдера
+	double GetCurrentValue( );
 };
 
 

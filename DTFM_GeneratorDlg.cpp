@@ -16,6 +16,9 @@
 #include "inifile.h"
 
 #include "circleSlider.h"
+#include "circleSliderIndicator.h"
+#include "digIndicator.h"
+#include "digIndicatorValue.h"
 
 
 double garmonic_5=0;
@@ -23,6 +26,8 @@ double garmonic_6=0;
 double ADSR_Attack=0;
 
 CircleSlider *cSlider1=NULL;
+CircleSliderIndicator * cCircleSlider=NULL;
+DigIndicatorValue	*dInd1;
 
 int m_modulation_amplitude_value;
 int global_asio_index=0;
@@ -430,7 +435,14 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
+	//cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
+
+	cCircleSlider = new CircleSliderIndicator(360,50, CircleSliderIndicator::typeOfElem1, 0,100, 50, true, 4);
+	
+	//bool isSmallInd=1;
+	//BYTE c=0xf0;
+	//dInd1 = new DigIndicatorValue( 360, 85, RGB(c, c,c), RGB(0x00, 0x00, 0x00), isSmallInd );		
+	//dInd1->SetIntValue( 35,  4, 0, 0 );
 
 	m_asio_device=global_asio_index;
 	m_size_asio_buffer=ASIO_buflen;
@@ -512,7 +524,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	HANDLE hProcess=GetCurrentProcess();
 	SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS);
 
-	//?????
+	
 	//m_asio_device
 	//m_control_asio_device.SetFocus();
 	SetFocus();
@@ -561,8 +573,17 @@ void CDTFM_GeneratorDlg::OnPaint()
 	else
 	{
 		CDC *dc=GetDC();
-		cSlider1->Draw(dc);
-		ReleaseDC(dc);
+		//cSlider1->Draw(dc);
+
+		cCircleSlider->OnPaint(dc);
+		
+		//?????
+		//dDig1=;
+		//dInd1->OnPaint(dc,1);
+		
+		//?????
+		//???????
+		//ReleaseDC(dc);
 
 		CDialog::OnPaint();
 	}
@@ -1648,12 +1669,12 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point) 
 {
 
-	cSlider1->OnMouseMove(nFlags,point);
-
-	if (cSlider1->flagPaint)
+	cCircleSlider->OnMouseMove(nFlags, point);
+	
+	if (cCircleSlider->pSlider->flagPaint == true)
 	{
-		CDC *dc=GetDC();
-		cSlider1->Draw(dc);
+		CDC *dc=GetDC() ;
+		cCircleSlider->OnPaint(dc);
 		ReleaseDC(dc);
 	}
 

@@ -13,6 +13,7 @@ CircleSlider::CircleSlider( int len, int _x,int _y, double Arg_cSliderAng )
 
 	r1 = len / 2 * 0.7;
 	r2 = len / 2 * 0.8;
+	drawType = 4;
 }
 
 CircleSlider::~CircleSlider()
@@ -157,8 +158,8 @@ void CircleSlider::FillBackground( long color )
 void CircleSlider::DrawType1( double ang )
 {
 	int		len = spriteBufLen;	
-	long	color1 = 0xff0000L;
-	long	color2 = 0xffff00L;
+	long	color1 = RGB(0xff, 0x00, 0x00);
+	long	color2 = RGB(0xff, 0xff, 0x00);
 	double	xc = len / 2;
 	double	yc = len / 2;
 	
@@ -172,8 +173,8 @@ void CircleSlider::DrawType1( double ang )
 void CircleSlider::DrawType2( double ang )
 {
 	int		len = spriteBufLen;	
-	long	color1 = 0xff0000L;
-	long	color2 = 0xff00ffL;
+	long	color1 = RGB(0xff, 0x00, 0x00);
+	long	color2 = RGB(0xff, 0x00, 0xff);
 	double	xc = len / 2;
 	double	yc = len / 2;
 	double	r = (r1 + r2) / 2;
@@ -190,8 +191,8 @@ void CircleSlider::DrawType2( double ang )
 void CircleSlider::DrawType3( double ang )
 {
 	int		len = spriteBufLen;	
-	long	color1 = 0xff0000L;
-	long	color2 = 0xffff00L;
+	long	color1 = RGB(0xff, 0x00, 0x00);
+	long	color2 = RGB(0x00, 0xff, 0x00);
 	double	xc = len / 2;
 	double	yc = len / 2;
 	
@@ -205,10 +206,9 @@ void CircleSlider::DrawType3( double ang )
 void CircleSlider::DrawType4( double ang )
 {
 	int		len = spriteBufLen;	
-	long	color1 = RGB(0,0,0);
-	long	color2 = RGB(0,0,0);
-	long	color3 = RGB(0xF0,0xF0,0xF0);
-	DWORD	color4 = RGB(0,0,0);	//цвет стрелки
+	long	color1 = RGB(0x00, 0x00, 0x00); // цвет дуги
+	long	color3 = RGB(0xf0, 0xf0, 0xf0); // цвет фона (для выреза части дуги)
+	DWORD	color4 = RGB(0x00, 0x00, 0x00);	// цвет стрелки
 			
 	double	xc = len / 2;
 	double	yc = len / 2;
@@ -220,9 +220,13 @@ void CircleSlider::DrawType4( double ang )
 
 	DrawCircleSector( spriteBuf, spriteBufLen, color1, xc, yc, r1, r2, 0, -1 );
 	DrawCircleSector( spriteBuf, spriteBufLen, color3, xc, yc, r1, r2, toRad(270), toRad(45) );
+
+	bool wideArrowFlag = false;
 	
-	//DrawEdge( spriteBuf, spriteBufLen, 0xff00ffL, x1, y1, x2, y2, 3 );
-	DrawEdge( spriteBuf, spriteBufLen, RGB(0,0,0), x1, y1, x2, y2, 1 );
+	if (wideArrowFlag)
+		DrawEdge( spriteBuf, spriteBufLen, RGB(0xff, 0x00, 0xff), x1, y1, x2, y2, 3 );
+	else
+		DrawEdge( spriteBuf, spriteBufLen, RGB(0x00, 0x00, 0x00), x1, y1, x2, y2, 1 );
 }
 
 //! @brief Функция получения угла, в зависимости от координат курсора мыши
@@ -238,12 +242,13 @@ bool CircleSlider::GetAngle( double& ang, double xc, double yc, double len, doub
 	double	d2 = dx * dx + dy * dy;
 	double	d = sqrt( d2 );
 
-	if (!(d >= r1 - 5 && d <= r2 + 5)) return false;
+	if (!(d >= r1 - 45 && d <= r2 + 5)) return false;
 	
 	double	f = 0;
+	double	v2pi = 3.14159 * 2;
 
 	ang = 0;
-	for( f = 0; f < 6.29; f += 0.001 )
+	for( f = 0; f < v2pi; f += 0.01 )
 	{
 		double	ux = cos(f);
 		double	uy = sin(f);
@@ -251,7 +256,7 @@ bool CircleSlider::GetAngle( double& ang, double xc, double yc, double len, doub
 		double	vy = dy / d;
 		double	sm = ux * vx + uy * vy;
 
-		if (sm > 0.99) ang = f;
+		if (sm > 0.999) ang = f;
 	}
 	return true;
 }
@@ -270,35 +275,65 @@ int CircleSlider::GetSpriteBufLen( )
 	return spriteBufLen;
 }
 
+//! @brief Функция определяет какую функцию перерисовки использовать в дальнейшем
+//! @param drawType - тип перерисовки (1..4)
+//! @return
+void CircleSlider::SetDrawType( int drawType )
+{
+	this->drawType = drawType;
+}
 
-void CircleSlider::Draw( CDC *pDC)
+void CircleSlider::Draw( CDC *pDC )
 {
 
 	int C=0xF0;
 	FillBackground( RGB(C,C,C) );
 
-	DrawType4( cSliderAng );
+	if (drawType == 1) DrawType1( cSliderAng );
+	if (drawType == 2) DrawType2( cSliderAng );
+	if (drawType == 3) DrawType3( cSliderAng );
+	if (drawType == 4) DrawType4( cSliderAng );
 
+	CDC		memDC;
+	CBitmap memBM;
+	int		len = spriteBufLen;
+
+	CClientDC *dc = (CClientDC*)pDC;
+
+	long	*buf = new long [len * len];
+	long	*pBuf = buf;
+
+    memDC.CreateCompatibleDC( dc );
 	long *pDat=spriteBuf;
 
-	int len=spriteBufLen;
-
 	int		gx, gy;
-
+	long	color;
+	char	*colorData = (char*)&color;
+	char	tmpByte;
 
 	for( gy = 0; gy < len; gy++ )
 	{
 		for( gx = 0; gx < len; gx++ )
 		{
-			long	color = *pDat;			
+			color = *pDat;
 			
 			if (color != -1)
 			{
-				pDC->SetPixel( x + gx, y + gy, color );
+				tmpByte = colorData[0];
+				colorData[0] = colorData[2];
+				colorData[2] = tmpByte;
+
+				*pBuf = color;
 			}
 			pDat++;
+			pBuf++;
 		}
 	}
+
+    memBM.CreateBitmap( len, len, 1, 32, buf );
+	delete [] buf;
+    memDC.SelectObject( &memBM );
+    pDC->BitBlt( x, y, len, len, &memDC, 0, 0, SRCCOPY );
 }
 
 void CircleSlider::OnMouseMove(UINT nFlags,CPoint point)
@@ -327,4 +362,16 @@ void CircleSlider::OnMouseMove(UINT nFlags,CPoint point)
 		flagPaint = true;
 	}
 
+}
+
+//! @brief Функция возвращает текущее положение слайдера от 0 до 1
+//! @return положение слайдера
+double CircleSlider::GetCurrentValue( )
+{
+	double	val = cSliderAng / (3.14159 * 2);
+
+	if (val < 0) val = 0;
+	if (val > 1) val = 1;
+
+	return val;
 }

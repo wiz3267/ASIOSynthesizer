@@ -92,11 +92,23 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\circleSliderIndicator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\cirlceSlider.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\DialogASIOConnect.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\digIndicator.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\digIndicatorValue.cpp
 # End Source File
 # Begin Source File
 
@@ -121,7 +133,23 @@ SOURCE=.\StdAfx.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\circleSlider.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\circleSliderIndicator.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DialogASIOConnect.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\digIndicator.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\digIndicatorValue.h
 # End Source File
 # Begin Source File
 
