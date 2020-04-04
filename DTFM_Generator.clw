@@ -35,7 +35,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_EDIT_ASIO_DEVICE
+LastObject=CDTFM_GeneratorDlg
 
 [CLS:CAboutDlg]
 Type=0

@@ -25,6 +25,7 @@ double garmonic_5=0;
 double garmonic_6=0;
 double ADSR_Attack=0;
 
+double globalVolume=0.5;
 CircleSlider *cSlider1=NULL;
 CircleSliderIndicator * cCircleSlider=NULL;
 DigIndicatorValue	*dInd1;
@@ -341,6 +342,7 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_EN_SETFOCUS(IDC_EDIT_SCALE, OnSetfocusEditScale)
 	ON_EN_KILLFOCUS(IDC_EDIT_SCALE, OnKillfocusEditScale)
 	ON_BN_CLICKED(IDC_BUTTON_ASIO_CONTROL_PANEL, OnButtonAsioControlPanel)
+	ON_WM_LBUTTONUP()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -808,7 +810,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//устанавливаем уровень максимума за этот звуковой блок
 		if (abs(int(m)) > MaxSound) MaxSound=abs(int(m));	//округляем double в int. все рассчеты ведутся в double, а здесь округление
 
-		short int z=(short int)m;
+		short int z=(short int)(m*globalVolume);
 
 		plbuf[i]=z;
 	}
@@ -1493,10 +1495,10 @@ void CDTFM_GeneratorDlg::OnMove(int x, int y)
 	
 }
 
-void CDTFM_GeneratorDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
+/*void CDTFM_GeneratorDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
 	CDialog::OnChar(nChar, nRepCnt, nFlags);
-}
+}*/
 
 void CDTFM_GeneratorDlg::OnStopPlay() 
 {
@@ -1669,13 +1671,34 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point) 
 {
 
+	int oldx, oldy;
+
+	oldx=cCircleSlider->xSliderStart;
+	oldy=cCircleSlider->ySliderStart;
+
+
 	cCircleSlider->OnMouseMove(nFlags, point);
 	
 	if (cCircleSlider->pSlider->flagPaint == true)
 	{
 		CDC *dc=GetDC() ;
 		cCircleSlider->OnPaint(dc);
+
+
+		globalVolume=cCircleSlider->GetValue()/100.0;
+
 		ReleaseDC(dc);
+
+		if ( (oldx!=cCircleSlider->xSliderStart) || (oldy!=cCircleSlider->ySliderStart))
+		{
+			
+			//Invalidate(false);
+			int x=cCircleSlider->xSliderStart,y=cCircleSlider->ySliderStart,d=150;
+			RECT rt={x,y,x+d,y+d};
+			InvalidateRect(&rt,true);
+			//Invalidate(true);
+		}
+		//?????
 	}
 
 
@@ -1728,4 +1751,11 @@ void CDTFM_GeneratorDlg::OnButtonAsioControlPanel()
 	// TODO: Add your control notification handler code here
 	BASS_ASIO_ControlPanel();
 	
+}
+
+void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point) 
+{
+	// TODO: Add your message handler code here and/or call default
+	Invalidate(TRUE);
+	CDialog::OnLButtonUp(nFlags, point);
 }

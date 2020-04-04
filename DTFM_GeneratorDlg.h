@@ -114,8 +114,6 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnClose();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnPlayString();
-	afx_msg void OnAbort();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnButtonMidiClose();
 	afx_msg void OnButtonMidiOpen();
@@ -124,10 +122,7 @@ protected:
 	afx_msg void OnButtonPlayWriten();
 	afx_msg void OnButtonReset();
 	afx_msg void OnMove(int x, int y);
-	afx_msg void OnClose2();
-	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnStopPlay();
-	afx_msg void OnHide();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnSetfocusEditModulation();
@@ -136,6 +131,7 @@ protected:
 	afx_msg void OnSetfocusEditScale();
 	afx_msg void OnKillfocusEditScale();
 	afx_msg void OnButtonAsioControlPanel();
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

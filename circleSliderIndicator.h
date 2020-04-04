@@ -19,7 +19,8 @@ public:
 		typeOfElem8,
 		typeOfElem9,
 	};
-private:	
+//private:	
+public:
 	int		xSliderStart;
 	int		ySliderStart;
 	int		sliderDrawType;
