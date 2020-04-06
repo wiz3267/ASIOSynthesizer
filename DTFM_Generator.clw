@@ -15,9 +15,9 @@ Class3=CAboutDlg
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DIALOG_SETTINGS
-Resource4=IDD_DIALOG_ASIO_CONNECT
-Resource5=IDD_DTFM_GENERATOR_DIALOG
+Resource3=IDD_DIALOG_ASIO_CONNECT
+Resource4=IDD_DTFM_GENERATOR_DIALOG
+Resource5=IDD_DIALOG_SETTINGS
 Class4=CDialogASIOConnect
 Resource6=IDD_ABOUTBOX (English (U.S.))
 
@@ -35,7 +35,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=CDTFM_GeneratorDlg
+LastObject=IDC_SLIDER_TOTAL_VOLUME
 
 [CLS:CAboutDlg]
 Type=0

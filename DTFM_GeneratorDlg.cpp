@@ -26,9 +26,9 @@ double garmonic_6=0;
 double ADSR_Attack=0;
 
 double globalVolume=0.5;
-CircleSlider *cSlider1=NULL;
+//CircleSlider *cSlider1=NULL;
 CircleSliderIndicator * cCircleSlider=NULL;
-DigIndicatorValue	*dInd1;
+//DigIndicatorValue	*dInd1;
 
 int m_modulation_amplitude_value;
 int global_asio_index=0;
@@ -343,6 +343,7 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_EN_KILLFOCUS(IDC_EDIT_SCALE, OnKillfocusEditScale)
 	ON_BN_CLICKED(IDC_BUTTON_ASIO_CONTROL_PANEL, OnButtonAsioControlPanel)
 	ON_WM_LBUTTONUP()
+	ON_WM_RBUTTONUP()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -810,7 +811,8 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//устанавливаем уровень максимума за этот звуковой блок
 		if (abs(int(m)) > MaxSound) MaxSound=abs(int(m));	//округляем double в int. все рассчеты ведутся в double, а здесь округление
 
-		short int z=(short int)(m*globalVolume);
+		//short int z=(short int)(m*globalVolume);
+		short int z=(short int)(m);
 
 		plbuf[i]=z;
 	}
@@ -1068,6 +1070,12 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 
 void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent) 
 {
+	if (nIDEvent == 5555)
+	{
+		//проиграть записанные данные
+	}
+
+
 
 	GetData;
 
@@ -1128,7 +1136,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	slvolume=m_slider_total_volume.GetPos();
 
 
-	AMPLITUDE_DECREMENT=(m_slider_decrement.GetPos()*2+1)/128.0;
+	AMPLITUDE_DECREMENT=(m_slider_decrement.GetPos()*3+1)/128.0;
 
 	m_slider_decrement_double=AMPLITUDE_DECREMENT;
 
@@ -1208,6 +1216,52 @@ void CALLBACK MidiInProc(
    DWORD dwParam2
 )
 {
+
+
+
+	if (write && (wMsg == MM_MIM_DATA))
+	{
+
+			DWORD_BYTES mm;
+			mm.data=dwParam1;
+
+			BYTE nChar=mm.b[1];
+			BYTE Volume=mm.b[2];
+
+
+			static last_time=0;
+			MIDI_DATA md={0};
+			//md.key=key;
+			//md.status=value;
+			md.key=nChar;
+			md.status=Volume;
+			md.time=GetTickCount();
+			file.Write(&md, sizeof(md));
+
+			CStdioFile file;
+
+			//нажали(отпустили) midi клавишу
+			if (nChar>=0)
+			{
+				if (file.Open("midi.dat", file.modeWrite))
+				{
+					file.SeekToEnd();
+
+					//CString s;
+					//s.Format("{0, %i},\n", md.time-last_time);
+					file.Write(&md,sizeof(md));
+					
+
+					file.Close();
+
+					last_time=GetTickCount();
+				}
+	
+			}
+	}
+
+
+
 	if (wMsg == MM_MIM_DATA)
 	{
 		DWORD_BYTES mm;
@@ -1260,6 +1314,7 @@ void CALLBACK MidiInProc(
 				if (nChar<256) 
 				{
 					MidiKeyPress2(nChar, Volume);
+					//MidiKeyPress(nChar, Volume);
 				}
 			}
 			//UpdateData(false);
@@ -1394,7 +1449,7 @@ void CALLBACK TimerProc_PlayMidi(
   DWORD dwTime       // current system time
 )
 {
-/* 	if (PlayWritenPosition*sizeof(MIDI_DATA)>=PlayWritenSize)
+ 	if (PlayWritenPosition*sizeof(MIDI_DATA)>=PlayWritenSize)
 	{
 		//KillTimer(5555);
 		//::KillTimer(NULL,5555);
@@ -1428,7 +1483,7 @@ void CALLBACK TimerProc_PlayMidi(
 		PlayWritenPosition++;
 
 	}
-*/	
+	
 }
 
 void CDTFM_GeneratorDlg::OnButtonPlayWriten() 
@@ -1495,11 +1550,6 @@ void CDTFM_GeneratorDlg::OnMove(int x, int y)
 	
 }
 
-/*void CDTFM_GeneratorDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
-{
-	CDialog::OnChar(nChar, nRepCnt, nFlags);
-}*/
-
 void CDTFM_GeneratorDlg::OnStopPlay() 
 {
 	delete PlayWriten;
@@ -1525,7 +1575,7 @@ void MidiKeyPress2(BYTE key, BYTE value)
 	{
 		//if (Keys[key].press==true) return;
 
-		if (Keys[key].press==1) return;
+		//if (Keys[key].press==1) return;
 
 
 		Keys[key].press=true;
@@ -1687,6 +1737,9 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 		globalVolume=cCircleSlider->GetValue()/100.0;
 
+		m_slider_total_volume.SetPos(int(globalVolume*100));
+		
+
 		ReleaseDC(dc);
 
 		if ( (oldx!=cCircleSlider->xSliderStart) || (oldy!=cCircleSlider->ySliderStart))
@@ -1756,6 +1809,13 @@ void CDTFM_GeneratorDlg::OnButtonAsioControlPanel()
 void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
-	Invalidate(TRUE);
+	
 	CDialog::OnLButtonUp(nFlags, point);
+}
+
+void CDTFM_GeneratorDlg::OnRButtonUp(UINT nFlags, CPoint point) 
+{
+	// TODO: Add your message handler code here and/or call default
+	Invalidate(TRUE);
+	CDialog::OnRButtonUp(nFlags, point);
 }
