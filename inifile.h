@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 
-CString inifilename="MidiInPiano.ini";
+static CString inifilename="MidiInPiano.ini";
 
 class CINIFiles 
 {

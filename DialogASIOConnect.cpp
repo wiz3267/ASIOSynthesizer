@@ -5,6 +5,8 @@
 #include "DTFM_Generator.h"
 #include "DialogASIOConnect.h"
 
+#include "inifile.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -20,6 +22,7 @@ CDialogASIOConnect::CDialogASIOConnect(CWnd* pParent /*=NULL*/)
 {
 	//{{AFX_DATA_INIT(CDialogASIOConnect)
 	m_asio_index = 0;
+	m_remember = FALSE;
 	//}}AFX_DATA_INIT
 }
 
@@ -29,6 +32,7 @@ void CDialogASIOConnect::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDialogASIOConnect)
 	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE_INDEX, m_asio_index);
+	DDX_Check(pDX, IDC_REMEMBER, m_remember);
 	//}}AFX_DATA_MAP
 }
 
@@ -49,9 +53,18 @@ int main(int argc, char **argv);
 BOOL CDialogASIOConnect::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-	
 
-	//SetTimer(1,5000,NULL);
+	UpdateData(TRUE);
+
+	if (m_remember)
+	{
+	
+	}
+
+	//m_asio_index=1;
+	//SetTimer(1,1000,NULL);
+
+	//SetFocus();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE

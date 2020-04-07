@@ -28,9 +28,10 @@ double ADSR_Attack=0;
 double globalVolume=0.5;
 //CircleSlider *cSlider1=NULL;
 CircleSliderIndicator * cCircleSlider=NULL;
+CircleSliderIndicator * cCircleSlider_modulation=NULL;
+
 //DigIndicatorValue	*dInd1;
 
-int m_modulation_amplitude_value;
 int global_asio_index=0;
 
 const double PI=3.1415926;
@@ -38,18 +39,19 @@ const double PI=3.1415926;
 int NeedUpdateMidiEvent=1;	//обновлять Midi сообщения
 int NeedUpdateBaseFreq=0;	//менять базовую частоту при изменения слайдера
 
-int NeedUpdateModulation=1;	//реагировать на слайдер модуляции
+int NeedUpdateModulation=1;	////***^^^*** реагировать на слайдер модуляции	
+double g_modulation_t=0;	//***^^^***
+double g_step_modulation=0;	////***^^^*** скорость модуляции 
+double g_ModulationWheel=0;	//***^^^***
+//int m_edit_modulation_wheel  //***^^^*** эта переменная связана с edit box
+int g_modulation_wheel_2=0;	////***^^^***значения колеса модуляции
+int g_modulation_amplitude_value;//***^^^***
 
-double modulation=0;
-double step_modulation=0;	//скорость модуляции
-double ModulationWheel=0;
-int m_modulation_wheel_2=0;	//значения колеса модуляции
-
-CString m_edit_list_midi;
+CString g_edit_list_midi;
 
 double scale;//=pow(2.0,1.0/12.0);
 
-CString m_amplitude_global="";
+CString g_amplitude_global="";
 
 void MidiKeyPress2(BYTE key, BYTE value);
 
@@ -253,7 +255,6 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_slider_decrement_double = 0.0;
 	m_wave_len = 0.0;
 	m_edit_modilation = _T("1");
-	m_modulation_wheel = 0;
 	m_asio_device = -1;
 	m_edit_scale = _T("12");
 	m_string_base_a = _T("440");
@@ -263,6 +264,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_garmonic_5 = _T("1.25992");
 	m_garmonic_6 = _T("1.49830");
 	m_attack = _T("5");
+	m_edit_modulation_wheel = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -305,7 +307,6 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SLIDER_DECREMENT, m_slider_decrement_double);
 	DDX_Text(pDX, IDC_EDIT_WAVE_LEN, m_wave_len);
 	DDX_Text(pDX, IDC_EDIT_MODULATION, m_edit_modilation);
-	DDX_Text(pDX, IDC_EDIT_MODULATION_WHEEL, m_modulation_wheel);
 	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE, m_asio_device);
 	DDX_Text(pDX, IDC_EDIT_SCALE, m_edit_scale);
 	DDX_Text(pDX, IDC_EDIT_BASE_A, m_string_base_a);
@@ -314,7 +315,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SIZE_ASIO_BUFFER, m_size_asio_buffer);
 	DDX_Text(pDX, IDC_EDIT_GARMONIC_5, m_garmonic_5);
 	DDX_Text(pDX, IDC_EDIT_GARMONIC_6, m_garmonic_6);
-	DDX_Text(pDX, IDC_EDIT_ATTACK, m_attack);
+	DDX_Text(pDX, IDC_EDIT_MODULATION_WHEEL, m_edit_modulation_wheel);
 	//}}AFX_DATA_MAP
 }
 
@@ -355,11 +356,11 @@ int slm2, slm3, slm4, slm5, slm6;
 int slvolume;
 
 
-//функция используется для генерации звука
+//функция Piano используется для генерации звука
 
 //сигнал в соответствии с эквалайзером в графическом интерфейсе программы
 //Ampl амплитуда
-//freq частота
+//freq базовая частота сигнала
 //flag_one число используемых и вычисленных гармоник
 
 //freq_actual записывается последняя вычисленная частота
@@ -394,11 +395,13 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	//амплитуда сигнала
 	double AMP=Ampl;
 
+	//***^^^*** свяазано с модуляцией
 	AMP+=
-		m_modulation_amplitude_value//глубина модуляции
-		*sin(modulation);
+		g_modulation_amplitude_value//глубина модуляции
+		*sin(g_modulation_t);
 
-	double f;	//частота
+	double f;	//частота отдельной синусоиды
+	//freq базовая синусоида
 
 	//если поднят первый слайдер (базовая гармоника)
 	if (sl1) {						  k+=sl1/100.0*sin(freq*t); }
@@ -422,7 +425,8 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	if(slm5) k+=slm5/100.0*sin(freq/5*t);
 	if(slm6) k+=slm6/100.0*sin(freq/6*t);
 
-	if (m_modulation_amplitude_value)
+	//***^^^*** свяазано с модуляцией
+	if (g_modulation_amplitude_value)
 	{
 		return k *  (slvolume/100.0) * AMP  ;
 	}
@@ -440,7 +444,12 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	//cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
 
-	cCircleSlider = new CircleSliderIndicator(360,50, CircleSliderIndicator::typeOfElem1, 0,100, 50, true, 4);
+	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem1, 0,100, 99, true, 3);
+	
+	cCircleSlider_modulation = new CircleSliderIndicator(300-5,200-5, 
+		CircleSliderIndicator::typeOfElem1, 0,127, 126, true, 3);
+
+	cCircleSlider_modulation->doubleIndFlag=false;
 	
 	//bool isSmallInd=1;
 	//BYTE c=0xf0;
@@ -579,6 +588,7 @@ void CDTFM_GeneratorDlg::OnPaint()
 		//cSlider1->Draw(dc);
 
 		cCircleSlider->OnPaint(dc);
+		cCircleSlider_modulation->OnPaint(dc);
 		
 		//?????
 		//dDig1=;
@@ -713,8 +723,11 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	static int last_z =	0;
 	int	delta =	0;
 
+	//на сколько частей делится круг в соответствии с частотой дискретизации
 	double	K =	2*PI/samplerate;
+
 	double	t =	_time_*K;
+	
 	double	m =	0;
 
 	int OverloadCount=0;	//сколько раз был клиппинг (за пределы 32767...32767)
@@ -723,7 +736,8 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	{
 		m=0;
 
-		modulation	+=	step_modulation;
+		//***^^^*** свяазано с модуляцией
+		g_modulation_t	+=	g_step_modulation;
 
 		//проходимся по массиву клавиш MIDI-клавиатуры
 		for(int k=0; k<128; k++) 
@@ -1070,13 +1084,6 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 
 void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent) 
 {
-	if (nIDEvent == 5555)
-	{
-		//проиграть записанные данные
-	}
-
-
-
 	GetData;
 
 
@@ -1089,33 +1096,42 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	s = m_attack;
 	ADSR_Attack = strtod(s.GetBuffer(0),NULL);
 
-
-	m_modulation_amplitude_value = atoi(m_modulation_amplitude.GetBuffer(0));
-
-	s =	m_edit_modilation;
 	double m_scale = atoi(m_edit_scale.GetBuffer(0));
-	
 	if (m_scale<2 || m_scale>48) m_scale = 12;
 	scale = pow(2.0,1.0/m_scale);
 
 	double m_base_a	= atoi(m_string_base_a.GetBuffer(0));
-
 	BASE_A = m_base_a;
 
-	ModulationWheel	= strtod(s.GetBuffer(0),NULL);
-	
-	m_modulation_wheel=	m_modulation_wheel_2;
+
+	//________________________________________________________
+	//***^^^*** свяазано с модуляцией
+	g_modulation_amplitude_value = atoi(m_modulation_amplitude.GetBuffer(0));
+	s =	m_edit_modilation;
+
+	g_ModulationWheel	= strtod(s.GetBuffer(0),NULL);
+	int Volume=int(cCircleSlider_modulation->GetValue());
+
+	g_step_modulation=g_ModulationWheel * Volume/127.0/ASIO_buflen;
+
+
+	//??????
+	char str[16];
+	itoa(g_modulation_wheel_2,str,10);
+	//itoa(g_ModulationWheel,str,10);
+
+	m_edit_modulation_wheel=	str;
 
 	if (NeedUpdateMidiEvent)
 	{
 		//обновляем если есть изменения
-		if (m_edit!=m_edit_list_midi)
+		if (m_edit!=g_edit_list_midi)
 		{
-			m_edit=m_edit_list_midi;
+			m_edit=g_edit_list_midi;
 		}
 	}
 
-	m_amplitude_global=m_amplitude;
+	g_amplitude_global=m_amplitude;
 
 	CurrentAmplitude=atoi(m_amplitude);
 
@@ -1207,6 +1223,7 @@ void CDTFM_GeneratorDlg::OnButtonMidiClose()
 	}
 	
 }
+
 //прием миди сообщений
 void CALLBACK MidiInProc(
    HMIDIIN   hMidiIn,
@@ -1216,8 +1233,6 @@ void CALLBACK MidiInProc(
    DWORD dwParam2
 )
 {
-
-
 
 	if (write && (wMsg == MM_MIM_DATA))
 	{
@@ -1278,26 +1293,29 @@ void CALLBACK MidiInProc(
 				counter++;
 				if ( (counter %10) == 0)
 				{
-					m_edit_list_midi="";
+					g_edit_list_midi="";
 				}
 
-				m_edit_list_midi += s+ENDL;
+				g_edit_list_midi += s+ENDL;
 			}
 
-			BYTE nChar=mm.b[1];
-			BYTE Volume=mm.b[2];
+			BYTE nChar=mm.b[1]; //номер контрола
+			BYTE Volume=mm.b[2]; //значение
 
 			int z=mm.b[0]>>4;
 
 
 			if (NeedUpdateModulation)
 			{
+				//если подвинули колесо модуляции
 				if (z==11 && nChar==1)
 				{
 					//step_modulation=ModulationWheel * Volume/127.0/2048.0;
 					//step_modulation=ModulationWheel * Volume/127.0/512;
-					step_modulation=ModulationWheel * Volume/127.0/ASIO_buflen;
-					m_modulation_wheel_2=Volume;
+					//?????????
+					g_step_modulation=g_ModulationWheel * Volume/127.0/ASIO_buflen;
+					
+					g_modulation_wheel_2=Volume;
 				}
 			}
 
@@ -1311,11 +1329,8 @@ void CALLBACK MidiInProc(
 
 			if ((mm.b[0]>>4) == 9 || (mm.b[0]>>4) == 8)
 			{
-				if (nChar<256) 
-				{
-					MidiKeyPress2(nChar, Volume);
-					//MidiKeyPress(nChar, Volume);
-				}
+				MidiKeyPress2(nChar, Volume);
+				//MidiKeyPress(nChar, Volume);
 			}
 			//UpdateData(false);
 		}
@@ -1580,7 +1595,49 @@ void MidiKeyPress2(BYTE key, BYTE value)
 
 		Keys[key].press=true;
 
-		Keys[key].Ampl=atoi(m_amplitude_global)*value/127.0;
+		Keys[key].Ampl=atoi(g_amplitude_global)*value/127.0;
+
+		//????
+		Keys[key].A=Keys[key].Ampl;
+		
+		//Keys[key].A_add=ADSR_Attack;//0.6;
+
+		Keys[key].A_add=100-cCircleSlider->GetValue();;
+
+		Keys[key].Ampl=0;
+
+		//если равно 0, то клавиша будет играть бесконечно
+		Keys[key].decrement=0;
+		
+		//после нажатия клавиша сразу будет "отпущена"
+		//это такие инструменты как пианино, струнные
+		//Keys[key].decrement=AMPLITUDE_DECREMENT;
+
+
+		Keys[key].t=0;	//время функции sin
+		
+	}
+	else 
+	{
+		Keys[key].decrement=AMPLITUDE_DECREMENT;
+	}
+
+
+}
+
+
+void MidiKeyPress3(BYTE key, BYTE value)
+{
+	if (value!=0)
+	{
+		//if (Keys[key].press==true) return;
+
+		//if (Keys[key].press==1) return;
+
+
+		Keys[key].press=true;
+
+		Keys[key].Ampl=atoi(g_amplitude_global)*value/127.0;
 
 		//????
 		Keys[key].A=Keys[key].Ampl;
@@ -1599,6 +1656,7 @@ void MidiKeyPress2(BYTE key, BYTE value)
 
 
 }
+
 
 
 void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
@@ -1705,7 +1763,7 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		}
 
 		Keys[key_real].press=TRUE;
-		Keys[key_real].Ampl=atoi(m_amplitude_global);
+		Keys[key_real].Ampl=atoi(g_amplitude_global);
 
 		
 		//если в момент нажатия клавиши нажата CTRL 
@@ -1728,17 +1786,21 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 
 	cCircleSlider->OnMouseMove(nFlags, point);
-	
+	cCircleSlider_modulation->OnMouseMove(nFlags, point);
+
+	if (cCircleSlider_modulation->pSlider->flagPaint == true)
+	{
+		CDC *dc=GetDC();
+		cCircleSlider_modulation->OnPaint(dc);
+		ReleaseDC(dc);
+	}
+
 	if (cCircleSlider->pSlider->flagPaint == true)
 	{
 		CDC *dc=GetDC() ;
 		cCircleSlider->OnPaint(dc);
 
-
-		globalVolume=cCircleSlider->GetValue()/100.0;
-
-		m_slider_total_volume.SetPos(int(globalVolume*100));
-		
+		//cCircleSlider->GetValue()/100.0;
 
 		ReleaseDC(dc);
 

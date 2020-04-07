@@ -79,7 +79,6 @@ public:
 	double	m_slider_decrement_double;
 	double	m_wave_len;
 	CString	m_edit_modilation;
-	int		m_modulation_wheel;
 	int		m_asio_device;
 	CString	m_edit_scale;
 	CString	m_string_base_a;
@@ -89,6 +88,7 @@ public:
 	CString	m_garmonic_5;
 	CString	m_garmonic_6;
 	CString	m_attack;
+	CString	m_edit_modulation_wheel;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

@@ -20,6 +20,7 @@ public:
 	//{{AFX_DATA(CDialogASIOConnect)
 	enum { IDD = IDD_DIALOG_ASIO_CONNECT };
 	int		m_asio_index;
+	BOOL	m_remember;
 	//}}AFX_DATA
 
 
