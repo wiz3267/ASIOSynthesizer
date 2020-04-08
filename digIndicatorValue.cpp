@@ -2,17 +2,108 @@
 #include "digIndicatorValue.h"
 #include "digIndicator.h"
 
-DigIndicatorValue::DigIndicatorValue( int x, int y, long bColor, long fColor, bool isSmallInd )
+DigIndicator **DigIndicatorValue::digIndList1 = NULL;
+DigIndicator **DigIndicatorValue::digIndList2 = NULL;
+DigIndicator **DigIndicatorValue::digIndList3 = NULL;
+
+DigIndicatorValue::DigIndicatorValue( int x, int y, long bColor, long fColor, int indSizeType )
 {
 	this->xStart = x;
 	this->yStart = y;
 	this->bColor = bColor;
 	this->fColor = fColor;
-	this->isSmallInd = isSmallInd;
+	this->indSizeType = indSizeType;
+
+	if (indSizeType == DigIndicator::indTypeVerySmall)
+	{
+		if (digIndList1 == NULL)
+		{
+			digIndList1 = new DigIndicator* [maxIndCount];
+
+			for( int i = 0; i < maxIndCount; i++ )
+			{
+				digIndList1[i] = new DigIndicator( -1, -1, -1, -1, indSizeType );
+			}
+		}
+	}
+	if (indSizeType == DigIndicator::indTypeSmall)
+	{
+		if (digIndList2 == NULL)
+		{
+			digIndList2 = new DigIndicator* [maxIndCount];
+
+			for( int i = 0; i < maxIndCount; i++ )
+			{
+				digIndList2[i] = new DigIndicator( -1, -1, -1, -1, indSizeType );
+			}
+		}
+	}
+	if (indSizeType == DigIndicator::indTypeNormal)
+	{
+		if (digIndList3 == NULL)
+		{
+			digIndList3 = new DigIndicator* [maxIndCount];
+
+			for( int i = 0; i < maxIndCount; i++ )
+			{
+				digIndList3[i] = new DigIndicator( -1, -1, -1, -1, indSizeType );
+			}
+		}
+	}
 }
 
 DigIndicatorValue::~DigIndicatorValue( )
 {
+}
+
+//! @brief Функция освобождения памяти (должна вызываться один раз при завершении работы программы)
+//! @return
+void DigIndicatorValue::Free( )
+{
+	// удаляем массив verySmall индикаторов (если он существует)
+	if (digIndList1 != NULL)
+	{
+		for( int i = 0; i < maxIndCount; i++ )
+		{
+			if (digIndList1[i] != NULL)
+			{
+				delete digIndList1[i];
+				digIndList1[i] = NULL;
+			}
+		}
+		delete [] digIndList1;
+		digIndList1 = NULL;
+	}
+
+	// удаляем массив small индикаторов (если он существует)
+	if (digIndList2 != NULL)
+	{
+		for( int i = 0; i < maxIndCount; i++ )
+		{
+			if (digIndList2[i] != NULL)
+			{
+				delete digIndList2[i];
+				digIndList2[i] = NULL;
+			}
+		}
+		delete [] digIndList2;
+		digIndList2 = NULL;
+	}
+
+	// удаляем массив normal индикаторов (если он существует)
+	if (digIndList3 != NULL)
+	{
+		for( int i = 0; i < maxIndCount; i++ )
+		{
+			if (digIndList3[i] != NULL)
+			{
+				delete digIndList3[i];
+				digIndList3[i] = NULL;
+			}
+		}
+		delete [] digIndList3;
+		digIndList3 = NULL;
+	}
 }
 
 //! @brief Функция задает значение панели индикаторов с плавающей точкой
@@ -186,18 +277,29 @@ void DigIndicatorValue::OnPaint(CDC *pDC, int k)
 
 	int				xSize;
 
-	if (isSmallInd) 
-		xSize = 8;
-	else
-		xSize = 24;
+	if (indSizeType == DigIndicator::indTypeVerySmall) xSize = 5;
+	if (indSizeType == DigIndicator::indTypeSmall) xSize = 8;
+	if (indSizeType == DigIndicator::indTypeNormal) xSize = 24;
 
 	if (k == 2) xSize += xSize;
 
-	DigIndicator **digIndList = new DigIndicator* [len];
+//	DigIndicator **digIndList = new DigIndicator* [len];
 	
+//	for( i = 0; i < len; i++ )
+//	{
+//		digIndList[i] = new DigIndicator( xStart + (xSize + 1) * i, yStart, bColor, fColor, indSizeType );
+//	}
+
+	DigIndicator **digIndList = NULL;
+
+	if (indSizeType == DigIndicator::indTypeVerySmall) digIndList = digIndList1;
+	if (indSizeType == DigIndicator::indTypeSmall) digIndList = digIndList2;	
+	if (indSizeType == DigIndicator::indTypeNormal) digIndList = digIndList3;
+
 	for( i = 0; i < len; i++ )
 	{
-		digIndList[i] = new DigIndicator( xStart + (xSize + 1) * i, yStart, bColor, fColor, isSmallInd );
+		digIndList[i]->SetCoord( xStart + (xSize + 1) * i, yStart );
+		digIndList[i]->SetColor( bColor, fColor );
 	}
 
 	int	 j = 0;
@@ -217,19 +319,19 @@ void DigIndicatorValue::OnPaint(CDC *pDC, int k)
 		j++;
 	}
 
-	if (digIndList != NULL)
-	{
-		for( i = 0; i < len; i++ )
-		{
-			if (digIndList[i] != NULL)
-			{
-				delete digIndList[i];
-				digIndList[i] = NULL;
-			}
-		}
-		delete [] digIndList;
-		digIndList = NULL;
-	}
+//	if (digIndList != NULL)
+//	{
+//		for( i = 0; i < len; i++ )
+//		{
+//			if (digIndList[i] != NULL)
+//			{
+//				delete digIndList[i];
+//				digIndList[i] = NULL;
+//			}
+//		}
+//		delete [] digIndList;
+//		digIndList = NULL;
+//	}
 
 	if (str != NULL)
 	{

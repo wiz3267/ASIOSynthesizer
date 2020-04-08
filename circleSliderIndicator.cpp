@@ -9,9 +9,10 @@
 //! @param curValue - стартовое значение
 //! @param intFlag - true, если нужно отображать только целые значения
 //! @param countOfIndicator - число индикаторов, на которых будет отображено значение
+//! @param signShowType - выбирает режим отображения знаков "+" и "-" перед числом
 //! @return
 CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, double valueStart, double valueEnd, 
-											  double curValue, bool intFlag, int countOfIndicator )
+											  double curValue, bool intFlag, int countOfIndicator, int signShowType )
 {
 	if (typeOfElem == typeOfElem1)
 	{
@@ -19,7 +20,8 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		ySliderStart = y;
 
 		double	m_pi = 3.14159;
-		double	k = ((curValue - valueStart) / (valueEnd - valueStart));
+		double	k1 = ((curValue - valueStart) / (valueEnd - valueStart));
+		double	k = 1 - k1;
 		double	t1 = (270 - 45) / 360.0;
 		double	t2 = (270 + 45) / 360.0;
 		double	len = k * ((360 - 90) / 360.0);
@@ -41,7 +43,7 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		doubleValue2 = valueEnd;
 		
 		doubleIndFlag = false;
-		smallIndFlag = true;
+		indSizeType = DigIndicator::indTypeSmall;
 
 		sliderDrawType = 4;
 
@@ -54,6 +56,7 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 			showAsDoubleFlag = true;
 
 		this->countOfIndicator = countOfIndicator;
+		this->signShowType = signShowType;
 		this->typeOfElem = typeOfElem;
 	}
 
@@ -74,7 +77,7 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		doubleValue2 = valueEnd;
 		
 		doubleIndFlag = false;
-		smallIndFlag = true;
+		indSizeType = DigIndicator::indTypeSmall;
 
 		sliderDrawType = 1;
 
@@ -87,6 +90,7 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 			showAsDoubleFlag = true;
 
 		this->countOfIndicator = countOfIndicator;
+		this->signShowType = signShowType;
 		this->typeOfElem = typeOfElem;
 	}
 
@@ -106,8 +110,8 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		doubleValue1 = valueStart;
 		doubleValue2 = valueEnd;
 		
-		doubleIndFlag = true;
-		smallIndFlag = true;
+		doubleIndFlag = false;
+		indSizeType = DigIndicator::indTypeSmall;
 
 		sliderDrawType = 3;
 
@@ -120,6 +124,87 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 			showAsDoubleFlag = true;
 
 		this->countOfIndicator = countOfIndicator;
+		this->signShowType = signShowType;
+		this->typeOfElem = typeOfElem;
+	}
+
+	if (typeOfElem == typeOfElem4)
+	{
+		xSliderStart = x;
+		ySliderStart = y;
+
+		double	m_pi = 3.14159;
+		double	k1 = ((curValue - valueStart) / (valueEnd - valueStart));
+		double	k = 1 - k1;
+		double	t1 = (270 - 45) / 360.0;
+		double	t2 = (270 + 45) / 360.0;
+		double	len = k * ((360 - 90) / 360.0);
+		double	t;
+
+		if (len < 1 - t2)
+			t = t2 + len;
+		else
+			t = len - (1 - t2);
+
+		t = t * 2 * m_pi;
+
+		pSlider = new CircleSlider( 32, x, y, t );
+
+		xIndStart = xSliderStart + 32 / 2 - (countOfIndicator * 10) / 2;
+		yIndStart = ySliderStart + 32;
+		
+		doubleValue1 = valueStart;
+		doubleValue2 = valueEnd;
+		
+		doubleIndFlag = false;
+		indSizeType = DigIndicator::indTypeVerySmall;
+
+		sliderDrawType = 4;
+
+		bColorInd = RGB( 0xf0, 0xf0, 0xf0 );
+		fColorInd = RGB( 0x00, 0x00, 0x00 );
+
+		if (intFlag)
+			showAsDoubleFlag = false;
+		else
+			showAsDoubleFlag = true;
+
+		this->countOfIndicator = countOfIndicator;
+		this->signShowType = signShowType;
+		this->typeOfElem = typeOfElem;
+	}
+
+	if (typeOfElem == typeOfElem5)
+	{
+		xSliderStart = x;
+		ySliderStart = y;
+
+		double	m_pi = 3.14159;
+		double	t = ((curValue - valueStart) / (valueEnd - valueStart)) * 2 * m_pi;
+
+		pSlider = new CircleSlider( 64, x, y, t );
+
+		xIndStart = xSliderStart + 64 / 2 - (countOfIndicator * 20) / 2;
+		yIndStart = ySliderStart + 64;
+		
+		doubleValue1 = valueStart;
+		doubleValue2 = valueEnd;
+		
+		doubleIndFlag = false;
+		indSizeType = DigIndicator::indTypeNormal;
+
+		sliderDrawType = 3;
+
+		bColorInd = RGB( 0xf0, 0xf0, 0xf0 );
+		fColorInd = RGB( 0x00, 0xff, 0x00 );
+
+		if (intFlag)
+			showAsDoubleFlag = false;
+		else
+			showAsDoubleFlag = true;
+
+		this->countOfIndicator = countOfIndicator;
+		this->signShowType = signShowType;
 		this->typeOfElem = typeOfElem;
 	}
 }
@@ -137,7 +222,7 @@ double CircleSliderIndicator::ConvertValue( double t )
 {
 	double	res;
 
-	if (typeOfElem == typeOfElem1)
+	if (typeOfElem == typeOfElem1 || typeOfElem == typeOfElem4)
 	{
 		double	t1 = (270 - 45) / 360.0;
 		double	t2 = (270 + 45) / 360.0;
@@ -188,7 +273,7 @@ void CircleSliderIndicator::OnPaint( CDC *pDC )
 	pSlider->SetDrawType( sliderDrawType );
 	pSlider->Draw( pDC );
 
-	DigIndicatorValue *pIndValue = new DigIndicatorValue( xIndStart, yIndStart, bColorInd, fColorInd, smallIndFlag );
+	DigIndicatorValue *pIndValue = new DigIndicatorValue( xIndStart, yIndStart, bColorInd, fColorInd, indSizeType );
 
 	double	t = ConvertValue( pSlider->GetCurrentValue( ) );
 	int		intT = (int)t;
@@ -197,9 +282,9 @@ void CircleSliderIndicator::OnPaint( CDC *pDC )
 	int		aftPoint = (countOfIndicator - 1) / 2;
 
 	if (showAsDoubleFlag)
-		pIndValue->SetDoubleValue( t, befPoint, aftPoint, DigIndicatorValue::signTypeShowAlways, true );
+		pIndValue->SetDoubleValue( t, befPoint, aftPoint, signShowType, true );
 	else
-		pIndValue->SetIntValue( intT, countOfIndicator, DigIndicatorValue::signTypeShowAlways, true );
+		pIndValue->SetIntValue( intT, countOfIndicator, signShowType, true );
 
 	if (doubleIndFlag)
 		pIndValue->OnPaint( pDC, 2);

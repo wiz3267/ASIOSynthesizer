@@ -444,10 +444,19 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	//cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
 
-	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem1, 0,100, 99, true, 3);
+	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0,100, 99, true, 3,
+											  DigIndicatorValue::signTypeShowOnlyMinus);
+
+//	cCircleSlider = new CircleSliderIndicator(340+10,20-20 + 100, CircleSliderIndicator::typeOfElem3, 0,100, 99, true, 3,
+//											  DigIndicatorValue::signTypeShowOnlyMinus);
+
+//	cCircleSlider = new CircleSliderIndicator(340+10,20-20 + 100, CircleSliderIndicator::typeOfElem5, 0,100, 99, true, 3,
+//											  DigIndicatorValue::signTypeShowOnlyMinus);
+
+
 	
 	cCircleSlider_modulation = new CircleSliderIndicator(300-5,200-5, 
-		CircleSliderIndicator::typeOfElem1, 0,127, 126, true, 3);
+		CircleSliderIndicator::typeOfElem4, 0,127, 126, true, 3, DigIndicatorValue::signTypeShowOnlyMinus);
 
 	cCircleSlider_modulation->doubleIndFlag=false;
 	
@@ -841,6 +850,8 @@ extern DWORD ASIO_PROC_BUFLEN;
 void CDTFM_GeneratorDlg::OnClose() 
 {
 	OnButtonMidiClose();
+	DigIndicator::Free();
+	DigIndicatorValue::Free();
 	ExitDialog();
 }
 

@@ -26,9 +26,10 @@ public:
 	//! @param r1, r2 - малый и большой радиусы дуги соответственно
 	//! @param ang - стартовый угол от 0 до 360
 	//! @param angDelta - дельта угла (если значение меньше 0 то не учитывать)
+	//! @param isNeedSmooth - нужно ли сглаживание
 	//! @return
 	void DrawCircleSector( long *pDat, int len, long color, double xc, double yc, double r1, double r2,
-						   double ang, double angDelta );
+						   double ang, double angDelta, bool isNeedSmooth = false );
 
 	//! @brief Фукнция рисует отрезок от точки (x1, y1) до точки (x2, y2) толщиной w
 	//! @param pDat - буффер NxN pixels

@@ -27,7 +27,7 @@ public:
 	
 	int		xIndStart;
 	int		yIndStart;
-	bool	smallIndFlag;
+	int		indSizeType;
 	bool	doubleIndFlag;
 
 	double	doubleValue1;
@@ -41,8 +41,10 @@ public:
 	int		befPoint;
 	int		aftPoint;
 	int		countOfIndicator;
+	int		signShowType;
 
 	int		typeOfElem;
+	
 public:
 
 	CircleSlider	*pSlider;
@@ -61,9 +63,10 @@ public:
 	//! @param curValue - стартовое значение
 	//! @param intFlag - true, если нужно отображать только целые значения
 	//! @param countOfIndicator - число индикаторов, на которых будет отображено значение
+	//! @param signShowType - выбирает режим отображения знаков "+" и "-" перед числом
 	//! @return
 	CircleSliderIndicator( int x, int y, int typeOfElem, double valueStart, double valueEnd, 
-		                   double curValue, bool intFlag, int countOfIndicator );
+		                   double curValue, bool intFlag, int countOfIndicator, int signShowType );
 	
 	//! @brief Деструктор
 	//! @return

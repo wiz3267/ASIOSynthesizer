@@ -1,6 +1,8 @@
 #ifndef __DIG_INDICATOR_VALUE__
 #define __DIG_INDICATOR_VALUE__
 
+#include "digIndicator.h"
+
 class DigIndicatorValue
 {
 public:	
@@ -13,6 +15,11 @@ public:
 		signTypeShowOnlyMinus,
 		signTypeNotShow
 	};
+
+	enum {
+		maxIndCount = 16
+	};
+
 private:
 	bool	drawAsIntFlag;
 	double	value;
@@ -25,7 +32,10 @@ private:
 	int		nDigits;
 	int		signShowType;
 	bool	fixNumberChars;
-	bool	isSmallInd;
+	int		indSizeType;
+	static DigIndicator **digIndList1;	// массив verySmall индикаторов maxIndCount позиций
+	static DigIndicator **digIndList2;	// массив small индикаторов maxIndCount позиций
+	static DigIndicator **digIndList3;	// массив normal индикаторов maxIndCount позиций
 
 	//! @brief Функция генерации ASCII-строки для числа типа int
 	//! @return строка
@@ -36,8 +46,12 @@ private:
 	char *GenerateStringByDouble( );
 
 public:
-	DigIndicatorValue( int x, int y, long bColor, long fColor, bool isSmallInd );
+	DigIndicatorValue( int x, int y, long bColor, long fColor, int indSizeType );
 	~DigIndicatorValue( );
+
+	//! @brief Функция освобождения памяти (должна вызываться один раз при завершении работы программы)
+	//! @return
+	static void Free( );
 
 	//! @brief Функция задает значение панели индикаторов с плавающей точкой
 	//! @param value - значение в формате с плавающей точкой

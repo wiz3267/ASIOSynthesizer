@@ -11,8 +11,8 @@ CircleSlider::CircleSlider( int len, int _x,int _y, double Arg_cSliderAng )
 	spriteBuf = new long [len * len];
 	spriteBufLen = len;
 
-	r1 = len / 2 * 0.7;
-	r2 = len / 2 * 0.8;
+	r1 = len / 2 * 0.65;
+	r2 = len / 2 * 0.85;
 	drawType = 4;
 }
 
@@ -39,9 +39,10 @@ double CircleSlider::toRad( double f )
 //! @param r1, r2 - малый и большой радиусы дуги соответственно
 //! @param ang - стартовый угол от 0 до 360
 //! @param angDelta - дельта угла (если значение меньше 0 то не учитывать)
+//! @param isNeedSmooth - нужно ли сглаживание
 //! @return
 void CircleSlider::DrawCircleSector( long *pDat, int len, long color, double xc, double yc, double r1, double r2,
-									 double ang, double angDelta )
+									 double ang, double angDelta, bool isNeedSmooth )
 {
 	double	vx = cos(ang);
 	double	vy = sin(ang);
@@ -72,8 +73,47 @@ void CircleSlider::DrawCircleSector( long *pDat, int len, long color, double xc,
 				if (sm > cosAngDelta)
 				{
 					curPixelColor = color;
+
+					double	rad1 = r1;
+					double	rad2 = r2;
+
+					if (isNeedSmooth)
+					{
+						long	color1 = *pDat;
+						long	color2 = curPixelColor;
+						long	color3 = 0;
+
+						double	r1 = ((unsigned char*)&color1)[0];
+						double	g1 = ((unsigned char*)&color1)[1];
+						double	b1 = ((unsigned char*)&color1)[2];
+
+						double	r2 = ((unsigned char*)&color2)[0];
+						double	g2 = ((unsigned char*)&color2)[1];
+						double	b2 = ((unsigned char*)&color2)[2];
+
+						double	t = 1 - fabs( d - (rad1 + rad2) / 2 ) / ((rad2 - rad1) / 2);
+				
+						double	r3 = r1 + (r2 - r1) * t;
+						double	g3 = g1 + (g2 - g1) * t;
+						double	b3 = b1 + (b2 - b1) * t;
+
+						if (r3 < 0) r3 = 0;
+						if (r3 > 255.0) r3 = 255.0;
+						if (g3 < 0) g3 = 0;
+						if (g3 > 255.0) g3 = 255.0;
+						if (b3 < 0) b3 = 0;
+						if (b3 > 255.0) b3 = 255.0;
+
+						((char*)&color3)[0] = (int)r3;
+						((char*)&color3)[1] = (int)g3;
+						((char*)&color3)[2] = (int)b3;
+
+						curPixelColor = color3;
+					}
 				}
 			}
+			
+			
 			*pDat++ = curPixelColor;
 		}
 	}
@@ -129,7 +169,43 @@ void CircleSlider::DrawEdge( long *pDat, int len, long color, double x1, double 
 
 				if (t >= 0 && t <= 1)
 				{
+					bool	isNeedSmooth = true;
+
 					curPixelColor = color;
+					
+					if (isNeedSmooth)
+					{
+						long	color1 = *pDat;
+						long	color2 = curPixelColor;
+						long	color3 = 0;
+
+						double	r1 = ((unsigned char*)&color1)[0];
+						double	g1 = ((unsigned char*)&color1)[1];
+						double	b1 = ((unsigned char*)&color1)[2];
+
+						double	r2 = ((unsigned char*)&color2)[0];
+						double	g2 = ((unsigned char*)&color2)[1];
+						double	b2 = ((unsigned char*)&color2)[2];
+
+						double	t = 1 - fabs( d ) / w;
+				
+						double	r3 = r1 + (r2 - r1) * t;
+						double	g3 = g1 + (g2 - g1) * t;
+						double	b3 = b1 + (b2 - b1) * t;
+
+						if (r3 < 0) r3 = 0;
+						if (r3 > 255.0) r3 = 255.0;
+						if (g3 < 0) g3 = 0;
+						if (g3 > 255.0) g3 = 255.0;
+						if (b3 < 0) b3 = 0;
+						if (b3 > 255.0) b3 = 255.0;
+
+						((char*)&color3)[0] = (int)r3;
+						((char*)&color3)[1] = (int)g3;
+						((char*)&color3)[2] = (int)b3;
+
+						curPixelColor = color3;
+					}
 				}
 			}
 
@@ -218,7 +294,7 @@ void CircleSlider::DrawType4( double ang )
 	double	x2 = xc + r * 0.9 * cos(ang);
 	double	y2 = yc + r * 0.9 * sin(ang);
 
-	DrawCircleSector( spriteBuf, spriteBufLen, color1, xc, yc, r1, r2, 0, -1 );
+	DrawCircleSector( spriteBuf, spriteBufLen, color1, xc, yc, r1, r2, 0, -1, true );
 	DrawCircleSector( spriteBuf, spriteBufLen, color3, xc, yc, r1, r2, toRad(270), toRad(45) );
 
 	bool wideArrowFlag = false;
@@ -367,7 +443,18 @@ void CircleSlider::OnMouseMove(UINT nFlags,CPoint point)
 		
 	if (GetAngle( ang, xc, yc, len, mouseX, mouseY ))
 	{
-		cSliderAng = ang;
+		bool	lockFlag = false;		
+		
+		if (drawType == 4)
+		{	
+			double	ang1 = toRad( 270 - 45.5 );
+			double	ang2 = toRad( 270 + 43 );
+
+			if (ang >= ang1 && ang <= ang2)
+				lockFlag = true;
+		}
+
+		if (!lockFlag) cSliderAng = ang;
 		flagPaint = true;
 	}
 
