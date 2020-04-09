@@ -272,23 +272,20 @@ void DigIndicatorValue::OnPaint(CDC *pDC, int k)
 	else
 	{
 		str = GenerateStringByDouble();
-		len = strlen( str ) - 1;
+		
+		if (indSizeType == DigIndicator::indTypeVerySmall)
+			len = strlen( str );
+		else
+			len = strlen( str ) - 1;
 	}
 
-	int				xSize;
+	int	xSize;
 
 	if (indSizeType == DigIndicator::indTypeVerySmall) xSize = 5;
 	if (indSizeType == DigIndicator::indTypeSmall) xSize = 8;
 	if (indSizeType == DigIndicator::indTypeNormal) xSize = 24;
 
 	if (k == 2) xSize += xSize;
-
-//	DigIndicator **digIndList = new DigIndicator* [len];
-	
-//	for( i = 0; i < len; i++ )
-//	{
-//		digIndList[i] = new DigIndicator( xStart + (xSize + 1) * i, yStart, bColor, fColor, indSizeType );
-//	}
 
 	DigIndicator **digIndList = NULL;
 
@@ -298,40 +295,55 @@ void DigIndicatorValue::OnPaint(CDC *pDC, int k)
 
 	for( i = 0; i < len; i++ )
 	{
-		digIndList[i]->SetCoord( xStart + (xSize + 1) * i, yStart );
 		digIndList[i]->SetColor( bColor, fColor );
 	}
 
-	int	 j = 0;
-	
-	for( i = 0; i < len; i++ )
+	if (indSizeType == DigIndicator::indTypeVerySmall)
 	{
-		if (j + 1 < len + 1 && str[j + 1] == '.')
+		int		curX = xStart;
+		
+		for( i = 0; i < len; i++ )
 		{
-			digIndList[i]->DrawBuffer( str[j], true );	
+			digIndList[i]->SetCoord( curX, yStart );
+			
+			if (str[i] != '.')
+			{
+				digIndList[i]->DrawBuffer( str[i], false );
+				digIndList[i]->OnPaint( pDC, k );
+				curX += xSize + 1;
+			}
+			else
+			{
+				digIndList[i]->OnPaintVerySmallPoint( pDC, k );
+				if (k == 1) curX += digIndList[i]->GetVerySmallPointSize( ) * 1;
+				if (k == 2) curX += digIndList[i]->GetVerySmallPointSize( ) * 2;
+			}
+		}
+	}
+	else
+	{
+		for( i = 0; i < len; i++ )
+		{
+			digIndList[i]->SetCoord( xStart + (xSize + 1) * i, yStart );		
+		}
+	
+		int	 j = 0;
+	
+		for( i = 0; i < len; i++ )
+		{
+			if (j + 1 < len + 1 && str[j + 1] == '.')
+			{
+				digIndList[i]->DrawBuffer( str[j], true );	
+				j++;
+			}
+			else
+			{
+				digIndList[i]->DrawBuffer( str[j] );
+			}
+			digIndList[i]->OnPaint( pDC, k );
 			j++;
 		}
-		else
-		{
-			digIndList[i]->DrawBuffer( str[j] );
-		}
-		digIndList[i]->OnPaint( pDC, k );
-		j++;
 	}
-
-//	if (digIndList != NULL)
-//	{
-//		for( i = 0; i < len; i++ )
-//		{
-//			if (digIndList[i] != NULL)
-//			{
-//				delete digIndList[i];
-//				digIndList[i] = NULL;
-//			}
-//		}
-//		delete [] digIndList;
-//		digIndList = NULL;
-//	}
 
 	if (str != NULL)
 	{

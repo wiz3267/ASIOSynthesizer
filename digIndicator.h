@@ -66,6 +66,17 @@ public:
 	//! @return
 	void OnPaint(CDC *pDC, int k);
 
+	//! @brief Функция обновления (перерисовки) маленькой дробной точки на экране
+	//! @param pDC - контекст устройства
+	//! @param k = 1, если 1x1 пиксель
+	//! @param k = 2, если 2x2 пикселя
+	//! @return
+	void OnPaintVerySmallPoint(CDC *pDC, int k);
+
+	//! @brief Функция возвращает размер маленькой (verySmall) дробной точки на экране
+	//! @return размер дробной точки
+	int GetVerySmallPointSize( );
+
 	//! @brief Функция возвращает тип размера индикатора (порядок малости)
 	//! @return тип размера индикатора
 	int GetIndSizeType( );

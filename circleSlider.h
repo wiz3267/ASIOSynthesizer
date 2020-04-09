@@ -78,6 +78,11 @@ public:
 	//! @return признак - было ли действие
 	bool GetAngle( double& ang, double xc, double yc, double len, double mouseX, double mouseY );
 
+	//! @brief Функция установки текущего угла (вне зависимости от мыши)
+	//! @param ang - новое значение угла
+	//! @return
+	void SetAngle( double ang );
+
 	//! @brief Функция получения буффера со спрайтом
 	//! @return указатель на буффер со спрайтом
 	long *GetSpriteBuf( );

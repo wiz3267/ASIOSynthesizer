@@ -337,6 +337,14 @@ bool CircleSlider::GetAngle( double& ang, double xc, double yc, double len, doub
 	return true;
 }
 
+//! @brief Функция установки текущего угла (вне зависимости от мыши)
+//! @param ang - новое значение угла
+//! @return
+void CircleSlider::SetAngle( double ang )
+{
+	cSliderAng = ang;
+}
+
 //! @brief Функция получения буффера со спрайтом
 //! @return указатель на буффер со спрайтом
 long *CircleSlider::GetSpriteBuf( )
@@ -464,7 +472,8 @@ void CircleSlider::OnMouseMove(UINT nFlags,CPoint point)
 //! @return положение слайдера
 double CircleSlider::GetCurrentValue( )
 {
-	double	val = cSliderAng / (3.14159 * 2);
+	double	m_pi = 3.14159;
+	double	val = cSliderAng / (m_pi * 2);
 
 	if (val < 0) val = 0;
 	if (val > 1) val = 1;

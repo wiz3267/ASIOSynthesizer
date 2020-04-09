@@ -445,7 +445,10 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	//cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
 
 	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0,100, 99, true, 3,
-											  DigIndicatorValue::signTypeShowOnlyMinus);
+											  DigIndicatorValue::signTypeNotShow);
+
+//	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0, 100, 0, false, 7,
+//											  DigIndicatorValue::signTypeShowOnlyMinus);
 
 //	cCircleSlider = new CircleSliderIndicator(340+10,20-20 + 100, CircleSliderIndicator::typeOfElem3, 0,100, 99, true, 3,
 //											  DigIndicatorValue::signTypeShowOnlyMinus);
@@ -456,7 +459,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	
 	cCircleSlider_modulation = new CircleSliderIndicator(300-5,200-5, 
-		CircleSliderIndicator::typeOfElem4, 0,127, 126, true, 3, DigIndicatorValue::signTypeShowOnlyMinus);
+		CircleSliderIndicator::typeOfElem4, 0,127, 126, true, 3, DigIndicatorValue::signTypeNotShow);
 
 	cCircleSlider_modulation->doubleIndFlag=false;
 	

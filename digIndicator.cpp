@@ -16,9 +16,6 @@ DigIndicator::DigIndicator( int x, int y, long bColor, long fColor, int indSizeT
 	this->bColor = bColor;
 	this->fColor = fColor;
 
-//	spriteTemp = NULL;
-//	smallSpriteTemp = NULL;
-
 	int		bufLen;
 
 	if (indSizeType == indTypeNormal)
@@ -168,7 +165,7 @@ DigIndicator::DigIndicator( int x, int y, long bColor, long fColor, int indSizeT
 
 	if (indSizeType == indTypeVerySmall)
 	{
-		int		nChars = 13;
+		int		nChars = 14;
 
 		spriteBufferW = 5;
 		spriteBufferH = 7;
@@ -287,7 +284,15 @@ DigIndicator::DigIndicator( int x, int y, long bColor, long fColor, int indSizeT
 			char	*sE3 = "00000";
 			char	*sE4 = "00000";
 			char	*sE5 = "00000";
-			char	*sE6 = "00000";		
+			char	*sE6 = "00000";	
+
+			char	*sR0 = "00000";
+			char	*sR1 = "00000";
+			char	*sR2 = "00000";
+			char	*sR3 = "00000";
+			char	*sR4 = "00000";
+			char	*sR5 = "01100";
+			char	*sR6 = "01100";	
 
 			smallSpriteTemp = new char [nChars * spriteBufferW * spriteBufferH];
 			char *pdat = smallSpriteTemp;
@@ -402,6 +407,14 @@ DigIndicator::DigIndicator( int x, int y, long bColor, long fColor, int indSizeT
 					if (k == 12 && gy == 5) strcpy( str, sE5 );
 					if (k == 12 && gy == 6) strcpy( str, sE6 );
 
+					if (k == 13 && gy == 0) strcpy( str, sR0 );
+					if (k == 13 && gy == 1) strcpy( str, sR1 );
+					if (k == 13 && gy == 2) strcpy( str, sR2 );
+					if (k == 13 && gy == 3) strcpy( str, sR3 );
+					if (k == 13 && gy == 4) strcpy( str, sR4 );
+					if (k == 13 && gy == 5) strcpy( str, sR5 );
+					if (k == 13 && gy == 6) strcpy( str, sR6 );
+
 					for( int gx = 0; gx < spriteBufferW; gx++ )
 					{
 						if (str[gx] == '0') *pdat = 0;
@@ -417,31 +430,6 @@ DigIndicator::DigIndicator( int x, int y, long bColor, long fColor, int indSizeT
 
 DigIndicator::~DigIndicator()
 {
-//	if (spriteTemp != NULL)
-//	{
-//		for( int i = 0; i < spriteBufferH; i++ )
-//		{
-//			if (spriteTemp[i] != NULL)
-//			{
-//				delete [] spriteTemp[i];
-//				spriteTemp[i] = NULL;
-//			}
-//		}
-//		delete [] spriteTemp;
-//		spriteTemp = NULL;
-//	}
-
-//	if (smallSpriteTemp != NULL)
-//	{
-//		delete [] smallSpriteTemp;
-//		smallSpriteTemp = NULL;
-//	}
-
-//	if (spriteBuffer != NULL)
-//	{
-//		delete [] spriteBuffer;
-//		spriteBuffer = NULL;
-//	}
 }
 
 //! @brief Функция освобождения памяти (должна вызываться один раз по зарершении программы)
@@ -538,6 +526,7 @@ void DigIndicator::DrawBufferSmall( char c, bool needPoint )
 	if (c == '+') charOffset = 10;
 	if (c == '-') charOffset = 11;
 	if (c == ' ') charOffset = 12;
+	if (c == '.') charOffset = 13;
 	if (c >= '0' && c <= '9') charOffset = c - '0';
 
 	char	*pSource = smallSpriteTemp + charOffset * spriteBufferW * spriteBufferH;
@@ -671,4 +660,85 @@ void DigIndicator::OnPaint(CDC *pDC, int k)
     if (k == 2) pDC->BitBlt( xStart, yStart, spriteBufferW * 2, spriteBufferH * 2, &memDC, 0, 0, SRCCOPY );
 }
 
+//! @brief Функция обновления (перерисовки) маленькой дробной точки на экране
+//! @param pDC - контекст устройства
+//! @param k = 1, если 1x1 пиксель
+//! @param k = 2, если 2x2 пикселя
+//! @return
+void DigIndicator::OnPaintVerySmallPoint(CDC *pDC, int k)
+{
+	int		spriteW = 3;
+	int		spriteH = 7;
+	long	*sprite = new long [spriteW * spriteH];
+	long	*pDat = sprite;
+	int		gx, gy;
+	
+	for( gy = 0; gy < spriteH; gy++ )
+	{
+		for( gx = 0; gx < spriteW; gx++ )
+		{
+			bool	isPaint = false;
+			long	color = bColor;
 
+			if (gx == 1 && gy == 5) isPaint = true;
+
+			if (isPaint) color = fColor;
+			
+			*pDat++ = color;		
+		}
+	}
+
+	CDC		memDC;
+	CBitmap memBM;
+	CClientDC *dc = (CClientDC*)pDC;
+
+	long	*buf;
+	if (k == 1) buf = new long [spriteW * spriteH];
+	if (k == 2) buf = new long [spriteW * spriteH * 4];	
+
+    memDC.CreateCompatibleDC( dc );
+	
+	pDat = sprite;
+
+	for( gy = 0; gy < spriteH; gy++ )
+	{
+		for( gx = 0; gx < spriteW; gx++ )
+		{
+			long	color = *pDat;
+			char	*colorData = (char*)&color;
+			char	tmpByte;
+	
+			tmpByte = colorData[0];
+			colorData[0] = colorData[2];
+			colorData[2] = tmpByte;
+
+			if (k == 1)
+				buf[gy * spriteW + gx] = color;
+			else
+			{
+				buf[(gy * 2 + 0) * spriteW * 2 + (gx * 2 + 0)] = color;
+				buf[(gy * 2 + 0) * spriteW * 2 + (gx * 2 + 1)] = color;
+				buf[(gy * 2 + 1) * spriteW * 2 + (gx * 2 + 0)] = color;
+				buf[(gy * 2 + 1) * spriteW * 2 + (gx * 2 + 1)] = color;
+			}
+		
+			pDat++;	
+		}
+	}
+
+    if (k == 1) memBM.CreateBitmap( spriteW, spriteH, 1, 32, buf );
+    if (k == 2) memBM.CreateBitmap( spriteW * 2, spriteH * 2, 1, 32, buf );	
+	delete [] buf;
+    memDC.SelectObject( &memBM );
+    if (k == 1) pDC->BitBlt( xStart, yStart, spriteW, spriteH, &memDC, 0, 0, SRCCOPY );
+    if (k == 2) pDC->BitBlt( xStart, yStart, spriteW * 2, spriteH * 2, &memDC, 0, 0, SRCCOPY );
+
+	delete [] sprite;
+}
+
+//! @brief Функция возвращает размер маленькой (verySmall) дробной точки на экране
+//! @return размер дробной точки
+int DigIndicator::GetVerySmallPointSize( )
+{
+	return 3;
+}
