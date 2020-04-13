@@ -21,6 +21,7 @@
 #include "digIndicatorValue.h"
 
 
+BOOL no_sustain;
 double garmonic_5=0;
 double garmonic_6=0;
 double ADSR_Attack=0;
@@ -265,6 +266,9 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_garmonic_6 = _T("1.49830");
 	m_attack = _T("5");
 	m_edit_modulation_wheel = _T("");
+	m_use_velocity = FALSE;
+	m_no_sustain = FALSE;
+	m_piano_mouse_click = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -316,6 +320,9 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_GARMONIC_5, m_garmonic_5);
 	DDX_Text(pDX, IDC_EDIT_GARMONIC_6, m_garmonic_6);
 	DDX_Text(pDX, IDC_EDIT_MODULATION_WHEEL, m_edit_modulation_wheel);
+	DDX_Check(pDX, IDC_CHECK_USE_VELOCITY, m_use_velocity);
+	DDX_Check(pDX, IDC_CHECK_NO_SUSTAIN, m_no_sustain);
+	DDX_Check(pDX, IDC_CHECK_PIANO_MOUSE_CLICK, m_piano_mouse_click);
 	//}}AFX_DATA_MAP
 }
 
@@ -444,7 +451,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	//cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
 
-	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0,100, 99, true, 3,
+	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
 
 //	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0, 100, 0, false, 7,
@@ -459,7 +466,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	
 	cCircleSlider_modulation = new CircleSliderIndicator(300-5,200-5, 
-		CircleSliderIndicator::typeOfElem4, 0,127, 126, true, 3, DigIndicatorValue::signTypeNotShow);
+		CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3, DigIndicatorValue::signTypeNotShow);
 
 	cCircleSlider_modulation->doubleIndFlag=false;
 	
@@ -1101,6 +1108,9 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	GetData;
 
 
+
+	no_sustain=m_no_sustain;
+
 	CString s = m_garmonic_5;
 	garmonic_5=strtod(s.GetBuffer(0),NULL);
 
@@ -1625,7 +1635,10 @@ void MidiKeyPress2(BYTE key, BYTE value)
 		
 		//после нажатия клавиша сразу будет "отпущена"
 		//это такие инструменты как пианино, струнные
-		//Keys[key].decrement=AMPLITUDE_DECREMENT;
+		if (no_sustain)
+		{
+			Keys[key].decrement=AMPLITUDE_DECREMENT;
+		}
 
 
 		Keys[key].t=0;	//время функции sin
@@ -1746,6 +1759,7 @@ int MouseMove=FALSE;
 void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	//Overload=false;
+	GetData;
 
 	CDialog::OnLButtonDown(nFlags, point);
 
@@ -1782,7 +1796,17 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		
 		//если в момент нажатия клавиши нажата CTRL 
 		if (nFlags & MK_CONTROL) Keys[key_real].decrement=0;//звук будет звучать постоянно
-		else Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+		else 
+		{
+			if (m_piano_mouse_click==0)
+			{
+				Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+			}
+			else
+			{
+				Keys[key_real].decrement=0;
+			}
+		}
 		
 		Keys[key_real].t=0;
 	}
@@ -1885,6 +1909,57 @@ void CDTFM_GeneratorDlg::OnButtonAsioControlPanel()
 void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
+	GetData;
+
+	CDialog::OnLButtonDown(nFlags, point);
+
+	if (point.y<KEY_Y) return;
+	if (point.y>KEY_Y+KEY_H) return;
+	if (point.x<KEY_X) return;
+	int key=(point.x-KEY_X)/KEY_L;
+	int octave=key/7;
+	key=key%7;
+	//if (key<0) return;
+
+	int key_real=key;
+
+	if		(key_real==1) key_real+=1;
+	else if (key_real==2) key_real+=2;
+	else if (key_real==3) key_real+=2;
+	else if (key_real==4) key_real+=3;
+	else if (key_real==5) key_real+=4;
+	else if (key_real==6) key_real+=5;
+	
+	key_real+=(octave+1)*12;
+
+	if (key_real>=0 && key_real<=256)// && Keys[key_real].press==FALSE) 
+	{
+		if (MouseMove && Keys[key_real].press==TRUE) 
+		{
+			MouseMove=FALSE;
+			return;
+		}
+
+		Keys[key_real].press=false;
+		//Keys[key_real].Ampl=atoi(g_amplitude_global);
+
+		
+		//если в момент нажатия клавиши нажата CTRL 
+		if (nFlags & MK_CONTROL) Keys[key_real].decrement=0;//звук будет звучать постоянно
+		else 
+		{
+			if (m_piano_mouse_click==0)
+			{
+				Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+			}
+			else
+			{
+				Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+			}
+		}
+		
+		//Keys[key_real].t=0;
+	}
 	
 	CDialog::OnLButtonUp(nFlags, point);
 }

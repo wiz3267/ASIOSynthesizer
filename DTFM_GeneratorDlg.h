@@ -89,6 +89,9 @@ public:
 	CString	m_garmonic_6;
 	CString	m_attack;
 	CString	m_edit_modulation_wheel;
+	BOOL	m_use_velocity;
+	BOOL	m_no_sustain;
+	BOOL	m_piano_mouse_click;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
