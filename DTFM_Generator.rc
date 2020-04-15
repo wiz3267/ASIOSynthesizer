@@ -203,12 +203,14 @@ BEGIN
                     WS_DISABLED | WS_TABSTOP,364,8,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_M2_OFF,"Button",BS_AUTOCHECKBOX | 
                     WS_DISABLED | WS_TABSTOP,384,8,10,8
-    CONTROL         "Use velocity",IDC_CHECK_USE_VELOCITY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,231,101,55,10
+    CONTROL         "Use max velocity",IDC_CHECK_USE_VELOCITY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,230,105,69,10
     CONTROL         "No sustain",IDC_CHECK_NO_SUSTAIN,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,231,114,49,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,230,115,49,10
     CONTROL         "Piano mouse click",IDC_CHECK_PIANO_MOUSE_CLICK,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,231,126,73,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,230,125,73,10
+    CONTROL         "<CTRL> key use",IDC_CHECK_CTRL_KEY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,230,135,69,10
 END
 
 IDD_DIALOG_SETTINGS DIALOG DISCARDABLE  0, 0, 186, 93

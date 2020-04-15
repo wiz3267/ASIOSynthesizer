@@ -15,9 +15,9 @@ Class3=CAboutDlg
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DIALOG_ASIO_CONNECT
-Resource4=IDD_DIALOG_SETTINGS
-Resource5=IDD_DTFM_GENERATOR_DIALOG
+Resource3=IDD_DTFM_GENERATOR_DIALOG
+Resource4=IDD_DIALOG_ASIO_CONNECT
+Resource5=IDD_DIALOG_SETTINGS
 Class4=CDialogASIOConnect
 Resource6=IDD_ABOUTBOX (English (U.S.))
 
@@ -35,7 +35,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=CDTFM_GeneratorDlg
+LastObject=IDC_CHECK_CTRL_KEY
 
 [CLS:CAboutDlg]
 Type=0
@@ -57,7 +57,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=79
+ControlCount=80
 Control1=IDC_AMPLITUDE,edit,1484849280
 Control2=IDC_EDIT_BASE_A,edit,1350631552
 Control3=IDC_EDIT_SCALE,edit,1350566016
@@ -137,6 +137,7 @@ Control76=IDC_CHECK_GARMONIC_M2_OFF,button,1476460547
 Control77=IDC_CHECK_USE_VELOCITY,button,1342242819
 Control78=IDC_CHECK_NO_SUSTAIN,button,1342242819
 Control79=IDC_CHECK_PIANO_MOUSE_CLICK,button,1342242819
+Control80=IDC_CHECK_CTRL_KEY,button,1342242819
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1

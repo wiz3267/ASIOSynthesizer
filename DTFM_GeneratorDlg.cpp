@@ -21,6 +21,7 @@
 #include "digIndicatorValue.h"
 
 
+CDTFM_GeneratorDlg * g_mainwindow=NULL;
 BOOL no_sustain;
 double garmonic_5=0;
 double garmonic_6=0;
@@ -269,6 +270,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_use_velocity = FALSE;
 	m_no_sustain = FALSE;
 	m_piano_mouse_click = FALSE;
+	m_ctrl_key_use = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -323,6 +325,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_USE_VELOCITY, m_use_velocity);
 	DDX_Check(pDX, IDC_CHECK_NO_SUSTAIN, m_no_sustain);
 	DDX_Check(pDX, IDC_CHECK_PIANO_MOUSE_CLICK, m_piano_mouse_click);
+	DDX_Check(pDX, IDC_CHECK_CTRL_KEY, m_ctrl_key_use);
 	//}}AFX_DATA_MAP
 }
 
@@ -448,6 +451,8 @@ extern int ASIO_buflen;
 BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	g_mainwindow=this;
 
 	//cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
 
@@ -1353,7 +1358,14 @@ void CALLBACK MidiInProc(
 
 			if ((mm.b[0]>>4) == 9 || (mm.b[0]>>4) == 8)
 			{
-				MidiKeyPress2(nChar, Volume);
+				if (g_mainwindow->m_use_velocity && (Volume!=0))
+				{
+					MidiKeyPress2(nChar, 127);
+				}
+				else
+				{
+					MidiKeyPress2(nChar, Volume);
+				}
 				//MidiKeyPress(nChar, Volume);
 			}
 			//UpdateData(false);
@@ -1795,7 +1807,7 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 		
 		//если в момент нажатия клавиши нажата CTRL 
-		if (nFlags & MK_CONTROL) Keys[key_real].decrement=0;//звук будет звучать постоянно
+		if ((nFlags & MK_CONTROL) && m_ctrl_key_use) Keys[key_real].decrement=0;//звук будет звучать постоянно
 		else 
 		{
 			if (m_piano_mouse_click==0)
@@ -1913,6 +1925,8 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 	CDialog::OnLButtonDown(nFlags, point);
 
+	if (m_ctrl_key_use) return;
+
 	if (point.y<KEY_Y) return;
 	if (point.y>KEY_Y+KEY_H) return;
 	if (point.x<KEY_X) return;
@@ -1945,7 +1959,7 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 		
 		//если в момент нажатия клавиши нажата CTRL 
-		if (nFlags & MK_CONTROL) Keys[key_real].decrement=0;//звук будет звучать постоянно
+		if ((nFlags & MK_CONTROL)&& m_ctrl_key_use) Keys[key_real].decrement=0;//звук будет звучать постоянно
 		else 
 		{
 			if (m_piano_mouse_click==0)

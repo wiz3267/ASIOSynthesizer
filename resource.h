@@ -99,6 +99,7 @@
 #define IDC_CHECK_USE_VELOCITY          1094
 #define IDC_CHECK_NO_SUSTAIN            1095
 #define IDC_CHECK_PIANO_MOUSE_CLICK     1096
+#define IDC_CHECK_CTRL_KEY              1097
 
 // Next default values for new objects
 // 
@@ -106,7 +107,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1097
+#define _APS_NEXT_CONTROL_VALUE         1098
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

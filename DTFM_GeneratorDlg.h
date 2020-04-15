@@ -92,6 +92,7 @@ public:
 	BOOL	m_use_velocity;
 	BOOL	m_no_sustain;
 	BOOL	m_piano_mouse_click;
+	BOOL	m_ctrl_key_use;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
