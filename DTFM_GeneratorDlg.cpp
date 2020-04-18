@@ -22,6 +22,7 @@
 
 
 CDTFM_GeneratorDlg * g_mainwindow=NULL;
+
 BOOL no_sustain;
 double garmonic_5=0;
 double garmonic_6=0;
@@ -1763,7 +1764,7 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 }
 
 
-int MouseMove=FALSE;
+int gMouseMove=FALSE;
 
 //отработка нажатия левой клавиши мыши
 //нужно начать воспроизведение звука
@@ -1775,9 +1776,12 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 	CDialog::OnLButtonDown(nFlags, point);
 
+	//если указатель мыши за пределами пианноролла - возврат
 	if (point.y<KEY_Y) return;
 	if (point.y>KEY_Y+KEY_H) return;
 	if (point.x<KEY_X) return;
+
+
 	int key=(point.x-KEY_X)/KEY_L;
 	int octave=key/7;
 	key=key%7;
@@ -1794,34 +1798,44 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	
 	key_real+=(octave+1)*12;
 
-	if (key_real>=0 && key_real<=256)// && Keys[key_real].press==FALSE) 
+	if (key_real>=256) return;
+	
+	if (gMouseMove && Keys[key_real].press==TRUE) 
 	{
-		if (MouseMove && Keys[key_real].press==TRUE) 
-		{
-			MouseMove=FALSE;
-			return;
-		}
-
-		Keys[key_real].press=TRUE;
-		Keys[key_real].Ampl=atoi(g_amplitude_global);
-
-		
-		//если в момент нажатия клавиши нажата CTRL 
-		if ((nFlags & MK_CONTROL) && m_ctrl_key_use) Keys[key_real].decrement=0;//звук будет звучать постоянно
-		else 
-		{
-			if (m_piano_mouse_click==0)
-			{
-				Keys[key_real].decrement=AMPLITUDE_DECREMENT;
-			}
-			else
-			{
-				Keys[key_real].decrement=0;
-			}
-		}
-		
-		Keys[key_real].t=0;
+		gMouseMove=FALSE;
+		return;
 	}
+
+
+	Keys[key_real].press=TRUE;
+	Keys[key_real].Ampl=atoi(g_amplitude_global);
+	Keys[key_real].decrement=0;//звук будет звучать постоянно
+	
+	//если в момент нажатия клавиши нажата CTRL 
+	if ((nFlags & MK_CONTROL) && m_ctrl_key_use) 
+	{
+		Keys[key_real].decrement=0;//звук будет звучать постоянно
+	}
+	else 
+	{
+		if (m_piano_mouse_click==0)
+		{
+			Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+		}
+		else
+		{
+			Keys[key_real].decrement=0;
+			for(int i=0; i<256;i++)
+			{
+				if (i==key_real) continue;
+				//Keys[i].press=FALSE;
+				Keys[i].decrement=AMPLITUDE_DECREMENT;
+			}
+		}
+	}
+	
+	Keys[key_real].t=0;
+	
 
 }
 
@@ -1849,9 +1863,6 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		CDC *dc=GetDC() ;
 		cCircleSlider->OnPaint(dc);
-
-		//cCircleSlider->GetValue()/100.0;
-
 		ReleaseDC(dc);
 
 		if ( (oldx!=cCircleSlider->xSliderStart) || (oldy!=cCircleSlider->ySliderStart))
@@ -1863,13 +1874,14 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 			InvalidateRect(&rt,true);
 			//Invalidate(true);
 		}
-		//?????
 	}
 
 
+	//если нажата левакя кнопка мыши
 	if (nFlags&MK_LBUTTON)
 	{
-		MouseMove=true;
+		//???????????
+		gMouseMove=TRUE;
 		OnLButtonDown(nFlags, point);
 	}
 
@@ -1948,13 +1960,15 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (key_real>=0 && key_real<=256)// && Keys[key_real].press==FALSE) 
 	{
-		if (MouseMove && Keys[key_real].press==TRUE) 
+		if (gMouseMove && Keys[key_real].press==TRUE) 
 		{
-			MouseMove=FALSE;
+			gMouseMove=FALSE;
 			return;
 		}
 
-		Keys[key_real].press=false;
+		//Keys[key_real].press=false;
+		Keys[key_real].decrement=AMPLITUDE_DECREMENT;
+
 		//Keys[key_real].Ampl=atoi(g_amplitude_global);
 
 		
