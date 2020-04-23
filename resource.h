@@ -9,6 +9,7 @@
 #define IDR_MAINFRAME                   128
 #define IDD_DIALOG_SETTINGS             141
 #define IDD_DIALOG_ASIO_CONNECT         142
+#define IDR_MENU_MAIN                   144
 #define IDC_DIGIT                       1001
 #define IDC_TEXT                        1010
 #define IDC_PLAY_STRING                 1014
@@ -100,14 +101,18 @@
 #define IDC_CHECK_NO_SUSTAIN            1095
 #define IDC_CHECK_PIANO_MOUSE_CLICK     1096
 #define IDC_CHECK_CTRL_KEY              1097
+#define IDC_STATIC_CSLIDER1             1098
+#define IDC_STATIC_CSLIDER2             1099
+#define ID_FILE_EXIT                    32771
+#define ID_SETTINGS_SETASIODEVICE       32772
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        144
-#define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1098
+#define _APS_NEXT_RESOURCE_VALUE        145
+#define _APS_NEXT_COMMAND_VALUE         32773
+#define _APS_NEXT_CONTROL_VALUE         1099
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -36,6 +36,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDTFM_GeneratorDlg)
 	enum { IDD = IDD_DTFM_GENERATOR_DIALOG };
+	CStatic	m_static_slider2;
+	CStatic	m_static_slider1;
 	CEdit	m_level_control;
 	CEdit	m_pianoroll;
 	CSliderCtrl	m_slider_total_volume;
@@ -137,6 +139,8 @@ protected:
 	afx_msg void OnButtonAsioControlPanel();
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnSettingsSetasiodevice();
+	afx_msg void OnFileExit();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -43,6 +43,7 @@ void Msg(char * txt)
 	AfxMessageBox(txt,MB_OK,0);
 }
 
+extern int global_asio_index;
 BOOL CDTFM_GeneratorApp::InitInstance()
 {
 	AfxEnableControlContainer();
@@ -54,7 +55,17 @@ BOOL CDTFM_GeneratorApp::InitInstance()
 #endif
 
 	CDialogASIOConnect d;
+	
+	
 	if (d.DoModal() == FALSE)
+	{
+		AfxMessageBox("Programm can not to be continue",MB_OK,0);
+		return 0;
+	}
+
+
+	int res=main(global_asio_index,0);
+	if (res==FALSE)
 	{
 		AfxMessageBox("ASIO Init Error. Programm can not to be continue",MB_OK,0);
 		return 0;

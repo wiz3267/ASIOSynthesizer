@@ -78,139 +78,144 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\DTFM_Generator.ico"
 // Dialog
 //
 
-IDD_DTFM_GENERATOR_DIALOG DIALOGEX 0, 0, 655, 222
-STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_DTFM_GENERATOR_DIALOG DIALOGEX 0, 0, 655, 223
+STYLE WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | 
+    WS_THICKFRAME
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "ASIO Sintezher. Version 1.1.6.6"
+CAPTION "ASIO Sintezher. Version 1.1.6.8"
 FONT 8, "MS Sans Serif"
 BEGIN
-    EDITTEXT        IDC_AMPLITUDE,165,6,29,12,ES_AUTOHSCROLL | WS_DISABLED
-    EDITTEXT        IDC_EDIT_BASE_A,165,22,29,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_EDIT_SCALE,165,36,29,14,ES_AUTOHSCROLL | NOT 
+    EDITTEXT        IDC_AMPLITUDE,167,45,29,12,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        IDC_EDIT_BASE_A,167,61,29,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SCALE,167,75,29,14,ES_AUTOHSCROLL | NOT 
                     WS_TABSTOP,0,HIDC_EDIT_SCALE
     CONTROL         "Slider1",IDC_SLIDERM6,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,306,21,14,68
+                    TBS_VERT | WS_TABSTOP,307,60,14,68
     CONTROL         "Slider1",IDC_SLIDERM5,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,324,21,14,68
+                    TBS_VERT | WS_TABSTOP,325,60,14,68
     CONTROL         "Slider1",IDC_SLIDERM4,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,342,21,14,68
+                    TBS_VERT | WS_TABSTOP,343,60,14,68
     CONTROL         "Slider1",IDC_SLIDERM3,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,364,21,14,68
+                    TBS_VERT | WS_TABSTOP,365,60,14,68
     CONTROL         "Slider1",IDC_SLIDERM2,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,386,21,14,68
+                    TBS_VERT | WS_TABSTOP,387,60,14,68
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,402,21,14,68
+                    TBS_VERT | WS_TABSTOP,403,60,14,68
     CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,422,21,14,68
+                    TBS_VERT | WS_TABSTOP,423,60,14,68
     CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,440,21,14,68
+                    TBS_VERT | WS_TABSTOP,441,60,14,68
     CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,460,21,14,68
+                    TBS_VERT | WS_TABSTOP,461,60,14,68
     CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,476,21,14,68
+                    TBS_VERT | WS_TABSTOP,477,60,14,68
     CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,496,21,14,68
-    EDITTEXT        IDC_EDIT_GARMONIC_5,473,91,18,14,ES_AUTOHSCROLL | NOT 
+                    TBS_VERT | WS_TABSTOP,497,60,14,68
+    EDITTEXT        IDC_EDIT_GARMONIC_5,475,130,18,14,ES_AUTOHSCROLL | NOT 
                     WS_TABSTOP,0,HIDC_EDIT_GARMONIC_5
-    EDITTEXT        IDC_EDIT_GARMONIC_6,495,91,18,14,ES_AUTOHSCROLL | NOT 
+    EDITTEXT        IDC_EDIT_GARMONIC_6,497,130,18,14,ES_AUTOHSCROLL | NOT 
                     WS_TABSTOP,0,HIDC_EDIT_GARMONIC_6
-    LTEXT           "Amplitude",IDC_STATIC,120,6,32,8
-    EDITTEXT        IDC_EDIT1,528,9,122,104,ES_MULTILINE | ES_AUTOVSCROLL | 
+    LTEXT           "Amplitude",IDC_STATIC,121,45,32,8
+    EDITTEXT        IDC_EDIT1,529,48,122,104,ES_MULTILINE | ES_AUTOVSCROLL | 
                     WS_VSCROLL
-    LTEXT           "base",IDC_STATIC,399,90,16,8
-    LTEXT           "1/2",IDC_STATIC,384,90,15,8
-    LTEXT           "1/4",IDC_STATIC,344,90,13,8
-    LTEXT           "1/3",IDC_STATIC,364,90,14,8
-    LTEXT           "2x",IDC_STATIC,424,90,8,8
-    LTEXT           "3x",IDC_STATIC,442,90,8,8
-    LTEXT           "4x",IDC_STATIC,461,90,8,8
-    PUSHBUTTON      "Midi Open",IDC_BUTTON_MIDI_OPEN,25,6,42,14
-    PUSHBUTTON      "Midi Close",IDC_BUTTON_MIDI_CLOSE,70,6,38,14,
+    LTEXT           "base",IDC_STATIC,401,129,16,8
+    LTEXT           "1/2",IDC_STATIC,385,129,15,8
+    LTEXT           "1/4",IDC_STATIC,345,129,13,8
+    LTEXT           "1/3",IDC_STATIC,365,129,14,8
+    LTEXT           "2x",IDC_STATIC,425,129,8,8
+    LTEXT           "3x",IDC_STATIC,443,129,8,8
+    LTEXT           "4x",IDC_STATIC,463,129,8,8
+    PUSHBUTTON      "Midi Open",IDC_BUTTON_MIDI_OPEN,27,45,42,14
+    PUSHBUTTON      "Midi Close",IDC_BUTTON_MIDI_CLOSE,71,45,38,14,
                     WS_DISABLED
-    EDITTEXT        IDC_EDIT_MIDI_OPEN,5,6,15,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Write",IDC_BUTTON_WRITE,5,67,52,14
-    PUSHBUTTON      "Write Stop",IDC_BUTTON_WRITE_STOP,5,82,52,14,
+    EDITTEXT        IDC_EDIT_MIDI_OPEN,7,45,15,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Write",IDC_BUTTON_WRITE,7,106,52,14
+    PUSHBUTTON      "Write Stop",IDC_BUTTON_WRITE_STOP,7,121,52,14,
                     WS_DISABLED
-    PUSHBUTTON      "Play Writen",IDC_BUTTON_PLAY_WRITEN,60,67,49,14
-    PUSHBUTTON      "Reset Sound (all keys off)",IDC_BUTTON_RESET,4,97,104,
+    PUSHBUTTON      "Play Writen",IDC_BUTTON_PLAY_WRITEN,61,106,49,14
+    PUSHBUTTON      "Reset Sound (all keys off)",IDC_BUTTON_RESET,5,136,104,
                     19
-    PUSHBUTTON      "Stop Playing",IDC_STOP_PLAY,60,82,49,14,WS_DISABLED
-    EDITTEXT        IDC_EDIT_STATUS_TEXT,0,207,654,14,ES_AUTOHSCROLL | 
+    PUSHBUTTON      "Stop Playing",IDC_STOP_PLAY,61,121,49,14,WS_DISABLED
+    EDITTEXT        IDC_EDIT_STATUS_TEXT,0,195,654,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Actual Freq",IDC_STATIC,119,67,37,8
-    EDITTEXT        IDC_EDIT_FREQ,165,65,29,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Actual Freq",IDC_STATIC,121,106,37,8
+    EDITTEXT        IDC_EDIT_FREQ,167,104,29,14,ES_AUTOHSCROLL | ES_READONLY
     CONTROL         "Slider5",IDC_SLIDER_DECREMENT,"msctls_trackbar32",
-                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,206,47,64,10
-    LTEXT           "1/5",IDC_STATIC,326,90,13,8
-    LTEXT           "1/6",IDC_STATIC,310,90,11,8
-    EDITTEXT        IDC_EDIT_MIDI_NAME2,5,22,103,14,ES_AUTOHSCROLL | 
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,205,90,64,10
+    LTEXT           "1/5",IDC_STATIC,327,129,13,8
+    LTEXT           "1/6",IDC_STATIC,311,129,11,8
+    EDITTEXT        IDC_EDIT_MIDI_NAME2,7,61,103,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    EDITTEXT        IDC_EDIT_SLIDER_DECREMENT,237,34,30,12,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_SLIDER_DECREMENT,239,73,30,12,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "A(La) Note",IDC_STATIC,120,22,35,8
-    LTEXT           "Scale",IDC_STATIC,120,36,19,8
-    LTEXT           "Wave len",IDC_STATIC,119,81,32,8
-    EDITTEXT        IDC_EDIT_WAVE_LEN,165,78,29,14,ES_AUTOHSCROLL | 
+    LTEXT           "A(La) Note",IDC_STATIC,121,61,35,8
+    LTEXT           "Scale",IDC_STATIC,121,75,19,8
+    LTEXT           "Wave len",IDC_STATIC,121,120,32,8
+    EDITTEXT        IDC_EDIT_WAVE_LEN,167,117,29,14,ES_AUTOHSCROLL | 
                     ES_READONLY
     CONTROL         "Slider7",IDC_SLIDER_TOTAL_VOLUME,"msctls_trackbar32",
-                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,306,114,200,11
-    EDITTEXT        IDC_EDIT_MODULATION,164,105,30,14,ES_AUTOHSCROLL
-    LTEXT           "Use Modulation",IDC_STATIC,144,138,50,8
-    EDITTEXT        IDC_EDIT_MODULATION_WHEEL,196,105,25,14,ES_AUTOHSCROLL | 
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,307,153,200,11
+    EDITTEXT        IDC_EDIT_MODULATION,165,144,30,14,ES_AUTOHSCROLL
+    LTEXT           "Use Modulation",IDC_STATIC,145,177,50,8
+    EDITTEXT        IDC_EDIT_MODULATION_WHEEL,197,144,25,14,ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_EDIT_ASIO_DEVICE,5,36,29,14,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_ASIO_DEVICE,7,75,29,14,ES_AUTOHSCROLL | 
                     WS_DISABLED
-    LTEXT           "ASIO Device Index",IDC_STATIC,37,38,62,8
+    LTEXT           "ASIO Device Index",IDC_STATIC,39,77,62,8
     CONTROL         "",IDC_CHECK_USE_MODULATION,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,126,138,10,8
-    EDITTEXT        IDC_EDIT_PIANOROLL,8,162,635,35,ES_AUTOHSCROLL | 
+                    WS_DISABLED | WS_TABSTOP,127,177,10,8
+    EDITTEXT        IDC_EDIT_PIANOROLL,5,1,635,35,ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_BORDER
+    EDITTEXT        IDC_LEVEL_CONTROL,311,174,195,12,ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_LEVEL_CONTROL,309,135,195,12,ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    EDITTEXT        IDC_EDIT_MODULATION_FREQ,164,121,30,14,ES_AUTOHSCROLL
-    LTEXT           "Amplitude",IDC_STATIC,124,123,32,8
-    LTEXT           "Frequency",IDC_STATIC,123,107,34,8
-    LTEXT           "Buffer size",IDC_STATIC,120,54,34,8
-    EDITTEXT        IDC_EDIT_SIZE_ASIO_BUFFER,165,51,29,14,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_MODULATION_FREQ,165,160,30,14,ES_AUTOHSCROLL
+    LTEXT           "Amplitude",IDC_STATIC,125,162,32,8
+    LTEXT           "Frequency",IDC_STATIC,125,146,34,8
+    LTEXT           "Buffer size",IDC_STATIC,121,93,34,8
+    EDITTEXT        IDC_EDIT_SIZE_ASIO_BUFFER,167,90,29,14,ES_AUTOHSCROLL | 
                     WS_DISABLED | NOT WS_TABSTOP,0,
                     HIDC_EDIT_SIZE_ASIO_BUFFER
-    PUSHBUTTON      "ASIO Control Panel",IDC_BUTTON_ASIO_CONTROL_PANEL,5,52,
+    PUSHBUTTON      "ASIO Control Panel",IDC_BUTTON_ASIO_CONTROL_PANEL,7,91,
                     104,14
     CONTROL         "",IDC_CHECK_GARMONIC_5_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,476,8,10,8
+                    WS_DISABLED | WS_TABSTOP,477,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_6_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,496,8,10,8
-    LTEXT           "Attack",IDC_STATIC,209,7,22,8
-    LTEXT           "Decay",IDC_STATIC,209,67,22,8
-    LTEXT           "Sustain",IDC_STATIC,207,84,24,8
-    LTEXT           "Release",IDC_STATIC,209,35,27,8
-    GROUPBOX        "Modulation",IDC_STATIC,116,96,109,52
+                    WS_DISABLED | WS_TABSTOP,497,47,10,8
+    LTEXT           "Attack",IDC_STATIC,205,50,22,8
+    LTEXT           "Decay",IDC_STATIC,205,105,22,8
+    LTEXT           "Sustain",IDC_STATIC,205,120,24,8
+    LTEXT           "Release",IDC_STATIC,205,75,27,8
+    GROUPBOX        "Modulation",IDC_STATIC,117,135,109,52
     CONTROL         "",IDC_CHECK_GARMONIC_1_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,404,8,10,8
+                    WS_DISABLED | WS_TABSTOP,405,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_2_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,424,8,10,8
+                    WS_DISABLED | WS_TABSTOP,425,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_3_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,440,8,10,8
+                    WS_DISABLED | WS_TABSTOP,441,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_4_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,460,8,10,8
+                    WS_DISABLED | WS_TABSTOP,461,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_M6_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,308,8,10,8
+                    WS_DISABLED | WS_TABSTOP,309,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_M5_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,324,8,10,8
+                    WS_DISABLED | WS_TABSTOP,325,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_M4_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,340,8,10,8
+                    WS_DISABLED | WS_TABSTOP,341,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_M3_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,364,8,10,8
+                    WS_DISABLED | WS_TABSTOP,365,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_M2_OFF,"Button",BS_AUTOCHECKBOX | 
-                    WS_DISABLED | WS_TABSTOP,384,8,10,8
+                    WS_DISABLED | WS_TABSTOP,385,47,10,8
     CONTROL         "Use max velocity",IDC_CHECK_USE_VELOCITY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,230,105,69,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,231,144,69,10
     CONTROL         "No sustain",IDC_CHECK_NO_SUSTAIN,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,230,115,49,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,231,154,49,10
     CONTROL         "Piano mouse click",IDC_CHECK_PIANO_MOUSE_CLICK,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,230,125,73,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,231,164,73,10
     CONTROL         "<CTRL> key use",IDC_CHECK_CTRL_KEY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,230,135,69,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,231,174,69,10
+    LTEXT           "CSlider1",IDC_STATIC_CSLIDER1,237,45,30,20,NOT 
+                    WS_VISIBLE | WS_BORDER
+    LTEXT           "CSlider2",IDC_STATIC_CSLIDER2,197,160,27,20,NOT 
+                    WS_VISIBLE | WS_BORDER
 END
 
 IDD_DIALOG_SETTINGS DIALOG DISCARDABLE  0, 0, 186, 93
@@ -228,7 +233,7 @@ CAPTION "Choose ASIO Device"
 FONT 8, "MS Sans Serif"
 BEGIN
     PUSHBUTTON      "Open ASIO",IDOK,7,49,50,14
-    PUSHBUTTON      "Break",IDC_BUTTON_BREAK,76,49,55,14
+    PUSHBUTTON      "Cancel",IDC_BUTTON_BREAK,76,49,55,14
     EDITTEXT        IDC_EDIT_ASIO_DEVICE_INDEX,96,10,35,14,ES_AUTOHSCROLL
     LTEXT           "ASIO Device Index",IDC_STATIC,7,13,70,8
     CONTROL         "Remember and no future question",IDC_REMEMBER,"Button",
@@ -247,7 +252,7 @@ BEGIN
     IDD_DTFM_GENERATOR_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        BOTTOMMARGIN, 206
+        BOTTOMMARGIN, 207
     END
 
     IDD_DIALOG_SETTINGS, DIALOG
@@ -267,6 +272,24 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_MAIN MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+    POPUP "Settings"
+    BEGIN
+        MENUITEM "Set ASIO Device",             ID_SETTINGS_SETASIODEVICE
+    END
+END
 
 #endif    // Russian resources
 /////////////////////////////////////////////////////////////////////////////

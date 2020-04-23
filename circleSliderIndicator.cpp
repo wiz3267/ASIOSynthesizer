@@ -14,6 +14,9 @@
 CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, double valueStart, double valueEnd, 
 											  double curValue, bool intFlag, int countOfIndicator, int signShowType )
 {
+
+	redraw=0;
+
 	if (typeOfElem == typeOfElem1)
 	{
 		xSliderStart = x;

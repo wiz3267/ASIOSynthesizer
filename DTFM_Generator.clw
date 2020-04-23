@@ -12,14 +12,15 @@ Class1=CDTFM_GeneratorApp
 Class2=CDTFM_GeneratorDlg
 Class3=CAboutDlg
 
-ResourceCount=6
+ResourceCount=7
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
 Resource3=IDD_DIALOG_ASIO_CONNECT
-Resource4=IDD_DIALOG_SETTINGS
+Resource4=IDD_ABOUTBOX (English (U.S.))
 Resource5=IDD_DTFM_GENERATOR_DIALOG
 Class4=CDialogASIOConnect
-Resource6=IDD_ABOUTBOX (English (U.S.))
+Resource6=IDD_DIALOG_SETTINGS
+Resource7=IDR_MENU_MAIN
 
 [CLS:CDTFM_GeneratorApp]
 Type=0
@@ -35,7 +36,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_CHECK_CTRL_KEY
+LastObject=IDC_EDIT_STATUS_TEXT
 
 [CLS:CAboutDlg]
 Type=0
@@ -57,7 +58,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=80
+ControlCount=82
 Control1=IDC_AMPLITUDE,edit,1484849280
 Control2=IDC_EDIT_BASE_A,edit,1350631552
 Control3=IDC_EDIT_SCALE,edit,1350566016
@@ -110,7 +111,7 @@ Control49=IDC_EDIT_MODULATION_WHEEL,edit,1484849280
 Control50=IDC_EDIT_ASIO_DEVICE,edit,1484849280
 Control51=IDC_STATIC,static,1342308352
 Control52=IDC_CHECK_USE_MODULATION,button,1476460547
-Control53=IDC_EDIT_PIANOROLL,edit,1484849280
+Control53=IDC_EDIT_PIANOROLL,edit,1476460672
 Control54=IDC_LEVEL_CONTROL,edit,1484849280
 Control55=IDC_EDIT_MODULATION_FREQ,edit,1350631552
 Control56=IDC_STATIC,static,1342308352
@@ -138,6 +139,8 @@ Control77=IDC_CHECK_USE_VELOCITY,button,1342242819
 Control78=IDC_CHECK_NO_SUSTAIN,button,1342242819
 Control79=IDC_CHECK_PIANO_MOUSE_CLICK,button,1342242819
 Control80=IDC_CHECK_CTRL_KEY,button,1342242819
+Control81=IDC_STATIC_CSLIDER1,static,1082261504
+Control82=IDC_STATIC_CSLIDER2,static,1082261504
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1
@@ -173,4 +176,11 @@ BaseClass=CDialog
 Filter=D
 VirtualFilter=dWC
 LastObject=CDialogASIOConnect
+
+[MNU:IDR_MENU_MAIN]
+Type=1
+Class=?
+Command1=ID_FILE_EXIT
+Command2=ID_SETTINGS_SETASIODEVICE
+CommandCount=2
 

@@ -16,13 +16,14 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CDialogASIOConnect dialog
 
+extern CINIFiles ini;
 
 CDialogASIOConnect::CDialogASIOConnect(CWnd* pParent /*=NULL*/)
 	: CDialog(CDialogASIOConnect::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogASIOConnect)
-	m_asio_index = 0;
-	m_remember = FALSE;
+	m_asio_index = ini.QueryValue("ASIOIndex");
+	m_remember = ini.QueryValue("RememberASIOIndex");
 	//}}AFX_DATA_INIT
 }
 
@@ -50,21 +51,18 @@ END_MESSAGE_MAP()
 
 
 int main(int argc, char **argv);
+
 BOOL CDialogASIOConnect::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
 
 	UpdateData(TRUE);
 
+	
 	if (m_remember)
 	{
-	
+		SetTimer(1,10,NULL);	
 	}
-
-	//m_asio_index=1;
-	//SetTimer(1,1000,NULL);
-
-	//SetFocus();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -79,8 +77,12 @@ void CDialogASIOConnect::OnOK()
 	
 	global_asio_index=m_asio_index;
 
-	int res=main(m_asio_index,0);
-	EndDialog(res);
+	ini.SetValue(m_asio_index,"ASIOIndex");
+	ini.SetValue(m_remember, "RememberASIOIndex");
+
+
+	//int res=main(m_asio_index,0);
+	EndDialog(TRUE);
 
 	//CDialog::OnOK();
 }
@@ -94,9 +96,8 @@ void CDialogASIOConnect::OnClose()
 void CDialogASIOConnect::OnTimer(UINT nIDEvent) 
 {
 	KillTimer(1);
-	global_asio_index=1;
-	
-	EndDialog(main(global_asio_index,0));
+
+	OnOK();
 
 	CDialog::OnTimer(nIDEvent);
 }

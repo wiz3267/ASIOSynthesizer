@@ -7,6 +7,7 @@
 #include "stdafx.h"
 #include "DTFM_Generator.h"
 #include "DTFM_GeneratorDlg.h"
+#include "dialogasioconnect.h"
 
 #include "BASSASIO\c\synth\bassasio.h"
 #include "BASSASIO\c\synth\bass.h"
@@ -21,6 +22,7 @@
 #include "digIndicatorValue.h"
 
 
+CPoint g_last_mouse_point;
 CDTFM_GeneratorDlg * g_mainwindow=NULL;
 
 BOOL no_sustain;
@@ -30,7 +32,7 @@ double ADSR_Attack=0;
 
 double globalVolume=0.5;
 //CircleSlider *cSlider1=NULL;
-CircleSliderIndicator * cCircleSlider=NULL;
+CircleSliderIndicator * cCircleSlider_attack=NULL;
 CircleSliderIndicator * cCircleSlider_modulation=NULL;
 
 //DigIndicatorValue	*dInd1;
@@ -126,7 +128,8 @@ int
 
 struct KEY
 {
-	UINT press;
+	UINT press;	//клавиша нажата (активна)
+	BYTE midi_key_press;	//была нажата миди клавиша
 	double decrement;
 	double Ampl;
 
@@ -134,7 +137,7 @@ struct KEY
 	double A,D,S,R;	//блок констант ADSR (Attack-Decay-Sustain-Release)
 	double A_add;	//скорость увеличения A (атака)
 
-	KEY() { press=0; decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;}
+	KEY() { press=0; decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;midi_key_press=0;}
 } Keys[256];
 
 
@@ -281,6 +284,8 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_STATIC_CSLIDER2, m_static_slider2);
+	DDX_Control(pDX, IDC_STATIC_CSLIDER1, m_static_slider1);
 	DDX_Control(pDX, IDC_LEVEL_CONTROL, m_level_control);
 	DDX_Control(pDX, IDC_EDIT_PIANOROLL, m_pianoroll);
 	DDX_Control(pDX, IDC_SLIDER_TOTAL_VOLUME, m_slider_total_volume);
@@ -356,6 +361,8 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_ASIO_CONTROL_PANEL, OnButtonAsioControlPanel)
 	ON_WM_LBUTTONUP()
 	ON_WM_RBUTTONUP()
+	ON_COMMAND(ID_SETTINGS_SETASIODEVICE, OnSettingsSetasiodevice)
+	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -449,15 +456,33 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 
 extern int ASIO_buflen;
 
+CMenu menu;
+
 BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	
+	menu.LoadMenu(IDR_MENU_MAIN);
+	SetMenu(&menu);
+
 	g_mainwindow=this;
 
-	//cSlider1 = new CircleSlider( 32, 360,50, 5.14 );
 
-	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
+	RECT rt, rt2;
+	m_static_slider1.GetWindowRect(&rt);
+	m_static_slider2.GetWindowRect(&rt2);
+	ScreenToClient(&rt);
+	ScreenToClient(&rt2);
+
+
+	int x=rt.left,y=rt.top;
+
+	//x=0,y=0;
+
+	//cCircleSlider = new CircleSliderIndicator(340+10,20-20+offset, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
+	//										  DigIndicatorValue::signTypeNotShow);
+	cCircleSlider_attack = new CircleSliderIndicator(x,y, CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
 
 //	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0, 100, 0, false, 7,
@@ -471,7 +496,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 
 	
-	cCircleSlider_modulation = new CircleSliderIndicator(300-5,200-5, 
+	cCircleSlider_modulation = new CircleSliderIndicator(rt2.left,rt2.top, 
 		CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3, DigIndicatorValue::signTypeNotShow);
 
 	cCircleSlider_modulation->doubleIndFlag=false;
@@ -480,6 +505,12 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	//BYTE c=0xf0;
 	//dInd1 = new DigIndicatorValue( 360, 85, RGB(c, c,c), RGB(0x00, 0x00, 0x00), isSmallInd );		
 	//dInd1->SetIntValue( 35,  4, 0, 0 );
+
+	int temp=ini.QueryValue("MidiDevice");
+	char buf_midi[8];
+	itoa(temp,buf_midi,10);
+	m_midi_open_str=buf_midi;
+	
 
 	m_asio_device=global_asio_index;
 	m_size_asio_buffer=ASIO_buflen;
@@ -549,6 +580,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	
 
 	SetTimer(0,100,NULL);	//для обновления отрисовки клавиш
+	SetTimer(1,100,NULL);	//для обновления отрисовки клавиш
 
 	//открываем MIDI-устройство
 	OnButtonMidiOpen();
@@ -567,6 +599,14 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	SetFocus();
 	//HANDLE hThread=GetCurrentThread();
 	//SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST);
+
+/*	CDC *dc=GetDC();
+	dc->Rectangle(x,y,x+5,y+5);
+	ReleaseDC(dc);*/
+
+	//ShowWindow(SW_NORMAL);
+	SetForegroundWindow();
+
 
 	return FALSE;
 }
@@ -610,18 +650,12 @@ void CDTFM_GeneratorDlg::OnPaint()
 	else
 	{
 		CDC *dc=GetDC();
-		//cSlider1->Draw(dc);
 
-		cCircleSlider->OnPaint(dc);
+
+		cCircleSlider_attack->OnPaint(dc);
 		cCircleSlider_modulation->OnPaint(dc);
 		
-		//?????
-		//dDig1=;
-		//dInd1->OnPaint(dc,1);
-		
-		//?????
-		//???????
-		//ReleaseDC(dc);
+		ReleaseDC(dc);
 
 		CDialog::OnPaint();
 	}
@@ -798,6 +832,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 				if (Keys[k].Ampl<=0)
 				{
 					Keys[k].press=false;
+					Keys[k].midi_key_press=0;
 					Keys[k].Ampl=0;
 				}
 
@@ -895,6 +930,8 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	GetData;
 
 	//save data to .ini file
+	ini.SetValue(atoi(m_midi_open_str.GetBuffer(0)),"MidiDevice");
+
 	ini.SetValue(100-m_sl1.GetPos(),"sl1");
 	ini.SetValue(100-m_sl2.GetPos(),"sl2");
 	ini.SetValue(100-m_sl3.GetPos(),"sl3");
@@ -1113,6 +1150,30 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 {
 	GetData;
 
+	if (nIDEvent==1)
+	{
+/*		RECT rt_main,rt;
+
+	
+		m_static_slider1.GetWindowRect(&rt);
+		ScreenToClient(&rt);
+
+		GetWindowRect(&rt_main);
+
+
+
+
+		CString g;
+		g.Format("%i:%i KEY_X=%i KEY_Y=%i win.x=%i win.y=%i rt.x=%i rt.y=%i", g_last_mouse_point.x, g_last_mouse_point.y, KEY_X,KEY_Y, rt_main.left, rt_main.top, rt.left, rt.top);
+	
+		//m_string_status_text.SetWindowText(g.GetBuffer(0));
+		m_string_status_text=g;//.SetWindowText(g.GetBuffer(0));
+		//m_status_text.InvalidateRect(NULL);
+		PutData;
+		*/
+		return;
+	}
+
 
 
 	no_sustain=m_no_sustain;
@@ -1145,7 +1206,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	g_step_modulation=g_ModulationWheel * Volume/127.0/ASIO_buflen;
 
 
-	//??????
+	
 	char str[16];
 	itoa(g_modulation_wheel_2,str,10);
 	//itoa(g_ModulationWheel,str,10);
@@ -1182,7 +1243,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	slvolume=m_slider_total_volume.GetPos();
 
 
-	AMPLITUDE_DECREMENT=(m_slider_decrement.GetPos()*3+1)/128.0;
+	AMPLITUDE_DECREMENT=(m_slider_decrement.GetPos()*20+10)/128.0;
 
 	m_slider_decrement_double=AMPLITUDE_DECREMENT;
 
@@ -1192,27 +1253,31 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	PutData;
 
-	//????
+	
 	RECT rt;
 	m_pianoroll.GetWindowRect(&rt);
+	ScreenToClient(&rt);
+
 	
 	KEY_X=rt.left;
 	KEY_Y=rt.top;
 	
 	//перересовка пианоролла
-	RECT rtwin;
-	GetWindowRect(&rtwin);
-	int x=rtwin.left;
-	int y=rtwin.top;
 	
-	KEY_X-=x;
-	KEY_Y-=y;
-
 	CDC *pdc=m_pianoroll.GetDC();
 	//DrawPiannoRoll(pdc, &m_level_control, pianoroll_x-x, 0, 60);
 	DrawPiannoRoll(pdc, &m_level_control, 0, 0, 60);
 	ReleaseDC(pdc);
 
+
+	if (cCircleSlider_attack->redraw)
+	{
+		cCircleSlider_attack->redraw=0;
+		CDC *dc=GetDC();
+		cCircleSlider_attack->OnPaint(dc);
+		ReleaseDC(dc);
+
+	}
 
 	CDialog::OnTimer(nIDEvent);
 
@@ -1264,6 +1329,7 @@ void CALLBACK MidiInProc(
 )
 {
 
+	//если режим записи
 	if (write && (wMsg == MM_MIM_DATA))
 	{
 
@@ -1332,8 +1398,16 @@ void CALLBACK MidiInProc(
 			BYTE nChar=mm.b[1]; //номер контрола
 			BYTE Volume=mm.b[2]; //значение
 
-			int z=mm.b[0]>>4;
+			int z=mm.b[0]>>4;	//номер№2 контролла
 
+			if (z==11 && nChar==9)
+			{
+				//????
+				cCircleSlider_attack->SetValue(Volume);
+				cCircleSlider_attack->redraw=1;
+				
+
+			}
 
 			if (NeedUpdateModulation)
 			{
@@ -1342,7 +1416,7 @@ void CALLBACK MidiInProc(
 				{
 					//step_modulation=ModulationWheel * Volume/127.0/2048.0;
 					//step_modulation=ModulationWheel * Volume/127.0/512;
-					//?????????
+					
 					g_step_modulation=g_ModulationWheel * Volume/127.0/ASIO_buflen;
 					
 					g_modulation_wheel_2=Volume;
@@ -1599,6 +1673,8 @@ void CDTFM_GeneratorDlg::OnButtonReset()
 
 void CDTFM_GeneratorDlg::OnMove(int x, int y) 
 {
+	//????
+
 	
 }
 
@@ -1631,6 +1707,7 @@ void MidiKeyPress2(BYTE key, BYTE value)
 
 
 		Keys[key].press=true;
+		Keys[key].midi_key_press=1;
 
 		Keys[key].Ampl=atoi(g_amplitude_global)*value/127.0;
 
@@ -1639,7 +1716,10 @@ void MidiKeyPress2(BYTE key, BYTE value)
 		
 		//Keys[key].A_add=ADSR_Attack;//0.6;
 
-		Keys[key].A_add=100-cCircleSlider->GetValue();;
+		//??????????????????????????
+		//атака
+		double d=cCircleSlider_attack->GetValue();
+		Keys[key].A_add=40/(d+1);
 
 		Keys[key].Ampl=0;
 
@@ -1777,9 +1857,26 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	CDialog::OnLButtonDown(nFlags, point);
 
 	//если указатель мыши за пределами пианноролла - возврат
-	if (point.y<KEY_Y) return;
-	if (point.y>KEY_Y+KEY_H) return;
-	if (point.x<KEY_X) return;
+	int flag_out_pianoroll=0;
+	if (point.y<KEY_Y) flag_out_pianoroll=1;
+	if (point.y> (KEY_Y+KEY_H)) flag_out_pianoroll=1;
+	if (point.x<KEY_X) flag_out_pianoroll=1;
+
+	//if (flag_out_pianoroll) return;
+
+	if (flag_out_pianoroll)
+	{
+		for(int i=0; i<256; i++)
+		{
+			if (!Keys[i].midi_key_press)
+			{
+				Keys[i].decrement=AMPLITUDE_DECREMENT;
+			}
+			
+		}
+		return;
+	}
+
 
 
 	int key=(point.x-KEY_X)/KEY_L;
@@ -1842,14 +1939,24 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point) 
 {
+	g_last_mouse_point=point;
+
+/*	RECT rt_m,rt;
+	GetWindowRect(&rt_m);
+	m_static_slider1.GetWindowRect(&rt);
+
+	CString g;
+	g.Format("%i:%i KEY_X=%i KEY_Y=%i win.x=%i win.y=%i",point.x,point.y,KEY_X,KEY_Y, rt_m.left,rt_m.top, rt.left,rt.top);
+	m_status_text.SetWindowText(g.GetBuffer(0));
+*/
 
 	int oldx, oldy;
 
-	oldx=cCircleSlider->xSliderStart;
-	oldy=cCircleSlider->ySliderStart;
+	oldx=cCircleSlider_attack->xSliderStart;
+	oldy=cCircleSlider_attack->ySliderStart;
 
 
-	cCircleSlider->OnMouseMove(nFlags, point);
+	cCircleSlider_attack->OnMouseMove(nFlags, point);
 	cCircleSlider_modulation->OnMouseMove(nFlags, point);
 
 	if (cCircleSlider_modulation->pSlider->flagPaint == true)
@@ -1859,17 +1966,17 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 		ReleaseDC(dc);
 	}
 
-	if (cCircleSlider->pSlider->flagPaint == true)
+	if (cCircleSlider_attack->pSlider->flagPaint == true)
 	{
 		CDC *dc=GetDC() ;
-		cCircleSlider->OnPaint(dc);
+		cCircleSlider_attack->OnPaint(dc);
 		ReleaseDC(dc);
 
-		if ( (oldx!=cCircleSlider->xSliderStart) || (oldy!=cCircleSlider->ySliderStart))
+		if ( (oldx!=cCircleSlider_attack->xSliderStart) || (oldy!=cCircleSlider_attack->ySliderStart))
 		{
 			
 			//Invalidate(false);
-			int x=cCircleSlider->xSliderStart,y=cCircleSlider->ySliderStart,d=150;
+			int x=cCircleSlider_attack->xSliderStart,y=cCircleSlider_attack->ySliderStart,d=150;
 			RECT rt={x,y,x+d,y+d};
 			InvalidateRect(&rt,true);
 			//Invalidate(true);
@@ -1935,12 +2042,12 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	GetData;
 
-	CDialog::OnLButtonDown(nFlags, point);
+	CDialog::OnLButtonUp(nFlags, point);
 
 	if (m_ctrl_key_use) return;
 
 	if (point.y<KEY_Y) return;
-	if (point.y>KEY_Y+KEY_H) return;
+	if (point.y>(KEY_Y+KEY_H)) return;
 	if (point.x<KEY_X) return;
 	int key=(point.x-KEY_X)/KEY_L;
 	int octave=key/7;
@@ -1997,4 +2104,37 @@ void CDTFM_GeneratorDlg::OnRButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	Invalidate(TRUE);
 	CDialog::OnRButtonUp(nFlags, point);
+}
+
+void CDTFM_GeneratorDlg::OnSettingsSetasiodevice() 
+{
+	// TODO: Add your command handler code here
+//	int a=3;
+	CDialogASIOConnect d;
+	d.m_remember=0;
+	
+	int old_asio=global_asio_index;
+
+	int res=d.DoModal();
+	ini.SetValue(d.m_remember, "RememberASIOIndex");
+
+	if (res!=FALSE)
+	{
+		//AfxMessageBox("ASIO Init Error. Programm can not to be continue",MB_OK,0);
+		if (old_asio != d.m_asio_index)
+		{
+			AfxMessageBox("ASIO device change. Please restart programm!");
+		}
+		return;
+	}
+
+
+	
+}
+
+void CDTFM_GeneratorDlg::OnFileExit() 
+{
+	// TODO: Add your command handler code here
+	ExitDialog();	
+	
 }

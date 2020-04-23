@@ -44,6 +44,8 @@ public:
 	int		signShowType;
 
 	int		typeOfElem;
+
+	bool	redraw;	//элемент нужно перерисовать
 	
 public:
 
