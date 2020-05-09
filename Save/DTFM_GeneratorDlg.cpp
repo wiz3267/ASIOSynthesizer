@@ -126,6 +126,8 @@ int IdMidiOpen=-1;
 int 
 	SAMPLE_RATE=44100;
 
+
+
 struct KEY
 {
 	UINT press;	//клавиша нажата (активна)
@@ -368,31 +370,6 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
-double filter1 = 0;
-double filter2 = 0;
-double filter3 = 0;
-
-double ss1 = 0;
-double ss2 = 0;
-double ss3 = 0;
-
-double ff = 5;
-
-double sawSource = 0;
-
-double myMin = -0.7;
-double myMax = 0.7;
-
-double rezMin = 2;
-double rezMax = 9;
-
-double fRez1 = rezMax;
-double fRez2 = rezMax;
-double fRez3 = rezMax;
-
-double filterSpeed = 50000*2.0;
-//double filterSpeed = 1000;
-
 
 int sl1, sl2, sl3, sl4, sl5, sl6;
 int slm2, slm3, slm4, slm5, slm6;
@@ -447,43 +424,7 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	//freq базовая синусоида
 
 	//если поднят первый слайдер (базовая гармоника)
-	if (sl1) {
-		
-			//sawSource += freq * 0.000032;
-			double sawSource = floor(sin(freq * t) + 0.1);
-			
-			if(sawSource >= myMax) sawSource = myMin;
-			
-			fRez1 -= (fRez1 - rezMin) / filterSpeed;
-			ss1 += (sawSource - filter1) / pow(2, rezMax - fRez1 + 4);
-			ss1 /= 1.02;
-			filter1 += ss1;
-			
-			if(t > 3){
-			
-				fRez2 -= (fRez2 - rezMin) / filterSpeed;
-				ss2 += (sawSource - filter2) / pow(2, rezMax - fRez2 + 4);
-				ss2 /= 1.02;
-				filter2 += ss2;
-			
-			}
-			
-			if(t > 6){
-			
-				fRez3 -= (fRez3 - rezMin) / filterSpeed;
-				ss3 += (sawSource - filter3) / pow(2, rezMax - fRez3 + 4);
-				ss3 /= 1.02;
-				filter3 += ss3;
-			
-			}
-			
-			k += filter1; // базовый звук
-			//k += filter2 * 0.5; // первое повторение эхо
-			//k += filter3 * 0.25; // второе повторение эхо
-			
-			k *= sl1 / 100.0;
-		
-	}
+	if (sl1) {						  k+=sl1/100.0*sin(freq*t); }
 
 	//если поднят второй слайдер (вторая гаромника, в 2 раза выше базовой)
 	if (sl2) { f=2*freq; if (f<limit) k+=sl2/100.0*sin(f*t); }
@@ -851,8 +792,13 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	double	m =	0;
 
 	int OverloadCount=0;	//сколько раз был клиппинг (за пределы 32767...32767)
+
+	for(int i=0; i<size/2; i++)
+	{
+		plbuf[i]=0;
+	}
 	
-	for(int i=0; i<size/2; i++, _time_++)
+	for(i=0; i<size/2; i++, _time_++)
 	{
 		m=0;
 
@@ -931,7 +877,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//если выходит за пределы
 		else if (m < -32767) 
 		{
-			m = -32767;		//установка максимального значения
+			m = -32767;		//установка минимального значения
 			Overload=-10;	//установка флага перегрузки
 			OverloadCount++;
 			//CorrectAmplitude-=0.01;
@@ -949,7 +895,10 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//short int z=(short int)(m*globalVolume);
 		short int z=(short int)(m);
 
-		plbuf[i]=z;
+		plbuf[i] +=z;
+		//UINT delay = 100; // ????????
+		//if (i+delay<size/2) plbuf[i+delay] += z;
+
 	}
 
 	if (OverloadCount==0) Overload++;
@@ -1521,8 +1470,6 @@ void CALLBACK MidiInProc(
 //открытие миди-устройства
 void CDTFM_GeneratorDlg::OnButtonMidiOpen() 
 {
-
-	
 	GetData;
 
 	if (hmidiIn!=NULL) return;
@@ -1768,24 +1715,16 @@ void MidiKeyPress2(BYTE key, BYTE value)
 
 		//if (Keys[key].press==1) return;
 
-		//?????????
-		fRez1 = rezMax;
-		fRez2 = rezMax;
-		fRez3 = rezMax;
-
-
 
 		Keys[key].press=true;
 		Keys[key].midi_key_press=1;
 
 		Keys[key].Ampl=atoi(g_amplitude_global)*value/127.0;
 
-		//????
 		Keys[key].A=Keys[key].Ampl;
 		
 		//Keys[key].A_add=ADSR_Attack;//0.6;
 
-		//??????????????????????????
 		//атака
 		double d=cCircleSlider_attack->GetValue();
 		Keys[key].A_add=40/(d+1);
@@ -1828,7 +1767,6 @@ void MidiKeyPress3(BYTE key, BYTE value)
 
 		Keys[key].Ampl=atoi(g_amplitude_global)*value/127.0;
 
-		//????
 		Keys[key].A=Keys[key].Ampl;
 		Keys[key].A_add=ADSR_Attack;//0.6;
 
@@ -1920,11 +1858,6 @@ int gMouseMove=FALSE;
 //если курсор попадает в зону пианоролла
 void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	
-	fRez1 = rezMax;
-	fRez2 = rezMax;
-	fRez3 = rezMax;
-	
 	//Overload=false;
 	GetData;
 
