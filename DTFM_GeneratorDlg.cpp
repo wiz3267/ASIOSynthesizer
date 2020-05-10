@@ -115,8 +115,6 @@ double MaxSound=0;	//максимальный уровень звука на данный момент (до 32768)
 //положить (обновить) данные из переменных в форму
 #define PutData UpdateData(false)
 
-double Piano(double Ampl, double freq, double t, double phase);
-
 static int _time_;
 
 double	AMPLITUDE_DECREMENT;//5/2048.0;
@@ -125,6 +123,20 @@ int IdMidiOpen=-1;
 
 int 
 	SAMPLE_RATE=44100;
+
+
+double ff = 5;
+
+double myMin = -0.7;
+double myMax = 0.7;
+
+double rezMin = 0.1;
+double rezMax = 9;
+
+
+double filterSpeed = 50000*3;
+//double filterSpeed = 1000;
+
 
 struct KEY
 {
@@ -137,9 +149,38 @@ struct KEY
 	double A,D,S,R;	//блок констант ADSR (Attack-Decay-Sustain-Release)
 	double A_add;	//скорость увеличения A (атака)
 
-	KEY() { press=0; decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;midi_key_press=0;}
+	double sawSource;
+	double filter1 ;
+	double filter2 ;
+	double filter3 ;
+
+	double fRez1;
+	double fRez2;
+	double fRez3;
+
+	double ss1;
+	double ss2;
+	double ss3;
+
+
+	KEY() { press=0; 
+	decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;midi_key_press=0; 
+	sawSource=0;
+	
+	filter1=0;
+	filter2=0;
+	filter3=0;
+	fRez1 = rezMax;
+	fRez2 = rezMax;
+	fRez3 = rezMax;
+	ss1=0;
+	ss2=0;
+	ss3=0;
+	}
+
 } Keys[256];
 
+double Piano(int keyN, double Ampl, double freq, double t, double phase);
 
 KEY KeysOld[256];
 
@@ -368,30 +409,6 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
-double filter1 = 0;
-double filter2 = 0;
-double filter3 = 0;
-
-double ss1 = 0;
-double ss2 = 0;
-double ss3 = 0;
-
-double ff = 5;
-
-double sawSource = 0;
-
-double myMin = -0.7;
-double myMax = 0.7;
-
-double rezMin = 2;
-double rezMax = 9;
-
-double fRez1 = rezMax;
-double fRez2 = rezMax;
-double fRez3 = rezMax;
-
-double filterSpeed = 50000*2.0;
-//double filterSpeed = 1000;
 
 
 int sl1, sl2, sl3, sl4, sl5, sl6;
@@ -409,7 +426,7 @@ int slvolume;
 //freq_actual записывается последняя вычисленная частота
 //если flag_one==1, значит была использована только одна гармоника,
 //а остальные слайдеры опущены вниз
-double Piano(double Ampl, double freq, double t, double phase, int & flag_one, double & freq_actual)
+double Piano(int keyN,double Ampl, double freq, double t, double phase, int & flag_one, double & freq_actual)
 {
 
 	flag_one=0;
@@ -449,16 +466,21 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 	//если поднят первый слайдер (базовая гармоника)
 	if (sl1) {
 		
-			//sawSource += freq * 0.000032;
-			double sawSource = floor(sin(freq * t) + 0.1);
+			Keys[keyN].sawSource += freq * 0.000032;
+
+			//double sawSource;// = floor(sin(freq * t) + 0.1);
 			
-			if(sawSource >= myMax) sawSource = myMin;
+			if(Keys[keyN].sawSource >= myMax) Keys[keyN].sawSource = myMin;
 			
-			fRez1 -= (fRez1 - rezMin) / filterSpeed;
-			ss1 += (sawSource - filter1) / pow(2, rezMax - fRez1 + 4);
-			ss1 /= 1.02;
-			filter1 += ss1;
+			//filter1 = sawSource;
+
+			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
+			Keys[keyN].ss1 += (Keys[keyN].sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
+			Keys[keyN].ss1 /= 1.02;
+			Keys[keyN].filter1 += Keys[keyN].ss1;
 			
+			
+			/*
 			if(t > 3){
 			
 				fRez2 -= (fRez2 - rezMin) / filterSpeed;
@@ -475,9 +497,9 @@ double Piano(double Ampl, double freq, double t, double phase, int & flag_one, d
 				ss3 /= 1.02;
 				filter3 += ss3;
 			
-			}
+			}*/
 			
-			k += filter1; // базовый звук
+			k += Keys[keyN].filter1; // базовый звук
 			//k += filter2 * 0.5; // первое повторение эхо
 			//k += filter3 * 0.25; // второе повторение эхо
 			
@@ -539,22 +561,8 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	int x=rt.left,y=rt.top;
 
-	//x=0,y=0;
-
-	//cCircleSlider = new CircleSliderIndicator(340+10,20-20+offset, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
-	//										  DigIndicatorValue::signTypeNotShow);
 	cCircleSlider_attack = new CircleSliderIndicator(x,y, CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
-
-//	cCircleSlider = new CircleSliderIndicator(340+10,20-20, CircleSliderIndicator::typeOfElem4, 0, 100, 0, false, 7,
-//											  DigIndicatorValue::signTypeShowOnlyMinus);
-
-//	cCircleSlider = new CircleSliderIndicator(340+10,20-20 + 100, CircleSliderIndicator::typeOfElem3, 0,100, 99, true, 3,
-//											  DigIndicatorValue::signTypeShowOnlyMinus);
-
-//	cCircleSlider = new CircleSliderIndicator(340+10,20-20 + 100, CircleSliderIndicator::typeOfElem5, 0,100, 99, true, 3,
-//											  DigIndicatorValue::signTypeShowOnlyMinus);
-
 
 	
 	cCircleSlider_modulation = new CircleSliderIndicator(rt2.left,rt2.top, 
@@ -877,7 +885,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 				
 				phase=0;
 
-				m			+=Piano(Keys[k].Ampl,freq,Keys[k].t,phase, flag_one, freq_actual);
+				m			+=Piano(k,Keys[k].Ampl,freq,Keys[k].t,phase, flag_one, freq_actual);
 				
 				Keys[k].t	+=K;
 
@@ -1769,9 +1777,9 @@ void MidiKeyPress2(BYTE key, BYTE value)
 		//if (Keys[key].press==1) return;
 
 		//?????????
-		fRez1 = rezMax;
-		fRez2 = rezMax;
-		fRez3 = rezMax;
+		Keys[key].fRez1 = rezMax;
+		Keys[key].fRez2 = rezMax;
+		Keys[key].fRez3 = rezMax;
 
 
 
@@ -1921,9 +1929,6 @@ int gMouseMove=FALSE;
 void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	
-	fRez1 = rezMax;
-	fRez2 = rezMax;
-	fRez3 = rezMax;
 	
 	//Overload=false;
 	GetData;
@@ -1978,6 +1983,9 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 
 
+	Keys[key_real].fRez1 = rezMax;
+	Keys[key_real].fRez2 = rezMax;
+	Keys[key_real].fRez3 = rezMax;
 	Keys[key_real].press=TRUE;
 	Keys[key_real].Ampl=atoi(g_amplitude_global);
 	Keys[key_real].decrement=0;//звук будет звучать постоянно
@@ -2097,7 +2105,6 @@ void CDTFM_GeneratorDlg::OnSetfocusEditScale()
 
 void CDTFM_GeneratorDlg::OnKillfocusEditScale() 
 {
-	// TODO: Add your control notification handler code here
 	GetData;
 	m_string_status_text="";
 	PutData;
@@ -2106,14 +2113,12 @@ void CDTFM_GeneratorDlg::OnKillfocusEditScale()
 
 void CDTFM_GeneratorDlg::OnButtonAsioControlPanel() 
 {
-	// TODO: Add your control notification handler code here
 	BASS_ASIO_ControlPanel();
-	
+
 }
 
 void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point) 
 {
-	// TODO: Add your message handler code here and/or call default
 	GetData;
 
 	CDialog::OnLButtonUp(nFlags, point);
