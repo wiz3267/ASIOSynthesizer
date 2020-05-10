@@ -131,7 +131,7 @@ double myMin = -0.7;
 double myMax = 0.7;
 
 double rezMin = 0.1;
-double rezMax = 9;
+double rezMax = 8;
 
 
 double filterSpeed = 50000*3;
