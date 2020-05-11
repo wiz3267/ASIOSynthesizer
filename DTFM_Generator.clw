@@ -15,11 +15,11 @@ Class3=CAboutDlg
 ResourceCount=7
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_ABOUTBOX (English (U.S.))
-Resource4=IDD_DTFM_GENERATOR_DIALOG
-Resource5=IDD_DIALOG_SETTINGS
+Resource3=IDD_DIALOG_ASIO_CONNECT
+Resource4=IDD_ABOUTBOX (English (U.S.))
+Resource5=IDD_DTFM_GENERATOR_DIALOG
 Class4=CDialogASIOConnect
-Resource6=IDD_DIALOG_ASIO_CONNECT
+Resource6=IDD_DIALOG_SETTINGS
 Resource7=IDR_MENU_MAIN
 
 [CLS:CDTFM_GeneratorApp]
@@ -36,7 +36,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_EDIT_STATUS_TEXT
+LastObject=CDTFM_GeneratorDlg
 
 [CLS:CAboutDlg]
 Type=0
@@ -58,7 +58,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=82
+ControlCount=83
 Control1=IDC_AMPLITUDE,edit,1484849280
 Control2=IDC_EDIT_BASE_A,edit,1350631552
 Control3=IDC_EDIT_SCALE,edit,1350566016
@@ -141,6 +141,7 @@ Control79=IDC_CHECK_PIANO_MOUSE_CLICK,button,1342242819
 Control80=IDC_CHECK_CTRL_KEY,button,1342242819
 Control81=IDC_STATIC_CSLIDER1,static,1082261504
 Control82=IDC_STATIC_CSLIDER2,static,1082261504
+Control83=IDC_BUTTON_DEMO,button,1342242816
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1

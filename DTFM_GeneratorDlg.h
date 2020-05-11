@@ -141,6 +141,7 @@ protected:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnSettingsSetasiodevice();
 	afx_msg void OnFileExit();
+	afx_msg void OnButtonDemo();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

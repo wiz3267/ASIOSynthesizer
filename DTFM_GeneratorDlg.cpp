@@ -21,6 +21,99 @@
 #include "digIndicator.h"
 #include "digIndicatorValue.h"
 
+void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_STATIC_CSLIDER2, m_static_slider2);
+	DDX_Control(pDX, IDC_STATIC_CSLIDER1, m_static_slider1);
+	DDX_Control(pDX, IDC_LEVEL_CONTROL, m_level_control);
+	DDX_Control(pDX, IDC_EDIT_PIANOROLL, m_pianoroll);
+	DDX_Control(pDX, IDC_SLIDER_TOTAL_VOLUME, m_slider_total_volume);
+	DDX_Control(pDX, IDC_EDIT_BASE_A, m_edit_base_a);
+	DDX_Control(pDX, IDC_EDIT_STATUS_TEXT, m_status_text);
+	DDX_Control(pDX, IDC_AMPLITUDE, m_amplitude_edit);
+	DDX_Control(pDX, IDC_SLIDERM6, m_slm6);
+	DDX_Control(pDX, IDC_SLIDERM5, m_slm5);
+	DDX_Control(pDX, IDC_SLIDER6, m_sl6);
+	DDX_Control(pDX, IDC_SLIDER5, m_sl5);
+	DDX_Control(pDX, IDC_SLIDER_DECREMENT, m_slider_decrement);
+	DDX_Control(pDX, IDC_EDIT_MIDI_NAME2, m_midi_name_ctrl);
+	DDX_Control(pDX, IDC_STOP_PLAY, m_stop_play);
+	DDX_Control(pDX, IDC_BUTTON_PLAY_WRITEN, m_play_writen);
+	DDX_Control(pDX, IDC_BUTTON_WRITE_STOP, m_button_write_stop);
+	DDX_Control(pDX, IDC_BUTTON_WRITE, m_button_write);
+	DDX_Control(pDX, IDC_BUTTON_MIDI_OPEN, m_midi_open);
+	DDX_Control(pDX, IDC_BUTTON_MIDI_CLOSE, m_midi_close);
+	DDX_Control(pDX, IDC_SLIDERM4, m_slm4);
+	DDX_Control(pDX, IDC_SLIDERM3, m_slm3);
+	DDX_Control(pDX, IDC_SLIDERM2, m_slm2);
+	DDX_Control(pDX, IDC_SLIDER4, m_sl4);
+	DDX_Control(pDX, IDC_SLIDER3, m_sl3);
+	DDX_Control(pDX, IDC_SLIDER2, m_sl2);
+	DDX_Control(pDX, IDC_SLIDER1, m_sl1);
+	DDX_Text(pDX, IDC_EDIT1, m_edit);
+	DDX_Text(pDX, IDC_EDIT_MIDI_OPEN, m_midi_open_str);
+	DDX_Text(pDX, IDC_AMPLITUDE, m_amplitude);
+	DDX_Text(pDX, IDC_EDIT_FREQ, m_edit_freq);
+	DDX_Text(pDX, IDC_EDIT_MIDI_NAME2, m_midi_name);
+	DDX_Text(pDX, IDC_EDIT_SLIDER_DECREMENT, m_slider_decrement_double);
+	DDX_Text(pDX, IDC_EDIT_WAVE_LEN, m_wave_len);
+	DDX_Text(pDX, IDC_EDIT_MODULATION, m_edit_modilation);
+	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE, m_asio_device);
+	DDX_Text(pDX, IDC_EDIT_SCALE, m_edit_scale);
+	DDX_Text(pDX, IDC_EDIT_BASE_A, m_string_base_a);
+	DDX_Text(pDX, IDC_EDIT_MODULATION_FREQ, m_modulation_amplitude);
+	DDX_Text(pDX, IDC_EDIT_STATUS_TEXT, m_string_status_text);
+	DDX_Text(pDX, IDC_EDIT_SIZE_ASIO_BUFFER, m_size_asio_buffer);
+	DDX_Text(pDX, IDC_EDIT_GARMONIC_5, m_garmonic_5);
+	DDX_Text(pDX, IDC_EDIT_GARMONIC_6, m_garmonic_6);
+	DDX_Text(pDX, IDC_EDIT_MODULATION_WHEEL, m_edit_modulation_wheel);
+	DDX_Check(pDX, IDC_CHECK_USE_VELOCITY, m_use_velocity);
+	DDX_Check(pDX, IDC_CHECK_NO_SUSTAIN, m_no_sustain);
+	DDX_Check(pDX, IDC_CHECK_PIANO_MOUSE_CLICK, m_piano_mouse_click);
+	DDX_Check(pDX, IDC_CHECK_CTRL_KEY, m_ctrl_key_use);
+	//}}AFX_DATA_MAP
+}
+
+BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
+	//{{AFX_MSG_MAP(CDTFM_GeneratorDlg)
+	ON_WM_SYSCOMMAND()
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	ON_WM_CLOSE()
+	ON_WM_CREATE()
+	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_MIDI_CLOSE, OnButtonMidiClose)
+	ON_BN_CLICKED(IDC_BUTTON_MIDI_OPEN, OnButtonMidiOpen)
+	ON_BN_CLICKED(IDC_BUTTON_WRITE, OnButtonWrite)
+	ON_BN_CLICKED(IDC_BUTTON_WRITE_STOP, OnButtonWriteStop)
+	ON_BN_CLICKED(IDC_BUTTON_PLAY_WRITEN, OnButtonPlayWriten)
+	ON_BN_CLICKED(IDC_BUTTON_RESET, OnButtonReset)
+	ON_WM_MOVE()
+	ON_BN_CLICKED(IDC_STOP_PLAY, OnStopPlay)
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
+	ON_EN_SETFOCUS(IDC_EDIT_MODULATION, OnSetfocusEditModulation)
+	ON_EN_KILLFOCUS(IDC_EDIT_STATUS_TEXT, OnKillfocusEditStatusText)
+	ON_EN_KILLFOCUS(IDC_EDIT_MODULATION, OnKillfocusEditModulation)
+	ON_EN_SETFOCUS(IDC_EDIT_SCALE, OnSetfocusEditScale)
+	ON_EN_KILLFOCUS(IDC_EDIT_SCALE, OnKillfocusEditScale)
+	ON_BN_CLICKED(IDC_BUTTON_ASIO_CONTROL_PANEL, OnButtonAsioControlPanel)
+	ON_WM_LBUTTONUP()
+	ON_WM_RBUTTONUP()
+	ON_COMMAND(ID_SETTINGS_SETASIODEVICE, OnSettingsSetasiodevice)
+	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
+	ON_BN_CLICKED(IDC_BUTTON_DEMO, OnButtonDemo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CDTFM_GeneratorDlg message handlers
+
+
+int counter = 0;
+int demo[] = {50,-1,-1,-1,53,-1,-1,50,-1,50,55,-1,50,-1,48,-1,50,-1,-1,-1,57,-1,-1,50,-1,50,58,-1,57,-1,53,-1,50,-1,57,-1,62,-1,50,48,-1,48,45,-1,52,-1,50};
 
 CPoint g_last_mouse_point;
 CDTFM_GeneratorDlg * g_mainwindow=NULL;
@@ -124,19 +217,16 @@ int IdMidiOpen=-1;
 int 
 	SAMPLE_RATE=44100;
 
-
-double ff = 5;
-
 double myMin = -0.7;
 double myMax = 0.7;
 
 double rezMin = 0.1;
 double rezMax = 8;
 
-
-double filterSpeed = 50000*3;
+double filterSpeed = 20000;
 //double filterSpeed = 1000;
 
+double deTune = 1.007;
 
 struct KEY
 {
@@ -149,7 +239,10 @@ struct KEY
 	double A,D,S,R;	//блок констант ADSR (Attack-Decay-Sustain-Release)
 	double A_add;	//скорость увеличения A (атака)
 
-	double sawSource;
+//	double sawSource;
+	double sawSource1;
+	double sawSource2;
+	
 	double filter1 ;
 	double filter2 ;
 	double filter3 ;
@@ -161,11 +254,10 @@ struct KEY
 	double ss1;
 	double ss2;
 	double ss3;
-
-
+	
 	KEY() { press=0; 
 	decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;midi_key_press=0; 
-	sawSource=0;
+	sawSource1=0;sawSource2=0;
 	
 	filter1=0;
 	filter2=0;
@@ -321,94 +413,6 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
-	DDX_Control(pDX, IDC_STATIC_CSLIDER2, m_static_slider2);
-	DDX_Control(pDX, IDC_STATIC_CSLIDER1, m_static_slider1);
-	DDX_Control(pDX, IDC_LEVEL_CONTROL, m_level_control);
-	DDX_Control(pDX, IDC_EDIT_PIANOROLL, m_pianoroll);
-	DDX_Control(pDX, IDC_SLIDER_TOTAL_VOLUME, m_slider_total_volume);
-	DDX_Control(pDX, IDC_EDIT_BASE_A, m_edit_base_a);
-	DDX_Control(pDX, IDC_EDIT_STATUS_TEXT, m_status_text);
-	DDX_Control(pDX, IDC_AMPLITUDE, m_amplitude_edit);
-	DDX_Control(pDX, IDC_SLIDERM6, m_slm6);
-	DDX_Control(pDX, IDC_SLIDERM5, m_slm5);
-	DDX_Control(pDX, IDC_SLIDER6, m_sl6);
-	DDX_Control(pDX, IDC_SLIDER5, m_sl5);
-	DDX_Control(pDX, IDC_SLIDER_DECREMENT, m_slider_decrement);
-	DDX_Control(pDX, IDC_EDIT_MIDI_NAME2, m_midi_name_ctrl);
-	DDX_Control(pDX, IDC_STOP_PLAY, m_stop_play);
-	DDX_Control(pDX, IDC_BUTTON_PLAY_WRITEN, m_play_writen);
-	DDX_Control(pDX, IDC_BUTTON_WRITE_STOP, m_button_write_stop);
-	DDX_Control(pDX, IDC_BUTTON_WRITE, m_button_write);
-	DDX_Control(pDX, IDC_BUTTON_MIDI_OPEN, m_midi_open);
-	DDX_Control(pDX, IDC_BUTTON_MIDI_CLOSE, m_midi_close);
-	DDX_Control(pDX, IDC_SLIDERM4, m_slm4);
-	DDX_Control(pDX, IDC_SLIDERM3, m_slm3);
-	DDX_Control(pDX, IDC_SLIDERM2, m_slm2);
-	DDX_Control(pDX, IDC_SLIDER4, m_sl4);
-	DDX_Control(pDX, IDC_SLIDER3, m_sl3);
-	DDX_Control(pDX, IDC_SLIDER2, m_sl2);
-	DDX_Control(pDX, IDC_SLIDER1, m_sl1);
-	DDX_Text(pDX, IDC_EDIT1, m_edit);
-	DDX_Text(pDX, IDC_EDIT_MIDI_OPEN, m_midi_open_str);
-	DDX_Text(pDX, IDC_AMPLITUDE, m_amplitude);
-	DDX_Text(pDX, IDC_EDIT_FREQ, m_edit_freq);
-	DDX_Text(pDX, IDC_EDIT_MIDI_NAME2, m_midi_name);
-	DDX_Text(pDX, IDC_EDIT_SLIDER_DECREMENT, m_slider_decrement_double);
-	DDX_Text(pDX, IDC_EDIT_WAVE_LEN, m_wave_len);
-	DDX_Text(pDX, IDC_EDIT_MODULATION, m_edit_modilation);
-	DDX_Text(pDX, IDC_EDIT_ASIO_DEVICE, m_asio_device);
-	DDX_Text(pDX, IDC_EDIT_SCALE, m_edit_scale);
-	DDX_Text(pDX, IDC_EDIT_BASE_A, m_string_base_a);
-	DDX_Text(pDX, IDC_EDIT_MODULATION_FREQ, m_modulation_amplitude);
-	DDX_Text(pDX, IDC_EDIT_STATUS_TEXT, m_string_status_text);
-	DDX_Text(pDX, IDC_EDIT_SIZE_ASIO_BUFFER, m_size_asio_buffer);
-	DDX_Text(pDX, IDC_EDIT_GARMONIC_5, m_garmonic_5);
-	DDX_Text(pDX, IDC_EDIT_GARMONIC_6, m_garmonic_6);
-	DDX_Text(pDX, IDC_EDIT_MODULATION_WHEEL, m_edit_modulation_wheel);
-	DDX_Check(pDX, IDC_CHECK_USE_VELOCITY, m_use_velocity);
-	DDX_Check(pDX, IDC_CHECK_NO_SUSTAIN, m_no_sustain);
-	DDX_Check(pDX, IDC_CHECK_PIANO_MOUSE_CLICK, m_piano_mouse_click);
-	DDX_Check(pDX, IDC_CHECK_CTRL_KEY, m_ctrl_key_use);
-	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
-	//{{AFX_MSG_MAP(CDTFM_GeneratorDlg)
-	ON_WM_SYSCOMMAND()
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_WM_CLOSE()
-	ON_WM_CREATE()
-	ON_WM_TIMER()
-	ON_BN_CLICKED(IDC_BUTTON_MIDI_CLOSE, OnButtonMidiClose)
-	ON_BN_CLICKED(IDC_BUTTON_MIDI_OPEN, OnButtonMidiOpen)
-	ON_BN_CLICKED(IDC_BUTTON_WRITE, OnButtonWrite)
-	ON_BN_CLICKED(IDC_BUTTON_WRITE_STOP, OnButtonWriteStop)
-	ON_BN_CLICKED(IDC_BUTTON_PLAY_WRITEN, OnButtonPlayWriten)
-	ON_BN_CLICKED(IDC_BUTTON_RESET, OnButtonReset)
-	ON_WM_MOVE()
-	ON_BN_CLICKED(IDC_STOP_PLAY, OnStopPlay)
-	ON_WM_LBUTTONDOWN()
-	ON_WM_MOUSEMOVE()
-	ON_EN_SETFOCUS(IDC_EDIT_MODULATION, OnSetfocusEditModulation)
-	ON_EN_KILLFOCUS(IDC_EDIT_STATUS_TEXT, OnKillfocusEditStatusText)
-	ON_EN_KILLFOCUS(IDC_EDIT_MODULATION, OnKillfocusEditModulation)
-	ON_EN_SETFOCUS(IDC_EDIT_SCALE, OnSetfocusEditScale)
-	ON_EN_KILLFOCUS(IDC_EDIT_SCALE, OnKillfocusEditScale)
-	ON_BN_CLICKED(IDC_BUTTON_ASIO_CONTROL_PANEL, OnButtonAsioControlPanel)
-	ON_WM_LBUTTONUP()
-	ON_WM_RBUTTONUP()
-	ON_COMMAND(ID_SETTINGS_SETASIODEVICE, OnSettingsSetasiodevice)
-	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// CDTFM_GeneratorDlg message handlers
 
 
 int sl1, sl2, sl3, sl4, sl5, sl6;
@@ -466,42 +470,40 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 	//если поднят первый слайдер (базовая гармоника)
 	if (sl1) {
 		
-			Keys[keyN].sawSource += freq * 0.000032;
-
-			//double sawSource;// = floor(sin(freq * t) + 0.1);
+			Keys[keyN].sawSource1 += freq * 0.000032 * deTune;
+			Keys[keyN].sawSource2 += freq * 0.000032 / deTune;
 			
-			if(Keys[keyN].sawSource >= myMax) Keys[keyN].sawSource = myMin;
+			if(Keys[keyN].sawSource1 >= myMax) Keys[keyN].sawSource1 = myMin;
+			if(Keys[keyN].sawSource2 >= myMax) Keys[keyN].sawSource2 = myMin;
 			
-			//filter1 = sawSource;
+			double sawSource = Keys[keyN].sawSource1 + Keys[keyN].sawSource2;
 
 			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
-			Keys[keyN].ss1 += (Keys[keyN].sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
+			Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
 			Keys[keyN].ss1 /= 1.02;
 			Keys[keyN].filter1 += Keys[keyN].ss1;
 			
+			if(t > 2){
 			
-			/*
-			if(t > 3){
-			
-				fRez2 -= (fRez2 - rezMin) / filterSpeed;
-				ss2 += (sawSource - filter2) / pow(2, rezMax - fRez2 + 4);
-				ss2 /= 1.02;
-				filter2 += ss2;
+				Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
+				Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(2, rezMax - Keys[keyN].fRez2 + 4);
+				Keys[keyN].ss2 /= 1.02;
+				Keys[keyN].filter2 += Keys[keyN].ss2;
 			
 			}
 			
-			if(t > 6){
+			if(t > 4){
 			
-				fRez3 -= (fRez3 - rezMin) / filterSpeed;
-				ss3 += (sawSource - filter3) / pow(2, rezMax - fRez3 + 4);
-				ss3 /= 1.02;
-				filter3 += ss3;
+				Keys[keyN].fRez3 -= (Keys[keyN].fRez3 - rezMin) / filterSpeed;
+				Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(2, rezMax - Keys[keyN].fRez3 + 4);
+				Keys[keyN].ss3 /= 1.02;
+				Keys[keyN].filter3 += Keys[keyN].ss3;
 			
-			}*/
-			
+			}
+						
 			k += Keys[keyN].filter1; // базовый звук
-			//k += filter2 * 0.5; // первое повторение эхо
-			//k += filter3 * 0.25; // второе повторение эхо
+			k += Keys[keyN].filter2 * 0.5; // первое повторение эхо
+			k += Keys[keyN].filter3 * 0.25; // второе повторение эхо
 			
 			k *= sl1 / 100.0;
 		
@@ -1217,6 +1219,43 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 
 void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent) 
 {
+
+	if (nIDEvent==100){
+			
+		if(demo[counter] > -1){
+			
+			int k=demo[counter];
+			if (k!=-1)
+			{
+				ZeroMemory(&Keys[k],sizeof(KEY));
+
+				Keys[k].fRez1 = rezMax;
+				Keys[k].fRez2 = rezMax;
+				Keys[k].fRez3 = rezMax;
+
+			
+			
+				Keys[k].press=TRUE;
+				Keys[k].Ampl=atoi(g_amplitude_global);
+				Keys[k].decrement=0.3;
+				Keys[k].t = 0;
+			}
+		
+		}
+		
+		counter ++;
+		
+		if(counter >= 47){
+			
+			counter = 0;
+			KillTimer(100);
+			
+		}
+		
+		return;
+		
+	}
+	
 	GetData;
 
 	if (nIDEvent==1)
@@ -1274,13 +1313,9 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	g_step_modulation=g_ModulationWheel * Volume/127.0/ASIO_buflen;
 
-
-	
 	char str[16];
 	itoa(g_modulation_wheel_2,str,10);
-	//itoa(g_ModulationWheel,str,10);
-
-	m_edit_modulation_wheel=	str;
+	m_edit_modulation_wheel=str;
 
 	if (NeedUpdateMidiEvent)
 	{
@@ -1529,7 +1564,6 @@ void CALLBACK MidiInProc(
 //открытие миди-устройства
 void CDTFM_GeneratorDlg::OnButtonMidiOpen() 
 {
-
 	
 	GetData;
 
@@ -1587,6 +1621,7 @@ void CDTFM_GeneratorDlg::OnButtonMidiOpen()
 	SetFocus();
 
 	PutData;
+	
 }
 
 void CDTFM_GeneratorDlg::OnButtonWrite() 
@@ -2215,5 +2250,11 @@ void CDTFM_GeneratorDlg::OnFileExit()
 {
 	// TODO: Add your command handler code here
 	ExitDialog();	
+	
+}
+
+void CDTFM_GeneratorDlg::OnButtonDemo() 
+{
+	SetTimer(100,100,0);
 	
 }
