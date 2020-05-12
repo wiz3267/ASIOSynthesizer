@@ -104,6 +104,9 @@
 #define IDC_STATIC_CSLIDER1             1098
 #define IDC_STATIC_CSLIDER2             1099
 #define IDC_BUTTON_DEMO                 1100
+#define IDC_STATIC_CSLIDER3             1101
+#define IDC_STATIC_CSLIDER4             1102
+#define IDC_STATIC_CSLIDER5             1103
 #define ID_FILE_EXIT                    32771
 #define ID_SETTINGS_SETASIODEVICE       32772
 

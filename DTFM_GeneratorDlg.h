@@ -36,6 +36,10 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDTFM_GeneratorDlg)
 	enum { IDD = IDD_DTFM_GENERATOR_DIALOG };
+	CStatic	m_static_slider5;
+	CStatic	m_static_slider4;
+	CStatic	m_static_sslider3;
+	CStatic	m_static_slider3;
 	CStatic	m_static_slider2;
 	CStatic	m_static_slider1;
 	CEdit	m_level_control;

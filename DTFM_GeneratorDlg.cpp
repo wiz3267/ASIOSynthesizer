@@ -25,6 +25,9 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_STATIC_CSLIDER5, m_static_slider5);
+	DDX_Control(pDX, IDC_STATIC_CSLIDER4, m_static_slider4);
+	DDX_Control(pDX, IDC_STATIC_CSLIDER3, m_static_sslider3);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER2, m_static_slider2);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER1, m_static_slider1);
 	DDX_Control(pDX, IDC_LEVEL_CONTROL, m_level_control);
@@ -124,11 +127,14 @@ double garmonic_6=0;
 double ADSR_Attack=0;
 
 double globalVolume=0.5;
-//CircleSlider *cSlider1=NULL;
+
 CircleSliderIndicator * cCircleSlider_attack=NULL;
 CircleSliderIndicator * cCircleSlider_modulation=NULL;
+CircleSliderIndicator * cCircleSlider_detune=NULL;
+CircleSliderIndicator * cCircleSlider_filterspeed=NULL;
+CircleSliderIndicator * cCircleSlider_echo=NULL;
 
-//DigIndicatorValue	*dInd1;
+//CircleSliderIndicator * cCircleSlider_detune=NULL;
 
 int global_asio_index=0;
 
@@ -141,7 +147,6 @@ int NeedUpdateModulation=1;	////***^^^*** реагировать на слайдер модуляции
 double g_modulation_t=0;	//***^^^***
 double g_step_modulation=0;	////***^^^*** скорость модуляции 
 double g_ModulationWheel=0;	//***^^^***
-//int m_edit_modulation_wheel  //***^^^*** эта переменная связана с edit box
 int g_modulation_wheel_2=0;	////***^^^***значения колеса модуляции
 int g_modulation_amplitude_value;//***^^^***
 
@@ -220,13 +225,13 @@ int
 double myMin = -0.7;
 double myMax = 0.7;
 
-double rezMin = 0.1;
+double rezMin = 1;
 double rezMax = 8;
 
-double filterSpeed = 20000;
+double filterSpeed = 20000*10;
 //double filterSpeed = 1000;
 
-double deTune = 1.007;
+double deTune = 1.001;
 
 struct KEY
 {
@@ -470,40 +475,53 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 	//если поднят первый слайдер (базовая гармоника)
 	if (sl1) {
 		
-			Keys[keyN].sawSource1 += freq * 0.000032 * deTune;
-			Keys[keyN].sawSource2 += freq * 0.000032 / deTune;
+			double dt=1 + cCircleSlider_detune->GetValue()/1000;
+
+			Keys[keyN].sawSource1 += freq * 0.000032 * dt;
+			Keys[keyN].sawSource2 += freq * 0.000032 / dt;
 			
 			if(Keys[keyN].sawSource1 >= myMax) Keys[keyN].sawSource1 = myMin;
 			if(Keys[keyN].sawSource2 >= myMax) Keys[keyN].sawSource2 = myMin;
 			
 			double sawSource = Keys[keyN].sawSource1 + Keys[keyN].sawSource2;
 
+			filterSpeed = 500 * (cCircleSlider_filterspeed->GetValue()+1);
+
 			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
 			Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
 			Keys[keyN].ss1 /= 1.02;
 			Keys[keyN].filter1 += Keys[keyN].ss1;
+
+			double echo=cCircleSlider_echo->GetValue();
+
 			
-			if(t > 2){
-			
-				Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
-				Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(2, rezMax - Keys[keyN].fRez2 + 4);
-				Keys[keyN].ss2 /= 1.02;
-				Keys[keyN].filter2 += Keys[keyN].ss2;
-			
-			}
-			
-			if(t > 4){
-			
-				Keys[keyN].fRez3 -= (Keys[keyN].fRez3 - rezMin) / filterSpeed;
-				Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(2, rezMax - Keys[keyN].fRez3 + 4);
-				Keys[keyN].ss3 /= 1.02;
-				Keys[keyN].filter3 += Keys[keyN].ss3;
-			
+			if (echo>0)
+			{
+				if(t > echo){
+				
+					Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
+					Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(2, rezMax - Keys[keyN].fRez2 + 4);
+					Keys[keyN].ss2 /= 1.02;
+					Keys[keyN].filter2 += Keys[keyN].ss2;
+				
+				}
+				
+				if(t > 2*(echo)){
+				
+					Keys[keyN].fRez3 -= (Keys[keyN].fRez3 - rezMin) / filterSpeed;
+					Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(2, rezMax - Keys[keyN].fRez3 + 4);
+					Keys[keyN].ss3 /= 1.02;
+					Keys[keyN].filter3 += Keys[keyN].ss3;
+				
+				}
 			}
 						
 			k += Keys[keyN].filter1; // базовый звук
-			k += Keys[keyN].filter2 * 0.5; // первое повторение эхо
-			k += Keys[keyN].filter3 * 0.25; // второе повторение эхо
+			if (echo>0) 
+			{
+				k += Keys[keyN].filter2 * 0.5; // первое повторение эхо
+				k += Keys[keyN].filter3 * 0.25; // второе повторение эхо
+			}
 			
 			k *= sl1 / 100.0;
 		
@@ -554,11 +572,17 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	g_mainwindow=this;
 
 
-	RECT rt, rt2;
+	RECT rt, rt2, rt3, rt4, rt5;
 	m_static_slider1.GetWindowRect(&rt);
 	m_static_slider2.GetWindowRect(&rt2);
+	m_static_sslider3.GetWindowRect(&rt3);
+	m_static_slider4.GetWindowRect(&rt4);
+	m_static_slider5.GetWindowRect(&rt5);
 	ScreenToClient(&rt);
 	ScreenToClient(&rt2);
+	ScreenToClient(&rt3);
+	ScreenToClient(&rt4);
+	ScreenToClient(&rt5);
 
 
 	int x=rt.left,y=rt.top;
@@ -570,7 +594,15 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	cCircleSlider_modulation = new CircleSliderIndicator(rt2.left,rt2.top, 
 		CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3, DigIndicatorValue::signTypeNotShow);
 
-	cCircleSlider_modulation->doubleIndFlag=false;
+	cCircleSlider_detune = new CircleSliderIndicator(rt3.left,rt3.top, 
+		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);
+
+	cCircleSlider_filterspeed=new CircleSliderIndicator(rt4.left,rt4.top, 
+		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
+
+	cCircleSlider_echo = new CircleSliderIndicator(rt5.left,rt5.top, 
+		CircleSliderIndicator::typeOfElem4, 0,10, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
+
 	
 	//bool isSmallInd=1;
 	//BYTE c=0xf0;
@@ -725,6 +757,10 @@ void CDTFM_GeneratorDlg::OnPaint()
 
 		cCircleSlider_attack->OnPaint(dc);
 		cCircleSlider_modulation->OnPaint(dc);
+		cCircleSlider_detune->OnPaint(dc);
+		cCircleSlider_filterspeed->OnPaint(dc);
+		cCircleSlider_echo->OnPaint(dc);
+		
 		
 		ReleaseDC(dc);
 
@@ -927,7 +963,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//m*=CorrectAmplitude;
 
 		//m - получаемое значение выборки
-		//диапазон от -32767 до +32767
+		//диапазон от -32768 до +32767
 
 		//если выходит за пределы
 		if (m>32767) 
@@ -938,10 +974,10 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 			//CorrectAmplitude-=0.01;
 		}
 
-		//если выходит за пределы
-		else if (m < -32767) 
+		//если выходит за пределы минимума
+		else if (m < -32768) 
 		{
-			m = -32767;		//установка максимального значения
+			m = -32768;		//установка минимального значения
 			Overload=-10;	//установка флага перегрузки
 			OverloadCount++;
 			//CorrectAmplitude-=0.01;
@@ -2029,6 +2065,7 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if ((nFlags & MK_CONTROL) && m_ctrl_key_use) 
 	{
 		Keys[key_real].decrement=0;//звук будет звучать постоянно
+		Keys[key_real].midi_key_press=1; //редактирование слайдеров не заглушит звук
 	}
 	else 
 	{
@@ -2075,6 +2112,33 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 	cCircleSlider_attack->OnMouseMove(nFlags, point);
 	cCircleSlider_modulation->OnMouseMove(nFlags, point);
+	cCircleSlider_detune->OnMouseMove(nFlags, point);
+	cCircleSlider_filterspeed->OnMouseMove(nFlags, point);
+	cCircleSlider_echo->OnMouseMove(nFlags, point);
+
+	if (cCircleSlider_echo->pSlider->flagPaint == true)
+	{
+		CDC *dc=GetDC();
+		cCircleSlider_echo->OnPaint(dc);
+		ReleaseDC(dc);
+	}
+
+
+	if (cCircleSlider_filterspeed->pSlider->flagPaint == true)
+	{
+		CDC *dc=GetDC();
+		cCircleSlider_filterspeed->OnPaint(dc);
+		ReleaseDC(dc);
+	}
+
+
+	if (cCircleSlider_detune->pSlider->flagPaint == true)
+	{
+		CDC *dc=GetDC();
+		cCircleSlider_detune->OnPaint(dc);
+		ReleaseDC(dc);
+	}
+
 
 	if (cCircleSlider_modulation->pSlider->flagPaint == true)
 	{
