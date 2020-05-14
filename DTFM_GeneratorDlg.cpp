@@ -1,9 +1,4 @@
 // DTFM_GeneratorDlg.cpp : implementation file
-// 
-//добавить размер буфера ASIO
-//запись/чтения номера ASIO, перевыбор ASIO через диалоговое окно
-
-
 #include "stdafx.h"
 #include "DTFM_Generator.h"
 #include "DTFM_GeneratorDlg.h"
@@ -20,6 +15,43 @@
 #include "circleSliderIndicator.h"
 #include "digIndicator.h"
 #include "digIndicatorValue.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// CDTFM_GeneratorDlg dialog
+
+CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
+	: CDialog(CDTFM_GeneratorDlg::IDD, pParent)
+{
+
+	//{{AFX_DATA_INIT(CDTFM_GeneratorDlg)
+	m_edit = _T("");
+	m_midi_open_str = _T("3");
+	m_amplitude = _T("32767");
+	m_edit_freq = 0.0;
+	m_midi_name = _T("");
+	m_slider_decrement_double = 0.0;
+	m_wave_len = 0.0;
+	m_edit_modilation = _T("1");
+	m_asio_device = -1;
+	m_edit_scale = _T("12");
+	m_string_base_a = _T("440");
+	m_modulation_amplitude = _T("10000");
+	m_string_status_text = _T("");
+	m_size_asio_buffer = 0;
+	m_garmonic_5 = _T("1.25992");
+	m_garmonic_6 = _T("1.49830");
+	m_attack = _T("5");
+	m_edit_modulation_wheel = _T("");
+	m_use_velocity = TRUE;
+	m_no_sustain = FALSE;
+	m_piano_mouse_click = TRUE;
+	m_ctrl_key_use = FALSE;
+	m_check_saw3 = TRUE;
+	//}}AFX_DATA_INIT
+	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
 
 void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -76,6 +108,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_NO_SUSTAIN, m_no_sustain);
 	DDX_Check(pDX, IDC_CHECK_PIANO_MOUSE_CLICK, m_piano_mouse_click);
 	DDX_Check(pDX, IDC_CHECK_CTRL_KEY, m_ctrl_key_use);
+	DDX_Check(pDX, IDC_CHECK_SAW, m_check_saw3);
 	//}}AFX_DATA_MAP
 }
 
@@ -108,6 +141,7 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_COMMAND(ID_SETTINGS_SETASIODEVICE, OnSettingsSetasiodevice)
 	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
 	ON_BN_CLICKED(IDC_BUTTON_DEMO, OnButtonDemo)
+	ON_COMMAND(ID_KEYBOARD_KEYS_MENU, OnKeyboardKeysMenu)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -237,6 +271,7 @@ struct KEY
 {
 	UINT press;	//клавиша нажата (активна)
 	BYTE midi_key_press;	//была нажата миди клавиша
+	BYTE key_unpress;	//была отпущена клавиша на клавиатуре
 	double decrement;
 	double Ampl;
 
@@ -259,20 +294,45 @@ struct KEY
 	double ss1;
 	double ss2;
 	double ss3;
-	
-	KEY() { press=0; 
-	decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;midi_key_press=0; 
-	sawSource1=0;sawSource2=0;
-	
-	filter1=0;
-	filter2=0;
-	filter3=0;
-	fRez1 = rezMax;
-	fRez2 = rezMax;
-	fRez3 = rezMax;
-	ss1=0;
-	ss2=0;
-	ss3=0;
+
+	void ResetFilter()
+	{
+		sawSource1=0;
+		sawSource2=0;
+		
+		filter1=0;
+		filter2=0;
+		filter3=0;
+		fRez1 = rezMax;
+		fRez2 = rezMax;
+		fRez3 = rezMax;
+		ss1=0;
+		ss2=0;
+		ss3=0;
+
+	}
+
+	KEY() 
+	{ 
+		press=0; 
+		key_unpress=TRUE;
+
+		decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;
+		
+		midi_key_press=0; 
+
+		sawSource1=0;
+		sawSource2=0;
+		
+		filter1=0;
+		filter2=0;
+		filter3=0;
+		fRez1 = rezMax;
+		fRez2 = rezMax;
+		fRez3 = rezMax;
+		ss1=0;
+		ss2=0;
+		ss3=0;
 	}
 
 } Keys[256];
@@ -383,43 +443,6 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CDTFM_GeneratorDlg dialog
-
-CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CDTFM_GeneratorDlg::IDD, pParent)
-{
-
-	//{{AFX_DATA_INIT(CDTFM_GeneratorDlg)
-	m_edit = _T("");
-	m_midi_open_str = _T("3");
-	m_amplitude = _T("32767");
-	m_edit_freq = 0.0;
-	m_midi_name = _T("");
-	m_slider_decrement_double = 0.0;
-	m_wave_len = 0.0;
-	m_edit_modilation = _T("1");
-	m_asio_device = -1;
-	m_edit_scale = _T("12");
-	m_string_base_a = _T("440");
-	m_modulation_amplitude = _T("10000");
-	m_string_status_text = _T("");
-	m_size_asio_buffer = 0;
-	m_garmonic_5 = _T("1.25992");
-	m_garmonic_6 = _T("1.49830");
-	m_attack = _T("5");
-	m_edit_modulation_wheel = _T("");
-	m_use_velocity = FALSE;
-	m_no_sustain = FALSE;
-	m_piano_mouse_click = FALSE;
-	m_ctrl_key_use = FALSE;
-	//}}AFX_DATA_INIT
-	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-}
-
-
-
 int sl1, sl2, sl3, sl4, sl5, sl6;
 int slm2, slm3, slm4, slm5, slm6;
 int slvolume;
@@ -440,7 +463,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 	flag_one=0;
 
-	if (sl1) {flag_one++;freq_actual=freq;}	//base frequency
+	if (sl1 && !g_mainwindow->m_check_saw3) {flag_one++;freq_actual=freq;}	//base frequency
 	if (sl2) {flag_one++;freq_actual=freq*2;}
 	if (sl3) {flag_one++;freq_actual=freq*3;}
 	if (sl4) {flag_one++;freq_actual=freq*4;}
@@ -474,8 +497,11 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 	//если поднят первый слайдер (базовая гармоника)
 	if (sl1) {
-		
+
+		if (g_mainwindow->m_check_saw3)
+		{
 			double dt=1 + cCircleSlider_detune->GetValue()/1000;
+			//double dt=1 + 1.0/pow(2, cCircleSlider_detune->GetValue()/10.0);
 
 			Keys[keyN].sawSource1 += freq * 0.000032 * dt;
 			Keys[keyN].sawSource2 += freq * 0.000032 / dt;
@@ -485,7 +511,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			
 			double sawSource = Keys[keyN].sawSource1 + Keys[keyN].sawSource2;
 
-			filterSpeed = 500 * (cCircleSlider_filterspeed->GetValue()+1);
+			filterSpeed = //500 * (cCircleSlider_filterspeed->GetValue()+1);
+			pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 15.0);
 
 			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
 			Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
@@ -497,7 +524,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			
 			if (echo>0)
 			{
-				if(t > echo){
+				if(t > echo)
+				{
 				
 					Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
 					Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(2, rezMax - Keys[keyN].fRez2 + 4);
@@ -506,7 +534,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 				
 				}
 				
-				if(t > 2*(echo)){
+				if(t > 2*(echo))
+				{
 				
 					Keys[keyN].fRez3 -= (Keys[keyN].fRez3 - rezMin) / filterSpeed;
 					Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(2, rezMax - Keys[keyN].fRez3 + 4);
@@ -524,6 +553,11 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			}
 			
 			k *= sl1 / 100.0;
+		}
+		else
+		{
+			f=freq; if (f<limit) k+=sl1/100.0*sin(f*t);
+		}
 		
 	}
 
@@ -565,11 +599,16 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	
+		
 	menu.LoadMenu(IDR_MENU_MAIN);
 	SetMenu(&menu);
 
 	g_mainwindow=this;
+
+	BaseKeyboard=ini.QueryValue("BaseKeyboard");
+	if (!BaseKeyboard) BaseKeyboard=59;
+
+	m_check_saw=ini.QueryValue("CheckSaw");
 
 
 	RECT rt, rt2, rt3, rt4, rt5;
@@ -590,18 +629,27 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	cCircleSlider_attack = new CircleSliderIndicator(x,y, CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
 
+	cCircleSlider_attack->SetValue(ini.QueryValue("Attack"));
 	
 	cCircleSlider_modulation = new CircleSliderIndicator(rt2.left,rt2.top, 
 		CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3, DigIndicatorValue::signTypeNotShow);
 
+	cCircleSlider_modulation->SetValue(ini.QueryValue("Modulation"));
+
 	cCircleSlider_detune = new CircleSliderIndicator(rt3.left,rt3.top, 
 		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);
+
+		cCircleSlider_detune->SetValue(ini.QueryValue("Detune"));
 
 	cCircleSlider_filterspeed=new CircleSliderIndicator(rt4.left,rt4.top, 
 		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
 
+	cCircleSlider_filterspeed->SetValue(ini.QueryValue("FilterSpeed"));
+
 	cCircleSlider_echo = new CircleSliderIndicator(rt5.left,rt5.top, 
 		CircleSliderIndicator::typeOfElem4, 0,10, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
+
+	cCircleSlider_echo->SetValue(ini.QueryValue("Echo"));
 
 	
 	//bool isSmallInd=1;
@@ -817,13 +865,16 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 {
 	UINT nChar=pMsg->wParam;
 
+	//клавиша нажата
+	//нужно учитывать, что после первого нажатия начинают поступать
+	//повторные сообщения от клавиатуры
 	if (pMsg->message == WM_KEYDOWN)
 	{
 
 		if (nChar==VK_LEFT)
 		{
 
-			if (BaseKeyboard>0) BaseKeyboard--;
+			if (BaseKeyboard>12) BaseKeyboard--;
 		
 			change=true;
 
@@ -846,7 +897,18 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 			{
 				int r=i+BaseKeyboard;
 
-				MidiKeyPress(r,127);
+				//Keys[r].key_unpress=FALSE;
+				//if (Keys[r].key_unpress==FALSE)
+				//{
+					if (Keys[r].Ampl==0 || Keys[r].key_unpress==TRUE)
+					{
+						MidiKeyPress(r,127);
+						Keys[r].key_unpress=FALSE;
+					}
+				//	Keys[r].key_unpress=TRUE;
+
+				//}
+
 			}
 
 		}
@@ -854,7 +916,8 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 		return 0;
 	}
 
-	if (pMsg->message == WM_KEYUP) // && hWaveOut)
+	//клавиша отпущена
+	if (pMsg->message == WM_KEYUP) 
 	{
 		for(int i=0; i<256; i++)
 		{
@@ -862,7 +925,10 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 			if (Keysa[i].code==nChar)
 			{
 				int r=i+BaseKeyboard;
+
+				Keys[r].key_unpress=TRUE;
 				MidiKeyPress(r,0);
+				
 			}
 
 		}
@@ -896,7 +962,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	
 	double	m =	0;
 
-	int OverloadCount=0;	//сколько раз был клиппинг (за пределы 32767...32767)
+	int OverloadCount=0;	//сколько раз был клиппинг (за пределы -32768...32767)
 	
 	for(int i=0; i<size/2; i++, _time_++)
 	{
@@ -1037,6 +1103,16 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	GetData;
 
 	//save data to .ini file
+
+	
+	ini.SetValue(m_check_saw,"CheckSaw");
+	ini.SetValue(BaseKeyboard,"BaseKeyboard");
+	ini.SetValue((int)cCircleSlider_filterspeed->GetValue(), "FilterSpeed");
+	ini.SetValue((int)cCircleSlider_attack->GetValue(), "Attack");
+	ini.SetValue((int)cCircleSlider_modulation->GetValue(), "Modulation");
+	ini.SetValue((int)cCircleSlider_detune->GetValue(), "Detune");
+	ini.SetValue((int)cCircleSlider_echo->GetValue(), "Echo");
+
 	ini.SetValue(atoi(m_midi_open_str.GetBuffer(0)),"MidiDevice");
 
 	ini.SetValue(100-m_sl1.GetPos(),"sl1");
@@ -1542,11 +1618,8 @@ void CALLBACK MidiInProc(
 
 			if (z==11 && nChar==9)
 			{
-				//????
 				cCircleSlider_attack->SetValue(Volume);
 				cCircleSlider_attack->redraw=1;
-				
-
 			}
 
 			if (NeedUpdateModulation)
@@ -1737,19 +1810,37 @@ void CALLBACK TimerProc_PlayMidi(
 	if ( delta <= delta2)
 	{
 		BYTE nChar=md[j].key;
-		if (md[j].status>0)
+		if (nChar>=32 && nChar<128)
 		{
+			if (md[j].status>0)
+			{
 
-			Keys[nChar].press=1;
-			Keys[nChar].Ampl=md[j].status*CurrentAmplitude/127;
-			Keys[nChar].decrement=0;
+				Keys[nChar].press=1;
+				
+				if (g_mainwindow->m_use_velocity == TRUE)
+				{
+					//???????
+					Keys[nChar].Ampl=atoi(g_amplitude_global);
+				}
+				else
+				{
+					Keys[nChar].Ampl=md[j].status*CurrentAmplitude/127;
+				}
+				
+				Keys[nChar].ResetFilter();
+				Keys[nChar].decrement=0;
+				Keys[nChar].midi_key_press=1;
+			}
+			else
+			{
+				Keys[nChar].decrement=AMPLITUDE_DECREMENT;
+			}
+
+
+			
 		}
-		else
-		{
-			Keys[nChar].decrement=AMPLITUDE_DECREMENT;
-		}
+
 		PlayWritenPosition++;
-
 	}
 	
 }
@@ -1843,6 +1934,8 @@ void MidiKeyPress2(BYTE key, BYTE value)
 {
 	if (value!=0)
 	{
+		//если клавиша еще не отпущена возврат
+		if (Keys[key].key_unpress==FALSE) return;
 		//if (Keys[key].press==true) return;
 
 		//if (Keys[key].press==1) return;
@@ -1888,43 +1981,11 @@ void MidiKeyPress2(BYTE key, BYTE value)
 	else 
 	{
 		Keys[key].decrement=AMPLITUDE_DECREMENT;
+		Keys[key].key_unpress=TRUE;
 	}
 
 
 }
-
-
-void MidiKeyPress3(BYTE key, BYTE value)
-{
-	if (value!=0)
-	{
-		//if (Keys[key].press==true) return;
-
-		//if (Keys[key].press==1) return;
-
-
-		Keys[key].press=true;
-
-		Keys[key].Ampl=atoi(g_amplitude_global)*value/127.0;
-
-		//????
-		Keys[key].A=Keys[key].Ampl;
-		Keys[key].A_add=ADSR_Attack;//0.6;
-
-		Keys[key].Ampl=0;
-
-		Keys[key].decrement=0;
-		Keys[key].t=0;	//время функции sin
-		
-	}
-	else 
-	{
-		Keys[key].decrement=AMPLITUDE_DECREMENT;
-	}
-
-
-}
-
 
 
 void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
@@ -2306,8 +2367,6 @@ void CDTFM_GeneratorDlg::OnSettingsSetasiodevice()
 		return;
 	}
 
-
-	
 }
 
 void CDTFM_GeneratorDlg::OnFileExit() 
@@ -2321,4 +2380,13 @@ void CDTFM_GeneratorDlg::OnButtonDemo()
 {
 	SetTimer(100,100,0);
 	
+}
+
+void CDTFM_GeneratorDlg::OnKeyboardKeysMenu() 
+{
+	char msg[]="Use keys for play: q,w,e,r,t,y,u,i,o,p and dies(#) keys 2,3,5,6,7,9,0\r\n"
+	"Use cursor key <LEFT> and <RIGHT> to change base of keyboard";	
+	;
+
+	AfxMessageBox(msg,MB_OK,0);
 }

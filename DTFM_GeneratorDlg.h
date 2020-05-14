@@ -24,13 +24,6 @@ public:
 	//void OnChar(UINT sym);
 	UINT samplerate;
 
-	#define MODE_NEED_CLOSE_WAVEOUT 1	
-	int mode;
-	bool NeedClose;
-	void AddBuffer(double freq1, double freq2, char sym, int size);
-	void AddBuffer();
-
-	HWAVEOUT hWaveOut;
 	CDTFM_GeneratorDlg(CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data
@@ -99,6 +92,9 @@ public:
 	BOOL	m_no_sustain;
 	BOOL	m_piano_mouse_click;
 	BOOL	m_ctrl_key_use;
+	BOOL	m_check_saw;
+	BOOL	m_check_saw2;
+	BOOL	m_check_saw3;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -146,6 +142,7 @@ protected:
 	afx_msg void OnSettingsSetasiodevice();
 	afx_msg void OnFileExit();
 	afx_msg void OnButtonDemo();
+	afx_msg void OnKeyboardKeysMenu();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -17,10 +17,10 @@ Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
 Resource3=IDD_DIALOG_ASIO_CONNECT
 Resource4=IDD_ABOUTBOX (English (U.S.))
-Resource5=IDR_MENU_MAIN
+Resource5=IDD_DTFM_GENERATOR_DIALOG
 Class4=CDialogASIOConnect
 Resource6=IDD_DIALOG_SETTINGS
-Resource7=IDD_DTFM_GENERATOR_DIALOG
+Resource7=IDR_MENU_MAIN
 
 [CLS:CDTFM_GeneratorApp]
 Type=0
@@ -36,7 +36,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=CDTFM_GeneratorDlg
+LastObject=ID_KEYBOARD_KEYS_MENU
 
 [CLS:CAboutDlg]
 Type=0
@@ -58,7 +58,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=88
+ControlCount=89
 Control1=IDC_AMPLITUDE,edit,1484849280
 Control2=IDC_EDIT_BASE_A,edit,1350631552
 Control3=IDC_EDIT_SCALE,edit,1350566016
@@ -147,6 +147,7 @@ Control85=IDC_STATIC,static,1342308352
 Control86=IDC_STATIC,static,1342308352
 Control87=IDC_STATIC_CSLIDER5,static,1082261504
 Control88=IDC_STATIC,static,1342308352
+Control89=IDC_CHECK_SAW,button,1342242819
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1
@@ -188,5 +189,6 @@ Type=1
 Class=?
 Command1=ID_FILE_EXIT
 Command2=ID_SETTINGS_SETASIODEVICE
-CommandCount=2
+Command3=ID_KEYBOARD_KEYS_MENU
+CommandCount=3
 
