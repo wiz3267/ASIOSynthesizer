@@ -1,4 +1,4 @@
-// DTFM_GeneratorDlg.cpp : implementation file
+f// DTFM_GeneratorDlg.cpp : implementation file
 #include "stdafx.h"
 #include "DTFM_Generator.h"
 #include "DTFM_GeneratorDlg.h"
@@ -259,8 +259,8 @@ int
 double myMin = -0.7;
 double myMax = 0.7;
 
-double rezMin = 1;
-double rezMax = 8;
+double rezMin = -0.5;
+double rezMax = 4.5;
 
 double filterSpeed = 20000*10;
 //double filterSpeed = 1000;
@@ -463,7 +463,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 	flag_one=0;
 
-	if (sl1 && !g_mainwindow->m_check_saw3) {flag_one++;freq_actual=freq;}	//base frequency
+	if (sl1 && g_mainwindow->m_check_saw3) {flag_one=2;freq_actual=freq;}	//base frequency
 	if (sl2) {flag_one++;freq_actual=freq*2;}
 	if (sl3) {flag_one++;freq_actual=freq*3;}
 	if (sl4) {flag_one++;freq_actual=freq*4;}
@@ -500,11 +500,17 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 		if (g_mainwindow->m_check_saw3)
 		{
-			double dt=1 + cCircleSlider_detune->GetValue()/1000;
+			double dt=1 + cCircleSlider_detune->GetValue()/5000.0;
 			//double dt=1 + 1.0/pow(2, cCircleSlider_detune->GetValue()/10.0);
 
-			Keys[keyN].sawSource1 += freq * 0.000032 * dt;
-			Keys[keyN].sawSource2 += freq * 0.000032 / dt;
+
+			double myconst = (myMax - myMin) / SAMPLE_RATE;
+
+			//Keys[keyN].sawSource1 += freq * 0.000032 * dt;
+			//Keys[keyN].sawSource2 += freq * 0.000032 / dt;
+			Keys[keyN].sawSource1 += freq * myconst * dt;
+			Keys[keyN].sawSource2 += freq * myconst / dt;
+
 			
 			if(Keys[keyN].sawSource1 >= myMax) Keys[keyN].sawSource1 = myMin;
 			if(Keys[keyN].sawSource2 >= myMax) Keys[keyN].sawSource2 = myMin;
@@ -512,10 +518,14 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			double sawSource = Keys[keyN].sawSource1 + Keys[keyN].sawSource2;
 
 			filterSpeed = //500 * (cCircleSlider_filterspeed->GetValue()+1);
+
 			pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 15.0);
 
 			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
-			Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
+			//Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
+			Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(4, 6 - Keys[keyN].fRez1);
+
+			//Keys[keyN].ss1 /= 1.02;
 			Keys[keyN].ss1 /= 1.02;
 			Keys[keyN].filter1 += Keys[keyN].ss1;
 
@@ -649,7 +659,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	cCircleSlider_echo = new CircleSliderIndicator(rt5.left,rt5.top, 
 		CircleSliderIndicator::typeOfElem4, 0,10, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
 
-	cCircleSlider_echo->SetValue(ini.QueryValue("Echo"));
+	cCircleSlider_echo->SetValue(ini.QueryValue("Echo")+0.1);
 
 	
 	//bool isSmallInd=1;
@@ -731,7 +741,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	
 
 	SetTimer(0,100,NULL);	//для обновления отрисовки клавиш
-	SetTimer(1,100,NULL);	//для обновления отрисовки клавиш
+	//SetTimer(1,100,NULL);	//для обновления отрисовки клавиш
 
 	//открываем MIDI-устройство
 	OnButtonMidiOpen();

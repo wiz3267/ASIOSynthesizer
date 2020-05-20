@@ -4,7 +4,12 @@
 class CircleSlider 
 {
 	long	*spriteBuf;
+	char	*spriteScaleBuf;
 	int		spriteBufLen;
+	
+	int		nScale;
+	bool	isScaleBuffFill;
+
 public:
 	bool	flagPaint;	//нужно ли перерисовать элемент управления
 	double	r1, r2;
@@ -12,6 +17,11 @@ public:
 
 	double	cSliderAng;	//угол, на который установлена ручка
 	int		drawType;
+
+	//! @brief Функция установки количество делений шкалы
+	//! @param nScale - количество делений шкалы
+	//! @return
+	void SetNumScale( int nScale );
 
 	//! @breif Функция перевода градусов в радианы
 	//! @param f - значение в градусах
@@ -40,6 +50,27 @@ public:
 	//! @param w - толщина отрезка
 	//! @return
 	void DrawEdge( long *pDat, int len, long color, double x1, double y1, double x2, double y2, double w );
+
+	//! @brief Функция рисует шаблон прозрачности для шкалы рисок
+	//! @param pDat - шаблон прозрачности (0 - полностью прозрачно, 255 - полностью не прозрачно)
+	//! @param len - размерность буффера (длина стороны квадрата в пикселях)
+	//! @param xc, yc - координаты центра окружности
+	//! @param r1, r2 - малый и большой радиус окружности соответсвенно
+	//! @param angStart - стартовый угол
+	//! @param angDelta - смещение к следующему углу
+	//! @param nAng - количество углов на сетке
+	//! @retrun
+	void DrawScaleTemp( char *pDat, int len, double xc, double yc, double r1, double r2, double angStart,
+		                double angDelta, int nAng );
+
+	//! @brief Функция рисует шкалу рисок
+	//! @param pDat - буффер NxN pixels
+	//! @param pDatTemp - шаблон прозрачности (0 - полностью прозрачно, 255 - полностью не прозрачно)
+	//! @param len - размерность буффера (длина стороны квадрата в пикселях)
+	//! @param color - цвет
+	//! @return
+	void DrawScale( long *pDat, char *pDatTemp, int len, long color );
+
 public:
 	CircleSlider( int len, int x, int y, double arg_cSliderAng );
 	~CircleSlider();

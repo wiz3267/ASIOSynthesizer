@@ -9,7 +9,11 @@ CircleSlider::CircleSlider( int len, int _x,int _y, double Arg_cSliderAng )
 	x=_x;
 	y=_y;
 	spriteBuf = new long [len * len];
+	spriteScaleBuf = new char [len * len];
 	spriteBufLen = len;
+
+	isScaleBuffFill = false;
+	nScale = -1;
 
 	r1 = len / 2 * 0.65;
 	r2 = len / 2 * 0.85;
@@ -19,6 +23,15 @@ CircleSlider::CircleSlider( int len, int _x,int _y, double Arg_cSliderAng )
 CircleSlider::~CircleSlider()
 {
 	delete [] spriteBuf;
+	delete [] spriteScaleBuf;
+}
+
+//! @brief Функция установки количество делений шкалы
+//! @param nScale - количество делений шкалы
+//! @return
+void CircleSlider::SetNumScale( int nScale )
+{
+	this->nScale = nScale;
 }
 
 //! @breif Функция перевода градусов в радианы
@@ -214,6 +227,159 @@ void CircleSlider::DrawEdge( long *pDat, int len, long color, double x1, double 
 	}
 }
 
+//! @brief Функция рисует шаблон прозрачности для шкалы рисок
+//! @param pDat - шаблон прозрачности (0 - полностью прозрачно, 255 - полностью не прозрачно)
+//! @param len - размерность буффера (длина стороны квадрата в пикселях)
+//! @param xc, yc - координаты центра окружности
+//! @param r1, r2 - малый и большой радиус окружности соответсвенно
+//! @param angStart - стартовый угол
+//! @param angDelta - смещение к следующему углу
+//! @param nAng - количество углов на сетке
+//! @return
+void CircleSlider::DrawScaleTemp( char *pDat, int len, double xc, double yc, double r1, double r2, double angStart,
+								  double angDelta, int nAng )
+{
+	double	*xList = new double [nAng];
+	double	*yList = new double [nAng];
+	int		gx, gy;
+	int		i;
+	double	angParam = 5;
+	double	cosAngParam = cos( toRad( angParam ) );
+	double	dRad1 = 1;
+	double	dRad2 = 1;
+
+	for( i = 0; i < nAng; i++ )
+	{
+		double	ang = angStart + angDelta * i;
+		
+		xList[i] = cos(ang);
+		yList[i] = sin(ang);
+	}
+
+	for( gy = 0; gy < len; gy++ )
+	{
+		for( gx = 0; gx < len; gx++ )
+		{
+			int		curX = gx;
+			int		curY = len-1 - gy;
+			double	dx = curX - xc;
+			double	dy = curY - yc;
+			double	d2 = dx * dx + dy * dy;
+			double	d = sqrt( d2 );
+			double	trans = 0;
+			double	ux = dx / d;
+			double	uy = dy / d;
+			double	sm;
+			double	rad1 = r1 - dRad1;
+			double	rad2 = r2 + dRad2;
+
+			if (d >= rad1 && d <= rad2)
+			{
+				bool	inFlag = false;				
+				
+				for( i = 0; i < nAng; i++ )
+				{
+					double	c = xList[i];
+					double	s = yList[i];
+					
+					sm = c * ux + s * uy;
+					
+					if (sm > cosAngParam)
+					{
+						inFlag = true;
+						break;
+					}
+				}
+
+				if (inFlag)
+				{
+					double	trans1;
+					double	trans2;
+
+					trans1 = 1 - fabs( d - (rad1 + rad2) / 2 ) / ((rad2 - rad1) / 2);
+					trans2 = (sm - cosAngParam) / (1 - cosAngParam);
+
+					trans = 1.0;
+					if (trans1 < trans) trans = trans1;
+					if (trans2 < trans) trans = trans2;
+					trans = trans2;
+				}
+			}
+
+			trans *= 255.0;
+
+			if (trans < 0) trans = 0;
+			if (trans > 255.0) trans = 255.0;
+			
+			*pDat++ = (int)trans;
+		}
+	}
+
+	if (xList != NULL)
+	{
+		delete [] xList;
+		xList = NULL;
+	}
+
+	if (yList != NULL)
+	{
+		delete [] yList;
+		yList = NULL;
+	}
+}
+
+//! @brief Функция рисует шкалу рисок
+//! @param pDat - буффер NxN pixels
+//! @param pDatTemp - шаблон прозрачности (0 - полностью прозрачно, 255 - полностью не прозрачно)
+//! @param len - размерность буффера (длина стороны квадрата в пикселях)
+//! @param color - цвет
+//! @return
+void CircleSlider::DrawScale( long *pDat, char *pDatTemp, int len, long color )
+{
+	int		n = len * len;
+
+	for( int i = 0; i < n; i++ )
+	{
+		unsigned char tc = (unsigned char)*pDatTemp;
+
+		if (tc != 0)
+		{
+			long	color1 = *pDat;
+			long	color2 = color;
+			long	color3 = 0;
+			double	t = tc / 255.0;
+
+			double	r1 = ((unsigned char*)&color1)[0];
+			double	g1 = ((unsigned char*)&color1)[1];
+			double	b1 = ((unsigned char*)&color1)[2];
+
+			double	r2 = ((unsigned char*)&color2)[0];
+			double	g2 = ((unsigned char*)&color2)[1];
+			double	b2 = ((unsigned char*)&color2)[2];
+
+			double	r3 = r1 + (r2 - r1) * t;
+			double	g3 = g1 + (g2 - g1) * t;
+			double	b3 = b1 + (b2 - b1) * t;
+
+			if (r3 < 0) r3 = 0;
+			if (r3 > 255.0) r3 = 255.0;
+			if (g3 < 0) g3 = 0;
+			if (g3 > 255.0) g3 = 255.0;
+			if (b3 < 0) b3 = 0;
+			if (b3 > 255.0) b3 = 255.0;
+
+			((char*)&color3)[0] = (int)r3;
+			((char*)&color3)[1] = (int)g3;
+			((char*)&color3)[2] = (int)b3;
+
+			*pDat = color3;
+		}
+		
+		pDat++;
+		pDatTemp++;
+	}
+}
+
 //! @brief Заполнение фона заданным значением
 //! @brief будем считать, что если задано значение равное -1, то фон прозрачный
 //! @param color - цвет фона
@@ -303,6 +469,17 @@ void CircleSlider::DrawType4( double ang )
 		DrawEdge( spriteBuf, spriteBufLen, RGB(0xff, 0x00, 0xff), x1, y1, x2, y2, 3 );
 	else
 		DrawEdge( spriteBuf, spriteBufLen, RGB(0x00, 0x00, 0x00), x1, y1, x2, y2, 1 );
+
+	if (nScale != -1)
+	{
+		if (!isScaleBuffFill)
+		{
+			DrawScaleTemp( spriteScaleBuf, spriteBufLen, xc, yc, r1, r2, toRad(270 + 45), toRad(270 / nScale),
+						   nScale + 1 );
+			isScaleBuffFill = true;
+		}
+		DrawScale( spriteBuf, spriteScaleBuf, spriteBufLen, RGB( 0x00, 0x00, 0x00 ) );	
+	}
 }
 
 //! @brief Функция получения угла, в зависимости от координат курсора мыши
@@ -460,6 +637,37 @@ void CircleSlider::OnMouseMove(UINT nFlags,CPoint point)
 
 			if (ang >= ang1 && ang <= ang2)
 				lockFlag = true;
+			else
+			{
+				if (nScale != -1)
+				{
+					double	curAng = toRad( 270 - 45 );
+					double	angDelta = toRad( 270.0 / nScale );
+					double	ux = cos( ang );
+					double	uy = sin( ang );
+					double	cosAng = cos( angDelta / 2 + 0.01 );
+
+					for( int i = 0; i <= nScale; i++ )
+					{
+						double	c = cos( curAng );
+						double	s = sin( curAng );
+						double	sm = ux * c + uy * s;
+
+						if (sm > cosAng)
+							break;
+						
+						curAng -= angDelta;
+					}
+
+					if (i <= nScale)
+					{
+						ang = curAng - 0.01;
+						
+						if (ang < 0) 
+							ang += 2 * toRad(180);
+					}
+				}
+			}
 		}
 
 		if (!lockFlag) cSliderAng = ang;

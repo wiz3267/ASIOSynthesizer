@@ -122,6 +122,14 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		ySliderStart = y;
 
 		pSlider = new CircleSlider( 32, x, y, -1 );
+	
+		if (intFlag)
+		{
+			int	nDiv = ((int)valueEnd) - ((int)valueStart);
+			
+			if (nDiv <= 20)
+				pSlider->SetNumScale( nDiv );
+		}
 
 		xIndStart = xSliderStart + 32 / 2 - (countOfIndicator * 6) / 2;
 		yIndStart = ySliderStart + 32;
