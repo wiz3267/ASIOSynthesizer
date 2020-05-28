@@ -1,4 +1,4 @@
-f// DTFM_GeneratorDlg.cpp : implementation file
+// DTFM_GeneratorDlg.cpp : implementation file
 #include "stdafx.h"
 #include "DTFM_Generator.h"
 #include "DTFM_GeneratorDlg.h"
@@ -47,6 +47,8 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_piano_mouse_click = TRUE;
 	m_ctrl_key_use = FALSE;
 	m_check_saw3 = TRUE;
+	m_filter_off = TRUE;
+	m_write_rawdata_pcm = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -109,6 +111,8 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_PIANO_MOUSE_CLICK, m_piano_mouse_click);
 	DDX_Check(pDX, IDC_CHECK_CTRL_KEY, m_ctrl_key_use);
 	DDX_Check(pDX, IDC_CHECK_SAW, m_check_saw3);
+	DDX_Check(pDX, IDC_CHECK_FILTER_OFF, m_filter_off);
+	DDX_Check(pDX, IDC_CHECK_WRITE_RAWDATA_PCM, m_write_rawdata_pcm);
 	//}}AFX_DATA_MAP
 }
 
@@ -335,11 +339,11 @@ struct KEY
 		ss3=0;
 	}
 
-} Keys[256];
+} Keys[128];
 
 double Piano(int keyN, double Ampl, double freq, double t, double phase);
 
-KEY KeysOld[256];
+KEY KeysOld[128];
 
 //////////////////////////////////////////////////////
 //параметры отрисовки клавиш пианноролла			//
@@ -463,7 +467,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 	flag_one=0;
 
-	if (sl1 && g_mainwindow->m_check_saw3) {flag_one=2;freq_actual=freq;}	//base frequency
+	if (sl1 && !g_mainwindow->m_check_saw3) {flag_one++;freq_actual=freq;}	//base frequency
 	if (sl2) {flag_one++;freq_actual=freq*2;}
 	if (sl3) {flag_one++;freq_actual=freq*3;}
 	if (sl4) {flag_one++;freq_actual=freq*4;}
@@ -517,22 +521,31 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			
 			double sawSource = Keys[keyN].sawSource1 + Keys[keyN].sawSource2;
 
-			filterSpeed = //500 * (cCircleSlider_filterspeed->GetValue()+1);
+			if (g_mainwindow->m_filter_off)
+			{
+				Keys[keyN].filter1=sawSource;
+			}
 
-			pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 15.0);
+			if (g_mainwindow->m_filter_off == false)
+			{
+				filterSpeed = //500 * (cCircleSlider_filterspeed->GetValue()+1);
 
-			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
-			//Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
-			Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(4, 6 - Keys[keyN].fRez1);
+				pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 15.0);
 
-			//Keys[keyN].ss1 /= 1.02;
-			Keys[keyN].ss1 /= 1.02;
-			Keys[keyN].filter1 += Keys[keyN].ss1;
+				Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
+				//Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
+				Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(4, 6 - Keys[keyN].fRez1);
+
+				//Keys[keyN].ss1 /= 1.02;
+				Keys[keyN].ss1 /= 1.01;
+				Keys[keyN].filter1 += Keys[keyN].ss1;
+			}
+				
 
 			double echo=cCircleSlider_echo->GetValue();
 
 			
-			if (echo>0)
+			if (echo>0 && !g_mainwindow->m_filter_off)
 			{
 				if(t > echo)
 				{
@@ -556,7 +569,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			}
 						
 			k += Keys[keyN].filter1; // базовый звук
-			if (echo>0) 
+			
+			if (echo>0 && !g_mainwindow->m_filter_off) 
 			{
 				k += Keys[keyN].filter2 * 0.5; // первое повторение эхо
 				k += Keys[keyN].filter3 * 0.25; // второе повторение эхо
@@ -572,7 +586,19 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 	}
 
 	//если поднят второй слайдер (вторая гаромника, в 2 раза выше базовой)
-	if (sl2) { f=2*freq; if (f<limit) k+=sl2/100.0*sin(f*t); }
+	if (sl2) 
+	{
+		//f=2*freq; 
+		//????????????????
+		f=freq; 
+		double val=sin(f*t);
+		double fix=0;
+		if (val>=fix) val=1;
+		if (val<-fix) val=-1;
+
+		if (f<limit) k+=sl2/100.0*val; 
+	}
+
 	if (sl3) { f=3*freq; if (f<limit) k+=sl3/100.0*sin(f*t); }
 	if (sl4) { f=4*freq; if (f<limit) k+=sl4/100.0*sin(f*t); }
 	
@@ -671,6 +697,9 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	char buf_midi[8];
 	itoa(temp,buf_midi,10);
 	m_midi_open_str=buf_midi;
+
+	m_garmonic_5=ini.QueryString("Garmonic5");
+	m_garmonic_6=ini.QueryString("Garmonic6");
 	
 
 	m_asio_device=global_asio_index;
@@ -717,6 +746,8 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 		m_slider_decrement.SetPos(100-ini.QueryValue("sldecrement"));
 		m_slider_total_volume.SetPos(ini.QueryValue("sltotalvolume"));
 
+		PutData;
+
 	}
 	else
 	{
@@ -736,6 +767,10 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 		m_slider_decrement.SetPos(10);
 		m_slider_total_volume.SetPos(100);
+
+		m_garmonic_5="1.25";
+		m_garmonic_6="1.49";
+
 
 	}
 	
@@ -898,7 +933,7 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 			change=true;
 		}
 
-		for(int i=0; i<256; i++)
+		for(int i=0; i<128; i++)
 		{
 			if (Keysa[i].code==0) break;
 
@@ -929,7 +964,7 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 	//клавиша отпущена
 	if (pMsg->message == WM_KEYUP) 
 	{
-		for(int i=0; i<256; i++)
+		for(int i=0; i<128; i++)
 		{
 			if (Keysa[i].code==0) break;
 			if (Keysa[i].code==nChar)
@@ -1075,6 +1110,20 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	}
 
 	if (OverloadCount==0) Overload++;
+
+	//запись в файл
+	//??????
+	if (g_mainwindow)
+	if (g_mainwindow->m_write_rawdata_pcm)
+	{
+		if (file.Open("rawdata.pcm", file.modeWrite))
+		{
+			file.SeekToEnd();
+			file.Write(plbuf,size/2);
+			file.Close();
+		}
+	}
+
 }
 
 extern int ASIO_buflen;
@@ -1114,7 +1163,8 @@ void CDTFM_GeneratorDlg::ExitDialog()
 
 	//save data to .ini file
 
-	
+	ini.SetDoubleValue(atof(m_garmonic_5),"Garmonic5");
+	ini.SetDoubleValue(atof(m_garmonic_6),"Garmonic6");
 	ini.SetValue(m_check_saw,"CheckSaw");
 	ini.SetValue(BaseKeyboard,"BaseKeyboard");
 	ini.SetValue((int)cCircleSlider_filterspeed->GetValue(), "FilterSpeed");
@@ -1762,7 +1812,7 @@ void CDTFM_GeneratorDlg::OnButtonWrite()
 	}
 	else
 	{
-		//MessageBox("File busy");
+		//MessageBox("File is busy");
 	}
 	
 }
@@ -1906,7 +1956,7 @@ void CDTFM_GeneratorDlg::OnButtonPlayWriten()
 
 void CDTFM_GeneratorDlg::OnButtonReset() 
 {
-	for(int i=0; i<256; i++)
+	for(int i=0; i<128; i++)
 	{
 		Keys[i].Ampl=0;
 		Keys[i].press=0;
@@ -2087,7 +2137,7 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (flag_out_pianoroll)
 	{
-		for(int i=0; i<256; i++)
+		for(int i=0; i<128; i++)
 		{
 			if (!Keys[i].midi_key_press)
 			{
@@ -2116,7 +2166,7 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	
 	key_real+=(octave+1)*12;
 
-	if (key_real>=256) return;
+	if (key_real>=128) return;
 	
 	if (gMouseMove && Keys[key_real].press==TRUE) 
 	{
@@ -2147,7 +2197,7 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		else
 		{
 			Keys[key_real].decrement=0;
-			for(int i=0; i<256;i++)
+			for(int i=0; i<128;i++)
 			{
 				if (i==key_real) continue;
 				//Keys[i].press=FALSE;
@@ -2314,7 +2364,7 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	
 	key_real+=(octave+1)*12;
 
-	if (key_real>=0 && key_real<=256)// && Keys[key_real].press==FALSE) 
+	if (key_real>=0 && key_real<=128)// && Keys[key_real].press==FALSE) 
 	{
 		if (gMouseMove && Keys[key_real].press==TRUE) 
 		{

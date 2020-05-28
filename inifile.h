@@ -29,11 +29,29 @@ public:
 		}
 	}
 
+
+	void SetDoubleValue(const double &dval, const char *key)
+	{
+		char psz[64];
+		int nPrecision = 12;
+		sprintf(psz, "%.*f", nPrecision, dval);
+
+		SetString(CString(psz), key);
+	}
+
 	void SetValue(const DWORD &val, const char *key)
 	{
 		char buf[64];
 		itoa(val,buf,10);
 		SetString(CString(buf), key);
+	}
+
+
+	bool QueryDoubleValue(double &dval, char *key)
+	{
+		CString m=QueryString(key);
+		dval=atof(m.GetBuffer(0));
+		return true;
 	}
 
 	bool QueryValue(DWORD &val, char *key)

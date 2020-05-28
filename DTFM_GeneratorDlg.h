@@ -95,6 +95,8 @@ public:
 	BOOL	m_check_saw;
 	BOOL	m_check_saw2;
 	BOOL	m_check_saw3;
+	BOOL	m_filter_off;
+	BOOL	m_write_rawdata_pcm;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
