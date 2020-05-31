@@ -97,6 +97,9 @@ public:
 	BOOL	m_check_saw3;
 	BOOL	m_filter_off;
 	BOOL	m_write_rawdata_pcm;
+	int		m_sample_rate;
+	CString	m_rez_min;
+	CString	m_rez_max;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

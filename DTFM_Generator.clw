@@ -19,8 +19,8 @@ Resource3=IDD_DIALOG_SETTINGS
 Resource4=IDD_DIALOG_ASIO_CONNECT
 Resource5=IDD_ABOUTBOX (English (U.S.))
 Class4=CDialogASIOConnect
-Resource6=IDD_DTFM_GENERATOR_DIALOG
-Resource7=IDR_MENU_MAIN
+Resource6=IDR_MENU_MAIN
+Resource7=IDD_DTFM_GENERATOR_DIALOG
 
 [CLS:CDTFM_GeneratorApp]
 Type=0
@@ -36,7 +36,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=CDTFM_GeneratorDlg
+LastObject=IDC_EDIT_SAMPLE_RATE
 
 [CLS:CAboutDlg]
 Type=0
@@ -58,7 +58,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=91
+ControlCount=97
 Control1=IDC_AMPLITUDE,edit,1484849280
 Control2=IDC_EDIT_BASE_A,edit,1350631552
 Control3=IDC_EDIT_SCALE,edit,1350566016
@@ -150,6 +150,12 @@ Control88=IDC_STATIC,static,1342308352
 Control89=IDC_CHECK_SAW,button,1342242819
 Control90=IDC_CHECK_FILTER_OFF,button,1342242819
 Control91=IDC_CHECK_WRITE_RAWDATA_PCM,button,1342242819
+Control92=IDC_STATIC,static,1342308352
+Control93=IDC_EDIT_SAMPLE_RATE,edit,1350633600
+Control94=IDC_EDIT_REZ_MIN,edit,1350566016
+Control95=IDC_EDIT_REZ_MAX,edit,1350566016
+Control96=IDC_STATIC,static,1342308352
+Control97=IDC_STATIC,static,1342308352
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1

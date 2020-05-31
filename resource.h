@@ -23,7 +23,9 @@
 #define IDC_EDIT_GARMONIC_6             1021
 #define IDC_DO                          1022
 #define IDC_EDIT_ATTACK                 1022
+#define IDC_EDIT_REZ_MIN                1022
 #define IDC_RE                          1023
+#define IDC_EDIT_REZ_MAX                1023
 #define IDC_ME                          1024
 #define IDC_FA                          1025
 #define IDC_SOL                         1026
@@ -83,6 +85,7 @@
 #define IDC_CHECK_USE_MODULATION        1076
 #define IDC_EDIT_ASIO_DEVICE_INDEX      1077
 #define IDC_EDIT_MODULATION_FREQ        1077
+#define IDC_EDIT_SAMPLE_RATE            1078
 #define IDC_EDIT_PIANOROLL              1079
 #define IDC_LEVEL_CONTROL               1080
 #define IDC_CHECK_GARMONIC_5_OFF        1081

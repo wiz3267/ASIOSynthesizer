@@ -49,6 +49,9 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_check_saw3 = TRUE;
 	m_filter_off = TRUE;
 	m_write_rawdata_pcm = FALSE;
+	m_sample_rate = 0;
+	m_rez_min = _T("-0.5");
+	m_rez_max = _T("4");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -113,6 +116,9 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_SAW, m_check_saw3);
 	DDX_Check(pDX, IDC_CHECK_FILTER_OFF, m_filter_off);
 	DDX_Check(pDX, IDC_CHECK_WRITE_RAWDATA_PCM, m_write_rawdata_pcm);
+	DDX_Text(pDX, IDC_EDIT_SAMPLE_RATE, m_sample_rate);
+	DDX_Text(pDX, IDC_EDIT_REZ_MIN, m_rez_min);
+	DDX_Text(pDX, IDC_EDIT_REZ_MAX, m_rez_max);
 	//}}AFX_DATA_MAP
 }
 
@@ -258,10 +264,16 @@ double	AMPLITUDE_DECREMENT;//5/2048.0;
 int IdMidiOpen=-1;
 
 int 
-	SAMPLE_RATE=44100;
+	SAMPLE_RATE=0;
+	//SAMPLE_RATE=44100*2;
+	//SAMPLE_RATE=48000;
 
-double myMin = -0.7;
-double myMax = 0.7;
+//double myMin = -0.7;
+//double myMax = 0.7;
+
+double myMin = -1;
+double myMax = 1;
+
 
 double rezMin = -0.5;
 double rezMax = 4.5;
@@ -269,7 +281,7 @@ double rezMax = 4.5;
 double filterSpeed = 20000*10;
 //double filterSpeed = 1000;
 
-double deTune = 1.001;
+double deTune = 1.000;
 
 struct KEY
 {
@@ -512,12 +524,16 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 			//Keys[keyN].sawSource1 += freq * 0.000032 * dt;
 			//Keys[keyN].sawSource2 += freq * 0.000032 / dt;
+			
 			Keys[keyN].sawSource1 += freq * myconst * dt;
 			Keys[keyN].sawSource2 += freq * myconst / dt;
 
+			if(Keys[keyN].sawSource1 >= myMax) Keys[keyN].sawSource1 = myMin - myMax + Keys[keyN].sawSource1;
+			if(Keys[keyN].sawSource2 >= myMax) Keys[keyN].sawSource2 = myMin - myMax + Keys[keyN].sawSource2;
+
 			
-			if(Keys[keyN].sawSource1 >= myMax) Keys[keyN].sawSource1 = myMin;
-			if(Keys[keyN].sawSource2 >= myMax) Keys[keyN].sawSource2 = myMin;
+			//if(Keys[keyN].sawSource1 >= myMax) Keys[keyN].sawSource1 = myMin;
+			//if(Keys[keyN].sawSource2 >= myMax) Keys[keyN].sawSource2 = myMin;
 			
 			double sawSource = Keys[keyN].sawSource1 + Keys[keyN].sawSource2;
 
@@ -530,7 +546,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			{
 				filterSpeed = //500 * (cCircleSlider_filterspeed->GetValue()+1);
 
-				pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 15.0);
+				//pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 15.0);
+				pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 10.0);
 
 				Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
 				//Keys[keyN].ss1 += (sawSource - Keys[keyN].filter1) / pow(2, rezMax - Keys[keyN].fRez1 + 4);
@@ -551,7 +568,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 				{
 				
 					Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
-					Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(2, rezMax - Keys[keyN].fRez2 + 4);
+					//Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(2, rezMax - Keys[keyN].fRez2 + 4);
+					Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(4, 6 - Keys[keyN].fRez2 );
 					Keys[keyN].ss2 /= 1.02;
 					Keys[keyN].filter2 += Keys[keyN].ss2;
 				
@@ -561,7 +579,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 				{
 				
 					Keys[keyN].fRez3 -= (Keys[keyN].fRez3 - rezMin) / filterSpeed;
-					Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(2, rezMax - Keys[keyN].fRez3 + 4);
+					//Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(2, rezMax - Keys[keyN].fRez3 + 4);
+					Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(4, 6 - Keys[keyN].fRez3);
 					Keys[keyN].ss3 /= 1.02;
 					Keys[keyN].filter3 += Keys[keyN].ss3;
 				
@@ -591,10 +610,13 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		//f=2*freq; 
 		//????????????????
 		f=freq; 
+		//floor
+		//double val=floor(sin(f*t)+0.1);
 		double val=sin(f*t);
-		double fix=0;
+		double fix=cCircleSlider_filterspeed->GetValue()/100.0;
 		if (val>=fix) val=1;
 		if (val<-fix) val=-1;
+		
 
 		if (f<limit) k+=sl2/100.0*val; 
 	}
@@ -704,6 +726,8 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	m_asio_device=global_asio_index;
 	m_size_asio_buffer=ASIO_buflen;
+
+	m_sample_rate=SAMPLE_RATE;
 
 	PutData;
 
@@ -1116,10 +1140,11 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	if (g_mainwindow)
 	if (g_mainwindow->m_write_rawdata_pcm)
 	{
+		CFile file;
 		if (file.Open("rawdata.pcm", file.modeWrite))
 		{
 			file.SeekToEnd();
-			file.Write(plbuf,size/2);
+			file.Write(plbuf,size);
 			file.Close();
 		}
 	}
@@ -1454,6 +1479,9 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 		return;
 	}
 
+	//???????????
+	rezMin = strtod(m_rez_min.GetBuffer(0),NULL);
+	rezMax = strtod(m_rez_max.GetBuffer(0),NULL);;
 
 
 	no_sustain=m_no_sustain;
