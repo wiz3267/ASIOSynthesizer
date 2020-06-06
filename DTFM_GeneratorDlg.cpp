@@ -62,6 +62,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_EDIT_FILL_BUFFER_TICKCOUNT, m_tick_count_fill_buffer);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER5, m_static_slider5);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER4, m_static_slider4);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER3, m_static_sslider3);
@@ -158,6 +159,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
 
+DWORD FillBufferTickCount=0;
 
 int counter = 0;
 int demo[] = {50,-1,-1,-1,53,-1,-1,50,-1,50,55,-1,50,-1,48,-1,50,-1,-1,-1,57,-1,-1,50,-1,50,58,-1,57,-1,53,-1,50,-1,57,-1,62,-1,50,48,-1,48,45,-1,52,-1,50};
@@ -613,7 +615,9 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		//floor
 		//double val=floor(sin(f*t)+0.1);
 		double val=sin(f*t);
-		double fix=cCircleSlider_filterspeed->GetValue()/100.0;
+		//double fix=cCircleSlider_filterspeed->GetValue()/100.0;
+		double fix=0;
+
 		if (val>=fix) val=1;
 		if (val<-fix) val=-1;
 		
@@ -937,6 +941,17 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 	//клавиша нажата
 	//нужно учитывать, что после первого нажатия начинают поступать
 	//повторные сообщения от клавиатуры
+
+	/*CWnd * win=GetFocus();
+	if (win)
+	{
+		
+
+		CString str;
+		win->GetWindowText(str);
+		if (str.GetLength()!=0) return 0;
+	}*/
+
 	if (pMsg->message == WM_KEYDOWN)
 	{
 
@@ -1006,18 +1021,23 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 	}
 
 
-	//return CDialog::PreTranslateMessage(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 
-	return 0;
+	//return 0;
 }
 
 double freq_1=0;
 int freq_1_count=0;
 
+const COPYBUFFER_SIZE=16384;
+short CopyBuffer[COPYBUFFER_SIZE];
 
 //самая важная функция - заполнение буфера звуковыми сгенерированными данными
 void FillBuffer(short *plbuf, int size, int samplerate)
 {
+	LARGE_INTEGER la1, la2;
+
+	QueryPerformanceCounter(&la1);
 
 	freq_1 = 0;
 	freq_1_count = 0;
@@ -1149,6 +1169,19 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		}
 	}
 
+
+	QueryPerformanceCounter(&la2);
+
+	//QueryPerformanceFrequency(&la3);
+
+
+	FillBufferTickCount=DWORD((la2.QuadPart-la1.QuadPart)/1000.0);
+	//FillBufferTickCount=la2.QuadPart;
+
+	if (size<COPYBUFFER_SIZE)
+	{
+		memcpy(CopyBuffer, plbuf, size);
+	}
 }
 
 extern int ASIO_buflen;
@@ -1417,7 +1450,8 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent) 
 {
 
-	if (nIDEvent==100){
+	if (nIDEvent==100)
+	{
 			
 		if(demo[counter] > -1){
 			
@@ -1454,6 +1488,11 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	}
 	
 	GetData;
+
+	char buf1[32];
+	//????
+	ltoa(FillBufferTickCount,buf1,10);
+	m_tick_count_fill_buffer.SetWindowText(buf1);
 
 	if (nIDEvent==1)
 	{
@@ -1583,10 +1622,36 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	}
 
-	CDialog::OnTimer(nIDEvent);
-
 	MaxSound=0;
 	//Overload=0;
+	CDC *dc=GetDC();
+
+	int y=400;
+
+	int HEI=50;
+	int LEN=200;
+	dc->Rectangle(0,y-HEI,LEN,y+HEI);
+
+	int j=0;
+	for(int i=0; i<0;i++)
+	{
+		if (abs(CopyBuffer[i])<5) { j=i; break;}
+	}
+
+	int z=0;
+	for(; i<j+LEN;i++)
+	{
+
+		//???????
+		short val=CopyBuffer[i]/100;
+		if (val>=HEI) val=HEI-1;
+		if (val<=-HEI) val=-HEI+1;
+		dc->LineTo(z++, y+val);
+	}
+
+	ReleaseDC(dc);
+
+	CDialog::OnTimer(nIDEvent);
 
 }
 

@@ -99,6 +99,7 @@
 #define IDC_CHECK_GARMONIC_M4_OFF       1089
 #define IDC_CHECK_GARMONIC_M3_OFF       1090
 #define IDC_CHECK_GARMONIC_M2_OFF       1091
+#define IDC_EDIT_FILL_BUFFER_TICKCOUNT  1092
 #define IDC_REMEMBER                    1093
 #define IDC_CHECK_USE_VELOCITY          1094
 #define IDC_CHECK_NO_SUSTAIN            1095
