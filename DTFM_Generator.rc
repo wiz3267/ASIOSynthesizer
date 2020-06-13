@@ -184,7 +184,7 @@ BEGIN
     LTEXT           "Attack",IDC_STATIC,205,50,22,8
     LTEXT           "Detune",IDC_STATIC,205,110,24,8
     LTEXT           "Release",IDC_STATIC,205,75,27,8
-    GROUPBOX        "Modulation",IDC_STATIC,115,145,109,52
+    GROUPBOX        "Amplitude modulation",IDC_STATIC,115,145,109,52
     CONTROL         "",IDC_CHECK_GARMONIC_1_OFF,"Button",BS_AUTOCHECKBOX | 
                     WS_DISABLED | WS_TABSTOP,405,47,10,8
     CONTROL         "",IDC_CHECK_GARMONIC_2_OFF,"Button",BS_AUTOCHECKBOX | 
@@ -231,8 +231,8 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,230,176,46,10
     CONTROL         "Write rawdata.pcm",IDC_CHECK_WRITE_RAWDATA_PCM,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,230,185,75,10
-    LTEXT           "Sample rate",IDC_STATIC,120,135,38,8
-    EDITTEXT        IDC_EDIT_SAMPLE_RATE,167,135,29,14,ES_AUTOHSCROLL | 
+    LTEXT           "Sample rate",IDC_STATIC,120,133,38,8
+    EDITTEXT        IDC_EDIT_SAMPLE_RATE,167,131,29,14,ES_AUTOHSCROLL | 
                     ES_READONLY
     EDITTEXT        IDC_EDIT_REZ_MIN,560,155,29,14,ES_AUTOHSCROLL | NOT 
                     WS_TABSTOP,0,HIDC_EDIT_REZ_MIN
@@ -243,6 +243,12 @@ BEGIN
     LTEXT           "FillBufferTickCount",IDC_STATIC,5,175,60,8
     EDITTEXT        IDC_EDIT_FILL_BUFFER_TICKCOUNT,70,172,40,14,
                     ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "CSlider6",IDC_STATIC_CSLIDER6,185,220,30,20,NOT 
+                    WS_VISIBLE | WS_BORDER
+    LTEXT           "CSlider7",IDC_STATIC_CSLIDER7,185,250,30,20,NOT 
+                    WS_VISIBLE | WS_BORDER
+    LTEXT           "Freq\r\nmodulation\r\n(freq)",IDC_STATIC,140,220,40,25
+    LTEXT           "Freq\r\nmodulation\r\n(depth)",IDC_STATIC,140,250,40,25
 END
 
 IDD_DIALOG_SETTINGS DIALOG DISCARDABLE  0, 0, 186, 93

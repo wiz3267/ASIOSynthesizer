@@ -114,6 +114,8 @@
 #define IDC_CHECK_SAW                   1104
 #define IDC_CHECK_FILTER_OFF            1105
 #define IDC_CHECK_WRITE_RAWDATA_PCM     1106
+#define IDC_STATIC_CSLIDER6             1107
+#define IDC_STATIC_CSLIDER7             1108
 #define ID_FILE_EXIT                    32771
 #define ID_SETTINGS_SETASIODEVICE       32772
 #define ID_KEYBOARD_KEYS_MENU           32773

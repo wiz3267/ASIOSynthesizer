@@ -62,6 +62,8 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_STATIC_CSLIDER7, m_static_slider7);
+	DDX_Control(pDX, IDC_STATIC_CSLIDER6, m_static_slider6);
 	DDX_Control(pDX, IDC_EDIT_FILL_BUFFER_TICKCOUNT, m_tick_count_fill_buffer);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER5, m_static_slider5);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER4, m_static_slider4);
@@ -179,6 +181,8 @@ CircleSliderIndicator * cCircleSlider_modulation=NULL;
 CircleSliderIndicator * cCircleSlider_detune=NULL;
 CircleSliderIndicator * cCircleSlider_filterspeed=NULL;
 CircleSliderIndicator * cCircleSlider_echo=NULL;
+CircleSliderIndicator * cCircleSlider_6=NULL;
+CircleSliderIndicator * cCircleSlider_7=NULL;
 
 //CircleSliderIndicator * cCircleSlider_detune=NULL;
 
@@ -466,6 +470,10 @@ int slm2, slm3, slm4, slm5, slm6;
 int slvolume;
 
 
+const garm_c=10;
+double randarray[garm_c] = {3, 7, 17, 22, 23, 27, 29, 37, 43, 47}; // €кобы случайные числа
+
+
 //функци€ Piano используетс€ дл€ генерации звука
 
 //сигнал в соответствии с эквалайзером в графическом интерфейсе программы
@@ -482,15 +490,19 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 	flag_one=0;
 
 	if (sl1 && !g_mainwindow->m_check_saw3) {flag_one++;freq_actual=freq;}	//base frequency
-	if (sl2) {flag_one++;freq_actual=freq*2;}
-	if (sl3) {flag_one++;freq_actual=freq*3;}
+	//if (sl2) {flag_one++;freq_actual=freq*2;}
+	if (sl2) {flag_one++;freq_actual=freq;}
+	
+	//if (sl3) {flag_one++;freq_actual=freq*3;}
+	if (sl3) {flag_one++;freq_actual=freq;}
+
 	if (sl4) {flag_one++;freq_actual=freq*4;}
 	
 	//if (sl5) {flag_one++;freq_actual=freq*5;}
-	if (sl5) {flag_one++;freq_actual=-1;}
+	if (sl5) {flag_one++;freq_actual=freq*garmonic_5;}
 	
 	//if (sl6) {flag_one++;freq_actual=freq*6;}
-	if (sl6) {flag_one++; freq_actual=-1;}
+	if (sl6) {flag_one++; freq_actual=freq*garmonic_6;}
 
 	if (slm2) {flag_one++;freq_actual=freq/2;}
 	if (slm3) {flag_one++;freq_actual=freq/3;}
@@ -527,8 +539,22 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			//Keys[keyN].sawSource1 += freq * 0.000032 * dt;
 			//Keys[keyN].sawSource2 += freq * 0.000032 / dt;
 			
-			Keys[keyN].sawSource1 += freq * myconst * dt;
-			Keys[keyN].sawSource2 += freq * myconst / dt;
+			//Keys[keyN].sawSource1 += freq * myconst * dt;
+			//Keys[keyN].sawSource2 += freq * myconst / dt;
+
+			//int fmodulation_f = 50; // частота частотной модул€ции
+			//int fmodulation_d = 50; // глубина частотной модул€ции
+
+			double fmodulation_f = cCircleSlider_6->GetValue(); // частота частотной модул€ции
+			double fmodulation_d = cCircleSlider_7->GetValue(); // глубина частотной модул€ции
+
+
+
+			double fmodulation = 1 + (1 - pow(1.001, fmodulation_d)) * sin(t * pow(1.015, fmodulation_f));
+            
+			Keys[keyN].sawSource1 += freq * myconst * dt * fmodulation;
+			Keys[keyN].sawSource2 += freq * myconst / dt * fmodulation;
+
 
 			if(Keys[keyN].sawSource1 >= myMax) Keys[keyN].sawSource1 = myMin - myMax + Keys[keyN].sawSource1;
 			if(Keys[keyN].sawSource2 >= myMax) Keys[keyN].sawSource2 = myMin - myMax + Keys[keyN].sawSource2;
@@ -601,12 +627,14 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		}
 		else
 		{
-			f=freq; if (f<limit) k+=sl1/100.0*sin(f*t);
+			f=freq; 
+			
+			if (f<limit) k+=sl1/100.0*sin(f*t);
 		}
 		
 	}
 
-	//если подн€т второй слайдер (втора€ гаромника, в 2 раза выше базовой)
+	//если подн€т второй слайдер 
 	if (sl2) 
 	{
 		//f=2*freq; 
@@ -625,7 +653,55 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		if (f<limit) k+=sl2/100.0*val; 
 	}
 
-	if (sl3) { f=3*freq; if (f<limit) k+=sl3/100.0*sin(f*t); }
+	if (sl3) 
+	{
+		
+		///f=3*freq; 
+		////if (f<limit) k+=sl3/100.0*sin(f*t); 
+
+		bool randgarmony = true; // разрешение выполн€ть функцию ниже
+		if(randgarmony == true)
+		{
+
+			static int cnt_xxx;
+			cnt_xxx++;
+
+			if (cnt_xxx>400000)
+			{
+				for(int z=0; z<garm_c; z++)
+				{
+					randarray[z]=rand()%50;//+(rand()%1000)/1000.0;
+				}
+				cnt_xxx=0;
+			}
+			
+			double out = 0.4 * sin(freq * t); //base freq
+			//double out = 0;
+
+			for(int i = 0; i < garm_c; i ++) 
+			{
+				//out += 0.1/(i+1) * sin(freq * randarray[i] * t);
+				out += 0.4 * sin(freq * randarray[i] * t);
+			}
+
+			 // дальше уже знакомый код фильтра, только на вход подаЄм переменную out
+			filterSpeed = pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 10.0);
+			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
+			Keys[keyN].ss1 += (out - Keys[keyN].filter1) / pow(4, 6 - Keys[keyN].fRez1);
+			//Keys[keyN].ss1 /= 1.02;
+			Keys[keyN].ss1 /= 1.02 ;
+			Keys[keyN].filter1 += Keys[keyN].ss1;
+			
+			k += Keys[keyN].filter1; // добавл€ем результат в общий поток
+			k *= sl3/100.0;
+
+			//k += out * sl3/100.0;
+
+		}
+
+	
+	
+	}
 	if (sl4) { f=4*freq; if (f<limit) k+=sl4/100.0*sin(f*t); }
 	
 	//if (sl5) { f=5*freq; if (f<limit) k+=sl5/100.0*sin(f*t); }
@@ -673,20 +749,36 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	m_check_saw=ini.QueryValue("CheckSaw");
 
 
-	RECT rt, rt2, rt3, rt4, rt5;
+	RECT rt, rt2, rt3, rt4, rt5, rt6, rt7;
 	m_static_slider1.GetWindowRect(&rt);
 	m_static_slider2.GetWindowRect(&rt2);
 	m_static_sslider3.GetWindowRect(&rt3);
 	m_static_slider4.GetWindowRect(&rt4);
 	m_static_slider5.GetWindowRect(&rt5);
+	m_static_slider6.GetWindowRect(&rt6);
+	m_static_slider7.GetWindowRect(&rt7);
 	ScreenToClient(&rt);
 	ScreenToClient(&rt2);
 	ScreenToClient(&rt3);
 	ScreenToClient(&rt4);
 	ScreenToClient(&rt5);
+	ScreenToClient(&rt6);
+	ScreenToClient(&rt7);
 
 
 	int x=rt.left,y=rt.top;
+
+	cCircleSlider_6= new CircleSliderIndicator(rt6.left, rt6.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
+											  DigIndicatorValue::signTypeNotShow);
+
+	cCircleSlider_6	->SetValue(ini.QueryValue("ModulationParam1"));
+
+
+	cCircleSlider_7= new CircleSliderIndicator(rt7.left, rt7.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
+											  DigIndicatorValue::signTypeNotShow);
+
+	cCircleSlider_7	->SetValue(ini.QueryValue("ModulationParam2"));
+
 
 	cCircleSlider_attack = new CircleSliderIndicator(x,y, CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
@@ -881,6 +973,9 @@ void CDTFM_GeneratorDlg::OnPaint()
 		cCircleSlider_detune->OnPaint(dc);
 		cCircleSlider_filterspeed->OnPaint(dc);
 		cCircleSlider_echo->OnPaint(dc);
+
+		cCircleSlider_6->OnPaint(dc);
+		cCircleSlider_7->OnPaint(dc);
 		
 		
 		ReleaseDC(dc);
@@ -1053,7 +1148,8 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 
 	int OverloadCount=0;	//сколько раз был клиппинг (за пределы -32768...32767)
 	
-	for(int i=0; i<size/2; i++, _time_++)
+	//for(int i=0; i<size/2; i++, _time_++)
+	for(int i=0; i<size/2; i+=2, _time_++)
 	{
 		m=0;
 
@@ -1150,7 +1246,8 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//short int z=(short int)(m*globalVolume);
 		short int z=(short int)(m);
 
-		plbuf[i]=z;
+		plbuf[i]  =z; //left channel
+		plbuf[i+1]=z; //right channel
 	}
 
 	if (OverloadCount==0) Overload++;
@@ -1175,13 +1272,16 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	//QueryPerformanceFrequency(&la3);
 
 
-	FillBufferTickCount=DWORD((la2.QuadPart-la1.QuadPart)/1000.0);
 	//FillBufferTickCount=la2.QuadPart;
 
 	if (size<COPYBUFFER_SIZE)
 	{
 		memcpy(CopyBuffer, plbuf, size);
 	}
+
+	FillBufferTickCount=DWORD((la2.QuadPart-la1.QuadPart)/1000.0);
+
+	freq_1/=2;
 }
 
 extern int ASIO_buflen;
@@ -1230,6 +1330,8 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	ini.SetValue((int)cCircleSlider_modulation->GetValue(), "Modulation");
 	ini.SetValue((int)cCircleSlider_detune->GetValue(), "Detune");
 	ini.SetValue((int)cCircleSlider_echo->GetValue(), "Echo");
+	ini.SetValue((int)cCircleSlider_6->GetValue(), "ModulationParam1");
+	ini.SetValue((int)cCircleSlider_7->GetValue(), "ModulationParam2");
 
 	ini.SetValue(atoi(m_midi_open_str.GetBuffer(0)),"MidiDevice");
 
@@ -1643,7 +1745,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	{
 
 		//???????
-		short val=CopyBuffer[i]/100;
+		short val=short(CopyBuffer[i]/32768.0*HEI);
 		if (val>=HEI) val=HEI-1;
 		if (val<=-HEI) val=-HEI+1;
 		dc->LineTo(z++, y+val);
@@ -2329,6 +2431,25 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 	cCircleSlider_detune->OnMouseMove(nFlags, point);
 	cCircleSlider_filterspeed->OnMouseMove(nFlags, point);
 	cCircleSlider_echo->OnMouseMove(nFlags, point);
+
+	cCircleSlider_6->OnMouseMove(nFlags, point);
+	cCircleSlider_7->OnMouseMove(nFlags, point);
+
+	if (cCircleSlider_6->pSlider->flagPaint == true)
+	{
+		CDC *dc=GetDC();
+		cCircleSlider_6->OnPaint(dc);
+		ReleaseDC(dc);
+	}
+
+	if (cCircleSlider_7->pSlider->flagPaint == true)
+	{
+		CDC *dc=GetDC();
+		cCircleSlider_7->OnPaint(dc);
+		ReleaseDC(dc);
+	}
+
+
 
 	if (cCircleSlider_echo->pSlider->flagPaint == true)
 	{

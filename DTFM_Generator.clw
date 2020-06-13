@@ -16,11 +16,11 @@ ResourceCount=7
 Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
 Resource3=IDD_ABOUTBOX (English (U.S.))
-Resource4=IDD_DTFM_GENERATOR_DIALOG
+Resource4=IDR_MENU_MAIN
 Resource5=IDD_DIALOG_SETTINGS
 Class4=CDialogASIOConnect
 Resource6=IDD_DIALOG_ASIO_CONNECT
-Resource7=IDR_MENU_MAIN
+Resource7=IDD_DTFM_GENERATOR_DIALOG
 
 [CLS:CDTFM_GeneratorApp]
 Type=0
@@ -36,7 +36,7 @@ ImplementationFile=DTFM_GeneratorDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_EDIT_SAMPLE_RATE
+LastObject=IDC_STATIC_CSLIDER3
 
 [CLS:CAboutDlg]
 Type=0
@@ -58,7 +58,7 @@ Class=CAboutDlg
 [DLG:IDD_DTFM_GENERATOR_DIALOG]
 Type=1
 Class=CDTFM_GeneratorDlg
-ControlCount=99
+ControlCount=103
 Control1=IDC_AMPLITUDE,edit,1484849280
 Control2=IDC_EDIT_BASE_A,edit,1350631552
 Control3=IDC_EDIT_SCALE,edit,1350566016
@@ -158,6 +158,10 @@ Control96=IDC_STATIC,static,1342308352
 Control97=IDC_STATIC,static,1342308352
 Control98=IDC_STATIC,static,1342308352
 Control99=IDC_EDIT_FILL_BUFFER_TICKCOUNT,edit,1484849280
+Control100=IDC_STATIC_CSLIDER6,static,1082261504
+Control101=IDC_STATIC_CSLIDER7,static,1082261504
+Control102=IDC_STATIC,static,1342308352
+Control103=IDC_STATIC,static,1342308352
 
 [DLG:IDD_ABOUTBOX (English (U.S.))]
 Type=1
