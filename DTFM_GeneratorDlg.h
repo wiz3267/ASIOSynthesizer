@@ -151,6 +151,7 @@ protected:
 	afx_msg void OnFileExit();
 	afx_msg void OnButtonDemo();
 	afx_msg void OnKeyboardKeysMenu();
+	afx_msg void OnButtonRndGarmonic();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

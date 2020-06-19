@@ -155,6 +155,7 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
 	ON_BN_CLICKED(IDC_BUTTON_DEMO, OnButtonDemo)
 	ON_COMMAND(ID_KEYBOARD_KEYS_MENU, OnKeyboardKeysMenu)
+	ON_BN_CLICKED(IDC_BUTTON_RND_GARMONIC, OnButtonRndGarmonic)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -471,7 +472,8 @@ int slvolume;
 
 
 const garm_c=10;
-double randarray[garm_c] = {3, 7, 17, 22, 23, 27, 29, 37, 43, 47}; // €кобы случайные числа
+double randarray[garm_c] =    {3, 7, 17, 22, 23, 27, 29, 37, 43, 47}; // €кобы случайные числа
+double randarray_amplitude[garm_c] = { 1, 0.7, 0.5, 0.9, 0.1, 0, 1, 0.9, 0.9, 0.8}; 
 
 
 //функци€ Piano используетс€ дл€ генерации звука
@@ -548,8 +550,6 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			double fmodulation_f = cCircleSlider_6->GetValue(); // частота частотной модул€ции
 			double fmodulation_d = cCircleSlider_7->GetValue(); // глубина частотной модул€ции
 
-
-
 			double fmodulation = 1 + (1 - pow(1.001, fmodulation_d)) * sin(t * pow(1.015, fmodulation_f));
             
 			Keys[keyN].sawSource1 += freq * myconst * dt * fmodulation;
@@ -615,7 +615,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 				}
 			}
 						
-			k += Keys[keyN].filter1; // базовый звук
+			k += Keys[keyN].filter1 * sl1/100.0; // базовый звук
 			
 			if (echo>0 && !g_mainwindow->m_filter_off) 
 			{
@@ -623,7 +623,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 				k += Keys[keyN].filter3 * 0.25; // второе повторение эхо
 			}
 			
-			k *= sl1 / 100.0;
+			//k *= sl1 / 100.0;
 		}
 		else
 		{
@@ -663,25 +663,13 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		if(randgarmony == true)
 		{
 
-			static int cnt_xxx;
-			cnt_xxx++;
-
-			if (cnt_xxx>400000)
-			{
-				for(int z=0; z<garm_c; z++)
-				{
-					randarray[z]=rand()%50;//+(rand()%1000)/1000.0;
-				}
-				cnt_xxx=0;
-			}
-			
-			double out = 0.4 * sin(freq * t); //base freq
-			//double out = 0;
+			//double out = 0.4 * sin(freq * t); //base freq
+			double out = 0;
 
 			for(int i = 0; i < garm_c; i ++) 
 			{
 				//out += 0.1/(i+1) * sin(freq * randarray[i] * t);
-				out += 0.4 * sin(freq * randarray[i] * t);
+				out += randarray_amplitude[i] * sin(freq * randarray[i] * t);
 			}
 
 			 // дальше уже знакомый код фильтра, только на вход подаЄм переменную out
@@ -692,10 +680,13 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			Keys[keyN].ss1 /= 1.02 ;
 			Keys[keyN].filter1 += Keys[keyN].ss1;
 			
-			k += Keys[keyN].filter1; // добавл€ем результат в общий поток
-			k *= sl3/100.0;
+			k += Keys[keyN].filter1 * sl3 * 0.01; // добавл€ем результат в общий поток
 
-			//k += out * sl3/100.0;
+			//k += out * sl3 * 0.01;
+
+			
+
+			
 
 		}
 
@@ -736,6 +727,8 @@ CMenu menu;
 BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	srand(GetTickCount());	//init rnd
 
 		
 	menu.LoadMenu(IDR_MENU_MAIN);
@@ -2663,4 +2656,101 @@ void CDTFM_GeneratorDlg::OnKeyboardKeysMenu()
 	;
 
 	AfxMessageBox(msg,MB_OK,0);
+}
+
+
+void swap(double& a, double& b)
+{
+	double tmp=a;
+	a=b;
+	b=tmp;
+}
+
+void CDTFM_GeneratorDlg::OnButtonRndGarmonic() 
+{
+
+	CString res,a;
+
+
+
+	for(int z=0; z<garm_c; z++)
+	{
+		randarray[z]=1+rand()%40;//+(rand()%10000)/10000.0;
+		for(int k=0; k<z; k++)
+		{
+			if (randarray[k]==randarray[z]) break;
+		}
+
+		if (k!=z) {z--; continue;}
+
+	
+		randarray_amplitude[z]=0.1+(rand()%10)/10.0;
+		//randarray_amplitude[z]=0.5;//+(rand()%10)/10.0;
+
+	}
+	//sort
+	{
+	for(int i=0; i<garm_c; i++)
+	for(int j=0; j<garm_c; j++)
+	{
+		if (randarray[i]<randarray[j])
+		{
+			swap(randarray[i],randarray[j]);
+			swap(randarray_amplitude[i],randarray_amplitude[j]);
+		}
+	}
+	}
+
+	{
+	for(int z=0; z<garm_c; z++)
+	{
+		a.Format("%i",int(randarray[z]));
+
+		res+=a;
+
+		if (z<(garm_c-1)) res+=",";
+		
+		//a.Format("%i",int(randarray_amplitude[z]*100));
+
+		//res+=a;
+		//res+=" ";
+	}
+	}
+
+
+
+	CDC *dc=GetDC();
+
+	int x=500,y=350;
+
+	int HEI=50, LEN=8;
+
+	int max_g=50;
+
+	dc->Rectangle(x,y, x+ LEN*max_g, y + int(HEI *1 ) );
+
+	for(int i=0; i<max_g; i++)
+	{
+		for(int b=0; b<garm_c; b++)
+		{
+			if (randarray[b] == i) break;
+		}
+
+		double ampl=0;
+
+		if (b!=garm_c)
+		{
+			ampl=randarray_amplitude[b];
+		}
+
+		//if (ampl==0) ampl=1;
+
+		if (ampl!=0)
+		dc->Rectangle(x+LEN*i,y, x+ LEN*i+LEN, y + int(HEI *ampl ) );
+	}
+
+	ReleaseDC(dc);
+
+	m_status_text.SetWindowText(res);
+	
 }

@@ -66,6 +66,7 @@
 #define IDC_BUTTON_ASIO_CONTROL_PANEL   1060
 #define IDC_STOP_PLAY                   1061
 #define IDC_HIDE                        1062
+#define IDC_BUTTON_RND_GARMONIC         1062
 #define IDC_EDIT_MIDI_NAME              1063
 #define IDC_EDIT_STATUS_TEXT            1063
 #define IDC_SLIDER6                     1064
