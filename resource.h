@@ -118,6 +118,8 @@
 #define IDC_STATIC_CSLIDER6             1107
 #define IDC_STATIC_CSLIDER7             1108
 #define IDC_CHECK_FILTER2               1109
+#define IDC_BUTTON_SAVE_GARMONICS       1110
+#define IDC_BUTTON_LOAD_GARMONICS       1111
 #define ID_FILE_EXIT                    32771
 #define ID_SETTINGS_SETASIODEVICE       32772
 #define ID_KEYBOARD_KEYS_MENU           32773

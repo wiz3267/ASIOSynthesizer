@@ -16,6 +16,9 @@ class CDTFM_GeneratorDlg : public CDialog
 {
 // Construction
 public:
+	void ShowGarmonicStatus(int param);
+	void ShowGarmonics();
+	int ChangeGarmonicMouse(UINT nFlags, CPoint point, bool ShowGraphic);
 	void MidiKeyPress(BYTE key, BYTE value);
 	void SetFocus();
 	void InitToneData();
