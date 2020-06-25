@@ -103,6 +103,7 @@ public:
 	int		m_sample_rate;
 	CString	m_rez_min;
 	CString	m_rez_max;
+	BOOL	m_check_filter2;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

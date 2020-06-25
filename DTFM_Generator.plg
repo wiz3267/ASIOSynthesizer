@@ -7,26 +7,7 @@
 </h3>
 <h3>Command Lines</h3>
 Creating command line "rc.exe /l 0x419 /fo"Release/DTFM_Generator.res" /d "NDEBUG" /d "_AFXDLL" "C:\github\ASIOSynthesizer\DTFM_Generator.rc"" 
-Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSP21E.tmp" with contents
-[
-/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fr"Release/" /Fp"Release/DTFM_Generator.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
-"C:\github\ASIOSynthesizer\circleSliderIndicator.cpp"
-"C:\github\ASIOSynthesizer\cirlceSlider.cpp"
-"C:\github\ASIOSynthesizer\DialogASIOConnect.cpp"
-"C:\github\ASIOSynthesizer\digIndicator.cpp"
-"C:\github\ASIOSynthesizer\digIndicatorValue.cpp"
-"C:\github\ASIOSynthesizer\DTFM_Generator.cpp"
-"C:\github\ASIOSynthesizer\DTFM_GeneratorDlg.cpp"
-"C:\github\ASIOSynthesizer\BassASIO\c\synth\synth.cpp"
-]
-Creating command line "cl.exe @C:\Users\Zorxor\AppData\Local\Temp\RSP21E.tmp" 
-Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSP21F.tmp" with contents
-[
-/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fr"Release/" /Fp"Release/DTFM_Generator.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
-"C:\github\ASIOSynthesizer\StdAfx.cpp"
-]
-Creating command line "cl.exe @C:\Users\Zorxor\AppData\Local\Temp\RSP21F.tmp" 
-Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSP230.tmp" with contents
+Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSPEC98.tmp" with contents
 [
 winmm.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/ASIOSynthesizer_release.pdb" /machine:I386 /out:"ASIOSynthesizer_release.exe" 
 .\Release\circleSliderIndicator.obj
@@ -42,37 +23,10 @@ winmm.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/ASIOSynthesiz
 .\BassASIO\c\synth\bass.lib
 .\BassASIO\c\bassasio.lib
 ]
-Creating command line "link.exe @C:\Users\Zorxor\AppData\Local\Temp\RSP230.tmp"
+Creating command line "link.exe @C:\Users\Zorxor\AppData\Local\Temp\RSPEC98.tmp"
 <h3>Output Window</h3>
 Compiling resources...
-Compiling...
-StdAfx.cpp
-Compiling...
-circleSliderIndicator.cpp
-cirlceSlider.cpp
-DialogASIOConnect.cpp
-digIndicator.cpp
-digIndicatorValue.cpp
-DTFM_Generator.cpp
-DTFM_GeneratorDlg.cpp
-synth.cpp
-Generating Code...
 Linking...
-Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSP13AE.tmp" with contents
-[
-/nologo /o"Release/DTFM_Generator.bsc" 
-.\Release\StdAfx.sbr
-.\Release\circleSliderIndicator.sbr
-.\Release\cirlceSlider.sbr
-.\Release\DialogASIOConnect.sbr
-.\Release\digIndicator.sbr
-.\Release\digIndicatorValue.sbr
-.\Release\DTFM_Generator.sbr
-.\Release\DTFM_GeneratorDlg.sbr
-.\Release\synth.sbr]
-Creating command line "bscmake.exe @C:\Users\Zorxor\AppData\Local\Temp\RSP13AE.tmp"
-Creating browse info file...
-<h3>Output Window</h3>
 
 
 

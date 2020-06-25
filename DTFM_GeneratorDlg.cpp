@@ -52,6 +52,7 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_sample_rate = 0;
 	m_rez_min = _T("-0.5");
 	m_rez_max = _T("4");
+	m_check_filter2 = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -122,6 +123,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SAMPLE_RATE, m_sample_rate);
 	DDX_Text(pDX, IDC_EDIT_REZ_MIN, m_rez_min);
 	DDX_Text(pDX, IDC_EDIT_REZ_MAX, m_rez_max);
+	DDX_Check(pDX, IDC_CHECK_FILTER2, m_check_filter2);
 	//}}AFX_DATA_MAP
 }
 
@@ -514,7 +516,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 	double k=0;	//итоговая вычисленная сумма 
 
-	double limit=20000;	//ограничение частоты
+	double limit=19500;	//ограничение частоты
 
 	//амплитуда сигнала
 	double AMP=Ampl;
@@ -669,20 +671,37 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			for(int i = 0; i < garm_c; i ++) 
 			{
 				//out += 0.1/(i+1) * sin(freq * randarray[i] * t);
-				out += randarray_amplitude[i] * sin(freq * randarray[i] * t);
+				double f=freq * randarray[i];
+				if (f<limit)
+				{
+					out += randarray_amplitude[i] * sin(f*t);
+				}
 			}
 
 			 // дальше уже знакомый код фильтра, только на вход подаём переменную out
 			filterSpeed = pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 10.0);
-			Keys[keyN].fRez1 -= (Keys[keyN].fRez1 - rezMin) / filterSpeed;
-			Keys[keyN].ss1 += (out - Keys[keyN].filter1) / pow(4, 6 - Keys[keyN].fRez1);
+			Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
+			if (Keys[keyN].fRez2<=rezMin)
+			{
+				Keys[keyN].ResetFilter();
+			}
+			Keys[keyN].ss2 += (out - Keys[keyN].filter2) / pow(4, 6 - Keys[keyN].fRez2);
 			//Keys[keyN].ss1 /= 1.02;
-			Keys[keyN].ss1 /= 1.02 ;
-			Keys[keyN].filter1 += Keys[keyN].ss1;
+			Keys[keyN].ss2 /= 1.02 ;
+			Keys[keyN].filter2 += Keys[keyN].ss2;
 			
-			k += Keys[keyN].filter1 * sl3 * 0.01; // добавляем результат в общий поток
 
-			//k += out * sl3 * 0.01;
+			
+
+			int filter_on=g_mainwindow->m_check_filter2;
+			if (filter_on)
+			{
+				k += Keys[keyN].filter2 * sl3 * 0.01; // добавляем результат в общий поток
+			}
+			else
+			{
+				k += out * sl3 * 0.01;
+			}
 
 			
 
@@ -2671,8 +2690,6 @@ void CDTFM_GeneratorDlg::OnButtonRndGarmonic()
 
 	CString res,a;
 
-
-
 	for(int z=0; z<garm_c; z++)
 	{
 		randarray[z]=1+rand()%40;//+(rand()%10000)/10000.0;
@@ -2688,6 +2705,7 @@ void CDTFM_GeneratorDlg::OnButtonRndGarmonic()
 		//randarray_amplitude[z]=0.5;//+(rand()%10)/10.0;
 
 	}
+	randarray[0]=1;
 	//sort
 	{
 	for(int i=0; i<garm_c; i++)
