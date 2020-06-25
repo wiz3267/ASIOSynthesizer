@@ -2737,7 +2737,7 @@ void CDTFM_GeneratorDlg::OnButtonRndGarmonic()
 		//randarray[z]=rand()%40+(rand()%100)/100.0;
 		randarray[z]=0;
 		randarray_amplitude[z]=0;
-		if ( (rand()%10) > 8)
+		if ( (rand()%10) > 5)
 		{
 
 			randarray[z]=1;//rand()%50;
@@ -2842,7 +2842,7 @@ int CDTFM_GeneratorDlg::ChangeGarmonicMouse(UINT nFlags, CPoint point, bool Show
 		if (y2>HEI/2) y2=HEI/2;
 		if (y2<-HEI/2) y2=-HEI/2;
 		dc->LineTo(x+x2, y + HEI + HEI/2+ y2);
-		t+=0.0001;
+		t+=0.00005;
 
 	}
 
