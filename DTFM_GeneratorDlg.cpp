@@ -2560,7 +2560,7 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 		OnLButtonDown(nFlags, point);
 	}
 
-	ChangeGarmonicMouse(nFlags, point, TRUE);
+	ChangeGarmonicMouse(nFlags, point, FALSE);
 
 	CDialog::OnMouseMove(nFlags, point);
 }

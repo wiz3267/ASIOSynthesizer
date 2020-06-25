@@ -3,35 +3,56 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: DTFM_Generator - Win32 Debug--------------------
+--------------------Configuration: DTFM_Generator - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating command line "rc.exe /l 0x419 /fo"Debug/DTFM_Generator.res" /d "_DEBUG" /d "_AFXDLL" "C:\github\ASIOSynthesizer\DTFM_Generator.rc"" 
-Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSPA3BE.tmp" with contents
+Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSP32BB.tmp" with contents
 [
-winmm.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/ASIOSynthesizer_debug.pdb" /debug /machine:I386 /out:"ASIOSynthesizer_debug.exe" /pdbtype:sept 
-.\Debug\circleSliderIndicator.obj
-.\Debug\cirlceSlider.obj
-.\Debug\DialogASIOConnect.obj
-.\Debug\digIndicator.obj
-.\Debug\digIndicatorValue.obj
-.\Debug\DTFM_Generator.obj
-.\Debug\DTFM_GeneratorDlg.obj
-.\Debug\StdAfx.obj
-.\Debug\synth.obj
-.\Debug\DTFM_Generator.res
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fr"Release/" /Fp"Release/DTFM_Generator.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\github\ASIOSynthesizer\DTFM_GeneratorDlg.cpp"
+]
+Creating command line "cl.exe @C:\Users\Zorxor\AppData\Local\Temp\RSP32BB.tmp" 
+Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSP32BC.tmp" with contents
+[
+winmm.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/ASIOSynthesizer_release.pdb" /machine:I386 /out:"ASIOSynthesizer_release.exe" 
+.\Release\circleSliderIndicator.obj
+.\Release\cirlceSlider.obj
+.\Release\DialogASIOConnect.obj
+.\Release\digIndicator.obj
+.\Release\digIndicatorValue.obj
+.\Release\DTFM_Generator.obj
+.\Release\DTFM_GeneratorDlg.obj
+.\Release\StdAfx.obj
+.\Release\synth.obj
+.\Release\DTFM_Generator.res
 .\BassASIO\c\synth\bass.lib
 .\BassASIO\c\bassasio.lib
 ]
-Creating command line "link.exe @C:\Users\Zorxor\AppData\Local\Temp\RSPA3BE.tmp"
+Creating command line "link.exe @C:\Users\Zorxor\AppData\Local\Temp\RSP32BC.tmp"
 <h3>Output Window</h3>
-Compiling resources...
+Compiling...
+DTFM_GeneratorDlg.cpp
 Linking...
+Creating temporary file "C:\Users\Zorxor\AppData\Local\Temp\RSP38B6.tmp" with contents
+[
+/nologo /o"Release/DTFM_Generator.bsc" 
+.\Release\StdAfx.sbr
+.\Release\circleSliderIndicator.sbr
+.\Release\cirlceSlider.sbr
+.\Release\DialogASIOConnect.sbr
+.\Release\digIndicator.sbr
+.\Release\digIndicatorValue.sbr
+.\Release\DTFM_Generator.sbr
+.\Release\DTFM_GeneratorDlg.sbr
+.\Release\synth.sbr]
+Creating command line "bscmake.exe @C:\Users\Zorxor\AppData\Local\Temp\RSP38B6.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-ASIOSynthesizer_debug.exe - 0 error(s), 0 warning(s)
+ASIOSynthesizer_release.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
