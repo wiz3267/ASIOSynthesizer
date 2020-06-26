@@ -158,6 +158,8 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_DEMO, OnButtonDemo)
 	ON_COMMAND(ID_KEYBOARD_KEYS_MENU, OnKeyboardKeysMenu)
 	ON_BN_CLICKED(IDC_BUTTON_RND_GARMONIC, OnButtonRndGarmonic)
+	ON_BN_CLICKED(IDC_BUTTON_PLUS_XSCALE_WAVEGRAPHIC, OnButtonPlusXscaleWavegraphic)
+	ON_BN_CLICKED(IDC_BUTTON_MINUS_XSCALE_WAVEGRAPHIC, OnButtonMinusXscaleWavegraphic)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2757,6 +2759,9 @@ void CDTFM_GeneratorDlg::OnButtonRndGarmonic()
 	
 }
 
+double scalex_wave_grapchic=1;
+
+
 int CDTFM_GeneratorDlg::ChangeGarmonicMouse(UINT nFlags, CPoint point, bool ShowGraphic)
 {
 
@@ -2842,7 +2847,7 @@ int CDTFM_GeneratorDlg::ChangeGarmonicMouse(UINT nFlags, CPoint point, bool Show
 		if (y2>HEI/2) y2=HEI/2;
 		if (y2<-HEI/2) y2=-HEI/2;
 		dc->LineTo(x+x2, y + HEI + HEI/2+ y2);
-		t+=0.00005;
+		t+=0.00005*scalex_wave_grapchic;
 
 	}
 
@@ -2898,14 +2903,25 @@ void CDTFM_GeneratorDlg::ShowGarmonicStatus(int param)
 
 		res+=a;
 
-		if (z<(garm_c-1)) res+=" ";
-		
-		//a.Format("%i",int(randarray_amplitude[z]*100));
+		a.Format("(%i)",int(randarray_amplitude[z]*100));
 
-		//res+=a;
-		//res+=" ";
+		res+=a;
+		res+=" ";
 	}
 		m_status_text.SetWindowText("Garmonic: "+res);
 
 }
 
+
+void CDTFM_GeneratorDlg::OnButtonPlusXscaleWavegraphic() 
+{
+	scalex_wave_grapchic*=2;	
+	ChangeGarmonicMouse(0,0,TRUE);
+	
+}
+
+void CDTFM_GeneratorDlg::OnButtonMinusXscaleWavegraphic() 
+{
+	scalex_wave_grapchic*=0.5;
+	ChangeGarmonicMouse(0,0,TRUE);
+}
