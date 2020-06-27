@@ -653,8 +653,8 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		//floor
 		//double val=floor(sin(f*t)+0.1);
 		double val=sin(f*t);
-		//double fix=cCircleSlider_filterspeed->GetValue()/100.0;
-		double fix=0;
+		double fix=cCircleSlider_filterspeed->GetValue()/100.0;
+		//double fix=0;
 
 		if (val>=fix) val=1;
 		if (val<-fix) val=-1;
@@ -682,7 +682,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 				if (randarray[i])
 				{
 					double f=freq * i;
-					//if (f<limit)
+					if (f<limit)
 					{
 						out += randarray_amplitude[i] * sin(f*t);
 					}
@@ -692,18 +692,17 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			 // дальше уже знакомый код фильтра, только на вход подаём переменную out
 			filterSpeed = pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 10.0);
 			Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
-			if (Keys[keyN].fRez2<=rezMin)
-			{
-				Keys[keyN].ResetFilter();
-			}
+			
+			//if (Keys[keyN].fRez2<=rezMin)
+			//{
+			//	Keys[keyN].ResetFilter();
+			//}
+
 			Keys[keyN].ss2 += (out - Keys[keyN].filter2) / pow(4, 6 - Keys[keyN].fRez2);
 			//Keys[keyN].ss1 /= 1.02;
-			Keys[keyN].ss2 /= 1.02 ;
+			Keys[keyN].ss2 /= 1.02  ;
 			Keys[keyN].filter2 += Keys[keyN].ss2;
 			
-
-			
-
 			int filter_on=g_mainwindow->m_check_filter2;
 			if (filter_on)
 			{
@@ -762,17 +761,15 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	for(int i=0; i<garm_c;i++)
 	{
-		int n=int(randarray2[i]);
-		if (n)
-		{
-			randarray[n]=1;
-			randarray_amplitude[n]=randarray_amplitude2[i];
-		}
-		else
-		{
-			randarray[n]=0;
-		}
+		CString s;
+		s.Format("Garmonic%i",i);
+			
+		ini.QueryDoubleValue(randarray[i], s.GetBuffer(0));
+		
+		s.Format("GarmonicAmplitude%i",i);
+		ini.QueryDoubleValue(randarray_amplitude[i], s.GetBuffer(0));//randarray_amplitude2[i];
 	}
+
 
 		
 	menu.LoadMenu(IDR_MENU_MAIN);
@@ -1373,6 +1370,18 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	GetData;
 
 	//save data to .ini file
+	for(int i=0; i<garm_c;i++)
+	{
+
+			CString s;
+			s.Format("Garmonic%i",i);
+			
+			ini.SetDoubleValue(randarray[i],s.GetBuffer(0));
+			
+			s.Format("GarmonicAmplitude%i",i);
+			ini.SetDoubleValue(randarray_amplitude[i],s.GetBuffer(0));//randarray_amplitude2[i];
+	}
+
 
 	ini.SetDoubleValue(atof(m_garmonic_5),"Garmonic5");
 	ini.SetDoubleValue(atof(m_garmonic_6),"Garmonic6");
