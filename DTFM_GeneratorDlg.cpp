@@ -53,6 +53,8 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_rez_min = _T("-0.5");
 	m_rez_max = _T("4");
 	m_check_filter2 = FALSE;
+	m_garmonic_mode = FALSE;
+	m_garmonic_base_freq = _T("50");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -63,6 +65,10 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_EDIT_GLOBAL_FILTER2, m_global_filter2);
+	DDX_Control(pDX, IDC_EDIT_GLOBAL_SS, m_global_ss2);
+	DDX_Control(pDX, IDC_EDIT_GLOBAL_REZ2, m_global_rez2);
+	DDX_Control(pDX, IDC_STATIC_CSLIDER8, m_static_slider8);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER7, m_static_slider7);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER6, m_static_slider6);
 	DDX_Control(pDX, IDC_EDIT_FILL_BUFFER_TICKCOUNT, m_tick_count_fill_buffer);
@@ -124,6 +130,8 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_REZ_MIN, m_rez_min);
 	DDX_Text(pDX, IDC_EDIT_REZ_MAX, m_rez_max);
 	DDX_Check(pDX, IDC_CHECK_FILTER2, m_check_filter2);
+	DDX_Check(pDX, IDC_CHECK_GARMONIC_MODE, m_garmonic_mode);
+	DDX_Text(pDX, IDC_EDIT_GARMONIC_BASE_FREQ, m_garmonic_base_freq);
 	//}}AFX_DATA_MAP
 }
 
@@ -160,11 +168,17 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_RND_GARMONIC, OnButtonRndGarmonic)
 	ON_BN_CLICKED(IDC_BUTTON_PLUS_XSCALE_WAVEGRAPHIC, OnButtonPlusXscaleWavegraphic)
 	ON_BN_CLICKED(IDC_BUTTON_MINUS_XSCALE_WAVEGRAPHIC, OnButtonMinusXscaleWavegraphic)
+	ON_BN_CLICKED(IDC_CHECK_GARMONIC_MODE, OnCheckGarmonicMode)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
+
+double global_fRez2;
+double global_ss2;
+double global_filter2;
+int GarmonicBaseFreq;
 
 DWORD FillBufferTickCount=0;
 
@@ -188,6 +202,7 @@ CircleSliderIndicator * cCircleSlider_filterspeed=NULL;
 CircleSliderIndicator * cCircleSlider_echo=NULL;
 CircleSliderIndicator * cCircleSlider_6=NULL;
 CircleSliderIndicator * cCircleSlider_7=NULL;
+CircleSliderIndicator * cCircleSlider_sqr=NULL;
 
 //CircleSliderIndicator * cCircleSlider_detune=NULL;
 
@@ -348,18 +363,7 @@ struct KEY
 		
 		midi_key_press=0; 
 
-		sawSource1=0;
-		sawSource2=0;
-		
-		filter1=0;
-		filter2=0;
-		filter3=0;
-		fRez1 = rezMax;
-		fRez2 = rezMax;
-		fRez3 = rezMax;
-		ss1=0;
-		ss2=0;
-		ss3=0;
+		ResetFilter();
 	}
 
 } Keys[128];
@@ -479,8 +483,8 @@ const garm_c=50;
 double randarray[garm_c];// =    {3, 7, 17, 22, 23, 27, 29, 37, 43, 47}; // якобы случайные числа
 double randarray_amplitude[garm_c];// = { 1, 0.7, 0.5, 0.9, 0.1, 0, 1, 0.9, 0.9, 0.8}; 
 
-double randarray2[garm_c] =    {1, 3, 7, 17, 22, 23, 27, 29, 37, 43, 47}; // 
-double randarray_amplitude2[garm_c] = { 1, 0.7, 0.5, 0.9, 0.1, 0, 1, 0.9, 0.9, 0.8}; 
+//double randarray2[garm_c] =    {1, 3, 7, 17, 22, 23, 27, 29, 37, 43, 47}; // 
+//double randarray_amplitude2[garm_c] = { 1, 0.7, 0.5, 0.9, 0.1, 0, 1, 0.9, 0.9, 0.8}; 
 
 
 //функция Piano используется для генерации звука
@@ -648,12 +652,12 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 	if (sl2) 
 	{
 		//f=2*freq; 
-		//????????????????
+		
 		f=freq; 
 		//floor
 		//double val=floor(sin(f*t)+0.1);
 		double val=sin(f*t);
-		double fix=cCircleSlider_filterspeed->GetValue()/100.0;
+		double fix=cCircleSlider_sqr->GetValue()/100.0;
 		//double fix=0;
 
 		if (val>=fix) val=1;
@@ -691,17 +695,24 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 
 			 // дальше уже знакомый код фильтра, только на вход подаём переменную out
 			filterSpeed = pow(2, 9 + cCircleSlider_filterspeed -> GetValue() / 10.0);
-			Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
 			
-			//if (Keys[keyN].fRez2<=rezMin)
-			//{
-			//	Keys[keyN].ResetFilter();
-			//}
+			Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
+		
+			if ( (Keys[keyN].fRez2-rezMin)<0.5)
+			{
+				Keys[keyN].ResetFilter();
+			}
 
+			//????????
 			Keys[keyN].ss2 += (out - Keys[keyN].filter2) / pow(4, 6 - Keys[keyN].fRez2);
 			//Keys[keyN].ss1 /= 1.02;
 			Keys[keyN].ss2 /= 1.02  ;
 			Keys[keyN].filter2 += Keys[keyN].ss2;
+
+			global_fRez2=Keys[keyN].fRez2;
+			global_ss2=Keys[keyN].ss2;
+			global_filter2=Keys[keyN].filter2;
+
 			
 			int filter_on=g_mainwindow->m_check_filter2;
 			if (filter_on)
@@ -712,10 +723,6 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			{
 				k += out * sl3 * 0.01;
 			}
-
-			
-
-			
 
 		}
 
@@ -783,7 +790,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	m_check_saw=ini.QueryValue("CheckSaw");
 
 
-	RECT rt, rt2, rt3, rt4, rt5, rt6, rt7;
+	RECT rt, rt2, rt3, rt4, rt5, rt6, rt7,rt8;
 	m_static_slider1.GetWindowRect(&rt);
 	m_static_slider2.GetWindowRect(&rt2);
 	m_static_sslider3.GetWindowRect(&rt3);
@@ -791,6 +798,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	m_static_slider5.GetWindowRect(&rt5);
 	m_static_slider6.GetWindowRect(&rt6);
 	m_static_slider7.GetWindowRect(&rt7);
+	m_static_slider8.GetWindowRect(&rt8);
 	ScreenToClient(&rt);
 	ScreenToClient(&rt2);
 	ScreenToClient(&rt3);
@@ -798,9 +806,15 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	ScreenToClient(&rt5);
 	ScreenToClient(&rt6);
 	ScreenToClient(&rt7);
+	ScreenToClient(&rt8);
 
 
 	int x=rt.left,y=rt.top;
+
+	cCircleSlider_sqr = new CircleSliderIndicator(rt8.left, rt8.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
+											  DigIndicatorValue::signTypeNotShow);
+
+	cCircleSlider_sqr -> SetValue(ini.QueryValue("SqrWaveToSin"));
 
 	cCircleSlider_6= new CircleSliderIndicator(rt6.left, rt6.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
@@ -1011,6 +1025,8 @@ void CDTFM_GeneratorDlg::OnPaint()
 
 		cCircleSlider_6->OnPaint(dc);
 		cCircleSlider_7->OnPaint(dc);
+
+		cCircleSlider_sqr->OnPaint(dc);
 		
 
 		ShowGarmonics();
@@ -1091,7 +1107,7 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 		if (nChar==VK_LEFT)
 		{
 
-			if (BaseKeyboard>12) BaseKeyboard--;
+			if (BaseKeyboard>11) BaseKeyboard--;
 		
 			change=true;
 
@@ -1202,6 +1218,12 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 			{
 				//считаем частоту базовой гармоники для нажатой клавиши
 				double		freq	=	BASE_A * pow(scale, k-60+3 - 12);
+
+				if (g_mainwindow)
+				if (g_mainwindow->m_garmonic_mode)
+				{
+					freq = GarmonicBaseFreq * (k-12+1);
+				}
 				
 				//сколько чистых гармоник было в сигнале
 				int			flag_one=	1;
@@ -1394,6 +1416,8 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	ini.SetValue((int)cCircleSlider_echo->GetValue(), "Echo");
 	ini.SetValue((int)cCircleSlider_6->GetValue(), "ModulationParam1");
 	ini.SetValue((int)cCircleSlider_7->GetValue(), "ModulationParam2");
+	ini.SetValue((int)cCircleSlider_sqr->GetValue(), "SqrWaveToSin");
+	
 
 	ini.SetValue(atoi(m_midi_open_str.GetBuffer(0)),"MidiDevice");
 
@@ -1555,7 +1579,7 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 
 			dc->Rectangle(x1,y,x+L*i+L, y+H);
 
-			if ( RR==BaseKeyboard)
+			if ( RR==(BaseKeyboard+1))
 			{
 				dc->Ellipse(x1+3, y+H-1, x1+L-6, y+H-8);
 			}
@@ -1570,7 +1594,7 @@ int DrawPiannoRoll(CDC *dc, CEdit *level_control, int x, int y, int start)
 
 			int L2=int(L*0.6);
 			int H2=int(H*0.6);
-			if (scale != pow(2,1/12.0)) 
+			if ((scale != pow(2,1/12.0)) || g_mainwindow->m_garmonic_mode) 
 			{
 				H2=H;
 			}
@@ -1652,6 +1676,23 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	}
 	
 	GetData;
+
+
+	GarmonicBaseFreq=atoi(m_garmonic_base_freq.GetBuffer(0));
+	
+	CString s2;
+	s2.Format("%f", global_fRez2);
+
+
+	m_global_rez2.SetWindowText(s2);
+
+	s2.Format("%f", global_ss2);
+	m_global_ss2.SetWindowText(s2);
+
+	s2.Format("%f", global_filter2);
+	m_global_filter2.SetWindowText(s2);
+	
+
 
 	char buf1[32];
 	//????
@@ -2378,8 +2419,6 @@ int gMouseMove=FALSE;
 //если курсор попадает в зону пианоролла
 void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	
-	
 	//Overload=false;
 	GetData;
 
@@ -2497,6 +2536,15 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 	cCircleSlider_6->OnMouseMove(nFlags, point);
 	cCircleSlider_7->OnMouseMove(nFlags, point);
+	cCircleSlider_sqr->OnMouseMove(nFlags, point);
+
+	if (cCircleSlider_sqr->pSlider->flagPaint == true)
+	{
+		CDC *dc=GetDC();
+		cCircleSlider_sqr->OnPaint(dc);
+		ReleaseDC(dc);
+	}
+
 
 	if (cCircleSlider_6->pSlider->flagPaint == true)
 	{
@@ -2551,7 +2599,7 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 		cCircleSlider_attack->OnPaint(dc);
 		ReleaseDC(dc);
 
-		if ( (oldx!=cCircleSlider_attack->xSliderStart) || (oldy!=cCircleSlider_attack->ySliderStart))
+		/*if ( (oldx!=cCircleSlider_attack->xSliderStart) || (oldy!=cCircleSlider_attack->ySliderStart))
 		{
 			
 			//Invalidate(false);
@@ -2559,7 +2607,7 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 			RECT rt={x,y,x+d,y+d};
 			InvalidateRect(&rt,true);
 			//Invalidate(true);
-		}
+		}*/
 	}
 
 
@@ -2680,7 +2728,7 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 void CDTFM_GeneratorDlg::OnRButtonUp(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
-	Invalidate(TRUE);
+	//Invalidate(TRUE);
 	CDialog::OnRButtonUp(nFlags, point);
 }
 
@@ -2933,4 +2981,13 @@ void CDTFM_GeneratorDlg::OnButtonMinusXscaleWavegraphic()
 {
 	scalex_wave_grapchic*=0.5;
 	ChangeGarmonicMouse(0,0,TRUE);
+}
+
+void CDTFM_GeneratorDlg::OnCheckGarmonicMode() 
+{
+
+	GetData;
+	Invalidate(FALSE);
+	UpdateWindow();
+	m_status_text.SetFocus();
 }

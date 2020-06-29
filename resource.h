@@ -27,9 +27,13 @@
 #define IDC_RE                          1023
 #define IDC_EDIT_REZ_MAX                1023
 #define IDC_ME                          1024
+#define IDC_EDIT_GLOBAL_REZ2            1024
 #define IDC_FA                          1025
+#define IDC_EDIT_GLOBAL_SS              1025
 #define IDC_SOL                         1026
+#define IDC_EDIT_GLOBAL_FILTER2         1026
 #define IDC_LA                          1027
+#define IDC_EDIT_GARMONIC_BASE_FREQ     1027
 #define IDC_SI                          1028
 #define IDC_DO_DIES                     1029
 #define IDC_RE_DIES                     1030
@@ -122,6 +126,8 @@
 #define IDC_BUTTON_LOAD_GARMONICS       1111
 #define IDC_BUTTON_PLUS_XSCALE_WAVEGRAPHIC 1112
 #define IDC_BUTTON_MINUS_XSCALE_WAVEGRAPHIC 1113
+#define IDC_STATIC_CSLIDER8             1114
+#define IDC_CHECK_GARMONIC_MODE         1115
 #define ID_FILE_EXIT                    32771
 #define ID_SETTINGS_SETASIODEVICE       32772
 #define ID_KEYBOARD_KEYS_MENU           32773

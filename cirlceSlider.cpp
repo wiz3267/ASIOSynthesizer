@@ -599,13 +599,13 @@ void CircleSlider::Draw( CDC *pDC )
 
 void CircleSlider::OnMouseMove(UINT nFlags,CPoint point)
 {
-	if (nFlags & MK_RBUTTON)
-	{
-		x=point.x;
-		y=point.y;
-		flagPaint = true;
-		//return;
-	}
+//	if (nFlags & MK_RBUTTON)
+//	{
+//		x=point.x;
+//		y=point.y;
+//		flagPaint = true;
+//		//return;
+//	}
 
 	if (!(nFlags & MK_LBUTTON))
 	{
