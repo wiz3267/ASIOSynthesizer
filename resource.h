@@ -128,6 +128,8 @@
 #define IDC_BUTTON_MINUS_XSCALE_WAVEGRAPHIC 1113
 #define IDC_STATIC_CSLIDER8             1114
 #define IDC_CHECK_GARMONIC_MODE         1115
+#define IDC_STATIC_CSLIDER9             1116
+#define IDC_STATIC_CSLIDER10            1117
 #define ID_FILE_EXIT                    32771
 #define ID_SETTINGS_SETASIODEVICE       32772
 #define ID_KEYBOARD_KEYS_MENU           32773
