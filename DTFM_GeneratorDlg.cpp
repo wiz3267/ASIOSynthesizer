@@ -201,7 +201,7 @@ CircleSliderIndicator * cCircleSlider_attack=NULL;
 CircleSliderIndicator * cCircleSlider_modulation=NULL;
 CircleSliderIndicator * cCircleSlider_detune=NULL;
 CircleSliderIndicator * cCircleSlider_filterspeed=NULL;
-CircleSliderIndicator * cCircleSlider_echo=NULL;
+CircleSliderIndicator * cCircleSlider_filterspeed2=NULL;
 CircleSliderIndicator * cCircleSlider_6=NULL;
 CircleSliderIndicator * cCircleSlider_7=NULL;
 CircleSliderIndicator * cCircleSlider_sqr=NULL;
@@ -615,43 +615,10 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 				Keys[keyN].filter1 += Keys[keyN].ss1;
 			}
 				
-
-			double echo=cCircleSlider_echo->GetValue();
-
-			
-			if (echo>0 && !g_mainwindow->m_filter_off)
-			{
-				if(t > echo)
-				{
-				
-					Keys[keyN].fRez2 -= (Keys[keyN].fRez2 - rezMin) / filterSpeed;
-					//Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(2, rezMax - Keys[keyN].fRez2 + 4);
-					Keys[keyN].ss2 += (sawSource - Keys[keyN].filter2) / pow(4, 6 - Keys[keyN].fRez2 );
-					Keys[keyN].ss2 /= 1.02;
-					Keys[keyN].filter2 += Keys[keyN].ss2;
-				
-				}
-				
-				if(t > 2*(echo))
-				{
-				
-					Keys[keyN].fRez3 -= (Keys[keyN].fRez3 - rezMin) / filterSpeed;
-					//Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(2, rezMax - Keys[keyN].fRez3 + 4);
-					Keys[keyN].ss3 += (sawSource - Keys[keyN].filter3) / pow(4, 6 - Keys[keyN].fRez3);
-					Keys[keyN].ss3 /= 1.02;
-					Keys[keyN].filter3 += Keys[keyN].ss3;
-				
-				}
-			}
 						
 			k += Keys[keyN].filter1 * sl1/100.0; // базовый звук
 			
-			if (echo>0 && !g_mainwindow->m_filter_off) 
-			{
-				k += Keys[keyN].filter2 * 0.5; // первое повторение эхо
-				k += Keys[keyN].filter3 * 0.25; // второе повторение эхо
-			}
-			
+	
 			//k *= sl1 / 100.0;
 		}
 		else
@@ -721,18 +688,28 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			
 			Keys[keyN].ss2 += (out - Keys[keyN].filter2) / pow(4, 6 - Keys[keyN].fRez2);
 			//Keys[keyN].ss1 /= 1.02;
-			Keys[keyN].ss2 /= 1.02  ;
+			Keys[keyN].ss2 /= 1.01 ;
 			Keys[keyN].filter2 += Keys[keyN].ss2;
 
 			global_fRez2=Keys[keyN].fRez2;
 			global_ss2=Keys[keyN].ss2;
 			global_filter2=Keys[keyN].filter2;
 
+
+			double filterSpeed3 = pow(2, 9 + cCircleSlider_filterspeed2 -> GetValue() / 10.0);
+			
+			Keys[keyN].fRez3 -= (Keys[keyN].fRez3 - rezMin) / filterSpeed3;
+			Keys[keyN].ss3 += (out - Keys[keyN].filter3) / pow(4, 6 - Keys[keyN].fRez3);
+			Keys[keyN].ss3 /= 1.01 ;
+			Keys[keyN].filter3 += Keys[keyN].ss3;
+
+
 			
 			int filter_on=g_mainwindow->m_check_filter2;
 			if (filter_on)
 			{
-				k += Keys[keyN].filter2 * sl3 * 0.01; // добавляем результат в общий поток
+				//k += Keys[keyN].filter2 * sl3 * 0.01; // добавляем результат в общий поток
+				k += 0.5*(Keys[keyN].filter2 + Keys[keyN].filter3)* sl3 * 0.01; // добавляем результат в общий поток
 			}
 			else
 			{
@@ -882,10 +859,10 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	cCircleSlider_filterspeed->SetValue(ini.QueryValue("FilterSpeed"));
 
-	cCircleSlider_echo = new CircleSliderIndicator(rt5.left,rt5.top, 
-		CircleSliderIndicator::typeOfElem4, 0,10, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
+	cCircleSlider_filterspeed2 = new CircleSliderIndicator(rt5.left,rt5.top, 
+		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
 
-	cCircleSlider_echo->SetValue(ini.QueryValue("Echo")+0.1);
+	cCircleSlider_filterspeed2->SetValue(ini.QueryValue("FilterSpeed2"));
 
 	
 	//bool isSmallInd=1;
@@ -1055,7 +1032,7 @@ void CDTFM_GeneratorDlg::OnPaint()
 		cCircleSlider_modulation->OnPaint(dc);
 		cCircleSlider_detune->OnPaint(dc);
 		cCircleSlider_filterspeed->OnPaint(dc);
-		cCircleSlider_echo->OnPaint(dc);
+		cCircleSlider_filterspeed2->OnPaint(dc);
 
 		cCircleSlider_6->OnPaint(dc);
 		cCircleSlider_7->OnPaint(dc);
@@ -1218,7 +1195,7 @@ int freq_1_count=0;
 const COPYBUFFER_SIZE=16384;
 short int CopyBuffer[COPYBUFFER_SIZE];
 
-const int MaxDelayBufferSize=2048*100;
+const int MaxDelayBufferSize=2048*50;
 
 int DelayBufferSize=2048*5;
 int DelayBufferWritePosition=0;
@@ -1412,13 +1389,6 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 
 	//FillBufferTickCount=la2.QuadPart;
 
-	if (size<COPYBUFFER_SIZE)
-	{
-		memcpy(CopyBuffer, plbuf, size);
-	}
-
-	QueryPerformanceCounter(&la2);
-
 
 
 
@@ -1429,10 +1399,11 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 			int delay=0;//DelayBufferReadPosition;
 			int k=0;
 			
-			if (cCircleSlider_detune)
+			if (cCircleSlider_echo_time)
 			{
 			 
 				DelayBufferSize=int(MaxDelayBufferSize*(cCircleSlider_echo_time->GetValue())/100.0);
+				if (!DelayBufferSize) DelayBufferSize=1;
 
 				 if (DelayBufferSize>MaxDelayBufferSize)
 				 {
@@ -1443,7 +1414,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 			}
 
 			double km=0.3;
-			if (cCircleSlider_sqr)
+			if (cCircleSlider_echo_decay)
 			{
 				km=cCircleSlider_echo_decay->GetValue()*0.01;
 			
@@ -1471,6 +1442,13 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		}
 		
 	}
+
+	if (size<COPYBUFFER_SIZE)
+	{
+		memcpy(CopyBuffer, plbuf, size);
+	}
+
+	QueryPerformanceCounter(&la2);
 
 
 	FillBufferTickCount=DWORD((la2.QuadPart-la1.QuadPart)/1000.0);
@@ -1535,7 +1513,7 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	ini.SetValue((int)cCircleSlider_attack->GetValue(), "Attack");
 	ini.SetValue((int)cCircleSlider_modulation->GetValue(), "Modulation");
 	ini.SetValue((int)cCircleSlider_detune->GetValue(), "Detune");
-	ini.SetValue((int)cCircleSlider_echo->GetValue(), "Echo");
+	ini.SetValue((int)cCircleSlider_filterspeed2->GetValue(), "FilterSpeed2");
 	ini.SetValue((int)cCircleSlider_6->GetValue(), "ModulationParam1");
 	ini.SetValue((int)cCircleSlider_7->GetValue(), "ModulationParam2");
 	ini.SetValue((int)cCircleSlider_sqr->GetValue(), "SqrWaveToSin");
@@ -2652,7 +2630,7 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 	cCircleSlider_modulation->OnMouseMove(nFlags, point);
 	cCircleSlider_detune->OnMouseMove(nFlags, point);
 	cCircleSlider_filterspeed->OnMouseMove(nFlags, point);
-	cCircleSlider_echo->OnMouseMove(nFlags, point);
+	cCircleSlider_filterspeed2->OnMouseMove(nFlags, point);
 
 	cCircleSlider_6->OnMouseMove(nFlags, point);
 	cCircleSlider_7->OnMouseMove(nFlags, point);
@@ -2701,10 +2679,10 @@ void CDTFM_GeneratorDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 
 
-	if (cCircleSlider_echo->pSlider->flagPaint == true)
+	if (cCircleSlider_filterspeed2->pSlider->flagPaint == true)
 	{
 		CDC *dc=GetDC();
-		cCircleSlider_echo->OnPaint(dc);
+		cCircleSlider_filterspeed2->OnPaint(dc);
 		ReleaseDC(dc);
 	}
 
