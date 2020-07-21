@@ -1221,13 +1221,12 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	freq_1_count = 0;
 	static int last_z =	0;
 	int	delta =	0;
-
-	//на сколько частей делится круг в соответствии с частотой дискретизации
-	
 	
 	double	m =	0;
 
 	int OverloadCount=0;	//сколько раз был клиппинг (за пределы -32768...32767)
+
+	//на сколько частей делится круг в соответствии с частотой дискретизации
 	double	K =	2*PI/samplerate;	
 	//static double	t =	0;//_time_*K;
 	//for(int i=0; i<size/2; i++, _time_++)
@@ -1237,7 +1236,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 
 		m=0;
 
-		//***^^^*** свяазано с модуляцией
+		//***^^^*** связано с модуляцией
 		g_modulation_t	+=	g_step_modulation;
 
 		//проходимся по массиву клавиш MIDI-клавиатуры
@@ -1348,8 +1347,8 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		//short int z=(short int)(m*globalVolume);
 		short int z=(short int)(m);
 
-		plbuf[i]  =z; //left channel
-		plbuf[i+1]=z; //right channel
+		plbuf[i]  =z; //left(or right) channel
+		plbuf[i+1]=z; //right(or left) channel
 		
 		if (!delay_buffer_full)
 		{
@@ -1368,20 +1367,6 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	}
 
 	if (OverloadCount==0) Overload++;
-
-	//запись в файл
-	//??????
-	if (g_mainwindow)
-	if (g_mainwindow->m_write_rawdata_pcm)
-	{
-		CFile file;
-		if (file.Open("rawdata.pcm", file.modeWrite))
-		{
-			file.SeekToEnd();
-			file.Write(plbuf,size);
-			file.Close();
-		}
-	}
 
 
 	//QueryPerformanceFrequency(&la3);
@@ -1447,6 +1432,29 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	{
 		memcpy(CopyBuffer, plbuf, size);
 	}
+
+	//запись в файл 
+	int badopen=0;
+	if (g_mainwindow)
+	if (g_mainwindow->m_write_rawdata_pcm)
+	{
+		CFile file;
+		if (!file.Open("rawdata.pcm", file.modeWrite))//|file.modeCreate))
+		{
+			if (!file.Open("rawdata.pcm", file.modeWrite|file.modeCreate))
+			{
+				badopen=1;
+			}
+		}
+		
+		if (!badopen)
+		{
+			file.SeekToEnd();
+			file.Write(plbuf,size);
+			file.Close();
+		}
+	}
+
 
 	QueryPerformanceCounter(&la2);
 
