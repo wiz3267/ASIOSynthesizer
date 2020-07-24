@@ -182,6 +182,12 @@ double global_ss2;
 double global_filter2;
 int GarmonicBaseFreq;
 
+
+double camerton = 110.0;
+double fadeOut = 1.00004; // От этого зависит время затухания клавиш пианино.
+//double piano_detune = 1.005; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
+double piano_detune = 1.000; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
+
 DWORD FillBufferTickCount=0;
 
 int counter = 0;
@@ -341,6 +347,15 @@ struct KEY
 	double ss2;
 	double ss3;
 
+	double pianoamp;
+	int		frameCount;
+	double resonance;
+	double polarity;
+	
+	double pianostr1;
+	double pianostr2;
+	double pianostr3;
+
 	void ResetFilter()
 	{
 		sawSource1=0;
@@ -363,11 +378,19 @@ struct KEY
 		press=0; 
 		key_unpress=TRUE;
 
-		decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0;
+		decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0; 
+		
+		pianoamp=1.0; frameCount=0; resonance=1.0; polarity=1.0;
+		
+		pianostr1 = rand() / 16384.0 - 1.0;
+		pianostr2 = rand() / 16384.0 - 1.0;
+		pianostr3 = rand() / 16384.0 - 1.0;
 		
 		midi_key_press=0; 
 
 		ResetFilter();
+
+
 	}
 
 } Keys[128];
@@ -515,7 +538,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 	//if (sl3) {flag_one++;freq_actual=freq*3;}
 	if (sl3) {flag_one++;freq_actual=freq;}
 
-	if (sl4) {flag_one++;freq_actual=freq*4;}
+	if (sl4) {flag_one++;freq_actual=freq;}
 	
 	//if (sl5) {flag_one++;freq_actual=freq*5;}
 	if (sl5) {flag_one++;freq_actual=freq*garmonic_5;}
@@ -721,7 +744,46 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 	
 	
 	}
-	if (sl4) { f=4*freq; if (f<limit) k+=sl4/100.0*sin(f*t); }
+
+	//if (sl4) { f=4*freq; if (f<limit) k+=sl4/100.0*sin(f*t); }
+	if (sl4) {
+
+		double str1 = pow(piano_detune, Keys[keyN].pianostr1);
+		double str2 = pow(piano_detune, Keys[keyN].pianostr2);
+		double str3 = pow(piano_detune, Keys[keyN].pianostr3);
+	
+		double freq1 = freq / 70.0;
+		
+        if(sin(Keys[keyN].frameCount / camerton * freq1) * Keys[keyN].polarity < 0){
+		
+			Keys[keyN].polarity = -Keys[keyN].polarity;
+            Keys[keyN].resonance = 1.0;
+			
+        }
+		
+		Keys[keyN].pianoamp /= fadeOut;
+		Keys[keyN].resonance /= 1.01;
+		
+		double fm = 50.0 * sin( Keys[keyN].frameCount / camerton * freq1 * floor(12 / freq1)) * Keys[keyN].resonance;
+		
+		double fm1 = 50.0 * sin( Keys[keyN].frameCount / camerton * freq1 * floor(12 / freq1) * str1) * Keys[keyN].resonance;
+		double fm2 = 50.0 * sin( Keys[keyN].frameCount / camerton * freq1 * floor(12 / freq1) * str2) * Keys[keyN].resonance;
+		double fm3 = 50.0 * sin( Keys[keyN].frameCount / camerton * freq1 * floor(12 / freq1) * str3) * Keys[keyN].resonance;
+		
+		double garmony = (Keys[keyN].frameCount + fm1) / camerton * freq1;
+		double k1 = Keys[keyN].pianoamp * (sin(garmony) + sin(garmony * 2.0));
+		
+		garmony = (Keys[keyN].frameCount + fm2) / camerton * freq1;
+		k1 += Keys[keyN].pianoamp * (sin(garmony) + sin(garmony * 2.0));
+		
+		garmony = (Keys[keyN].frameCount + fm3) / camerton * freq1;
+		k1 += Keys[keyN].pianoamp * (sin(garmony) + sin(garmony * 2.0));
+		
+		k += k1 * sl4 / 100;
+		
+		Keys[keyN].frameCount ++;
+
+	}
 	
 	//if (sl5) { f=5*freq; if (f<limit) k+=sl5/100.0*sin(f*t); }
 	if (sl5) { f=garmonic_5*freq; if (f<limit) k+=sl5/100.0*sin(f*t); }
@@ -1294,6 +1356,11 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 					Keys[k].press=false;
 					Keys[k].midi_key_press=0;
 					Keys[k].Ampl=0;
+
+					//??????
+					Keys[k].frameCount = 0;
+					Keys[k].pianoamp = 1.0;
+
 				}
 
 				if (flag_one==1)
@@ -1304,6 +1371,12 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 						freq_1_count++;
 					}
 
+				}
+				else
+				{
+					//????
+					//Keys[k].frameCount = 0;
+					//Keys[k].pianoamp = 1.0;
 				}
 			}
 			
@@ -2420,15 +2493,20 @@ void MidiKeyPress2(BYTE key, BYTE value)
 
 		Keys[key].Ampl=atoi(g_amplitude_global)*value/127.0;
 
-		//????
+		//??????????????
 		Keys[key].A=Keys[key].Ampl;
+
+		Keys[key].pianoamp=1;
+		Keys[key].frameCount=0;
+
+
+		
 		
 		//Keys[key].A_add=ADSR_Attack;//0.6;
 
-		//??????????????????????????
 		//атака
 		double d=cCircleSlider_attack->GetValue();
-		Keys[key].A_add=40/(d+1);
+		Keys[key].A_add=40.0/(d+1);
 
 		Keys[key].Ampl=0;
 
@@ -2586,6 +2664,9 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	Keys[key_real].Ampl=atoi(g_amplitude_global);
 	Keys[key_real].decrement=0;//звук будет звучать постоянно
 	Keys[key_real].t=0;
+	Keys[key_real].frameCount = 0;
+	Keys[key_real].pianoamp = 1.0;
+
 	
 	//если в момент нажатия клавиши нажата CTRL 
 	if ((nFlags & MK_CONTROL) && m_ctrl_key_use) 
