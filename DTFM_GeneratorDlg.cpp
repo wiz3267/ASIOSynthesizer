@@ -186,7 +186,7 @@ int GarmonicBaseFreq;
 double camerton = 110.0;
 double fadeOut = 1.00004; // От этого зависит время затухания клавиш пианино.
 //double piano_detune = 1.005; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
-double piano_detune = 1.000; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
+double piano_detune = 1.002; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
 
 DWORD FillBufferTickCount=0;
 
@@ -201,7 +201,7 @@ double garmonic_5=0;
 double garmonic_6=0;
 double ADSR_Attack=0;
 
-double globalVolume=0.5;
+//double globalVolume=0.5;
 
 CircleSliderIndicator * cCircleSlider_attack=NULL;
 CircleSliderIndicator * cCircleSlider_modulation=NULL;
@@ -373,6 +373,14 @@ struct KEY
 
 	}
 
+	void SetPianoRand()
+	{
+		pianostr1 = rand() / 16384.0 - 1.0;
+		pianostr2 = rand() / 16384.0 - 1.0;
+		pianostr3 = rand() / 16384.0 - 1.0;
+
+	}
+
 	KEY() 
 	{ 
 		press=0; 
@@ -381,10 +389,9 @@ struct KEY
 		decrement=0; Ampl=0; t=0; A=D=S=R=0; A_add=0; 
 		
 		pianoamp=1.0; frameCount=0; resonance=1.0; polarity=1.0;
+
+		SetPianoRand();
 		
-		pianostr1 = rand() / 16384.0 - 1.0;
-		pianostr2 = rand() / 16384.0 - 1.0;
-		pianostr3 = rand() / 16384.0 - 1.0;
 		
 		midi_key_press=0; 
 
@@ -818,7 +825,14 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	srand(GetTickCount());	//init rnd
+	srand(GetTickCount()%65535);	//init rnd
+	{
+		for(int i=0; i<128; i++)
+		{
+			Keys[i].SetPianoRand();
+		}
+	}
+
 
 	for(int i=0; i<garm_c;i++)
 	{
@@ -1357,7 +1371,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 					Keys[k].midi_key_press=0;
 					Keys[k].Ampl=0;
 
-					//??????
+					
 					Keys[k].frameCount = 0;
 					Keys[k].pianoamp = 1.0;
 
@@ -1374,7 +1388,7 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 				}
 				else
 				{
-					//????
+					
 					//Keys[k].frameCount = 0;
 					//Keys[k].pianoamp = 1.0;
 				}
@@ -1833,9 +1847,6 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 				Keys[k].ResetFilter();
 
-			
-			
-				//????????????
 				Keys[k].press=TRUE;
 				Keys[k].Ampl=atoi(g_amplitude_global);
 				Keys[k].decrement=AMPLITUDE_DECREMENT;
@@ -1877,7 +1888,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 
 	char buf1[32];
-	//????
+	
 	ltoa(FillBufferTickCount,buf1,10);
 	m_tick_count_fill_buffer.SetWindowText(buf1);
 
@@ -1905,7 +1916,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 		return;
 	}
 
-	//???????????
+	
 	rezMin = strtod(m_rez_min.GetBuffer(0),NULL);
 	rezMax = strtod(m_rez_max.GetBuffer(0),NULL);;
 
@@ -2029,7 +2040,7 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 	for(; i<j+LEN;i++)
 	{
 
-		//???????
+		
 		short val=short(CopyBuffer[i]/32768.0*HEI);
 		if (val>=HEI) val=HEI-1;
 		if (val<=-HEI) val=-HEI+1;
@@ -2135,12 +2146,13 @@ void CALLBACK MidiInProc(
 		DWORD_BYTES mm;
 		mm.data=dwParam1;
 
+		BYTE type=mm.b[0]&15;
 		if (mm.b[0] != 254)
 		{
 			if (NeedUpdateMidiEvent)
 			{
 				CString s;
-				s.Format("%i,%i\t%i\t%i\t%i",mm.b[0]>>4,mm.b[0]&15,mm.b[1],mm.b[2],mm.b[3]);
+				s.Format("%i,%i\t%i\t%i\t%i",mm.b[0]>>4,type,mm.b[1],mm.b[2],mm.b[3]);
 
 				static counter=0;
 				counter++;
@@ -2155,7 +2167,17 @@ void CALLBACK MidiInProc(
 			BYTE nChar=mm.b[1]; //номер контрола
 			BYTE Volume=mm.b[2]; //значение
 
+
 			int z=mm.b[0]>>4;	//номер№2 контролла
+
+			//установка громкости
+			if (z==11 && nChar==7 && type==0)
+			{
+				//??????
+				g_mainwindow->m_slider_total_volume.SetPos(int(Volume/127.0*100));
+				int a=3;
+				a++;
+			}
 
 			if (z==11 && nChar==9)
 			{
