@@ -35,6 +35,7 @@
 #define IDC_LA                          1027
 #define IDC_EDIT_GARMONIC_BASE_FREQ     1027
 #define IDC_SI                          1028
+#define IDC_EDIT_INDEX_GARMONICS        1028
 #define IDC_DO_DIES                     1029
 #define IDC_RE_DIES                     1030
 #define IDC_FA_DIES                     1031
@@ -130,6 +131,10 @@
 #define IDC_CHECK_GARMONIC_MODE         1115
 #define IDC_STATIC_CSLIDER9             1116
 #define IDC_STATIC_CSLIDER10            1117
+#define IDC_BUTTON_PREV_GARMONICS       1118
+#define IDC_BUTTON_NEXT_GARMONICS       1119
+#define IDC_BUTTON_COPY_GARMONICS       1120
+#define IDC_BUTTON_PASTE_GARMONICS      1121
 #define ID_FILE_EXIT                    32771
 #define ID_SETTINGS_SETASIODEVICE       32772
 #define ID_KEYBOARD_KEYS_MENU           32773
