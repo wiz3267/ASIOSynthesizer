@@ -177,6 +177,72 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
 
+
+// Структура, описывающая заголовок WAV файла.
+struct WAVHEADER
+{
+    // WAV-формат начинается с RIFF-заголовка:
+
+    // Содержит символы "RIFF" в ASCII кодировке
+    // (0x52494646 в big-endian представлении)
+    char chunkId[4];
+
+    // 36 + subchunk2Size, или более точно:
+    // 4 + (8 + subchunk1Size) + (8 + subchunk2Size)
+    // Это оставшийся размер цепочки, начиная с этой позиции.
+    // Иначе говоря, это размер файла - 8, то есть,
+    // исключены поля chunkId и chunkSize.
+    unsigned long chunkSize;
+
+    // Содержит символы "WAVE"
+    // (0x57415645 в big-endian представлении)
+    char format[4];
+
+    // Формат "WAVE" состоит из двух подцепочек: "fmt " и "data":
+    // Подцепочка "fmt " описывает формат звуковых данных:
+    
+    // Содержит символы "fmt "
+    // (0x666d7420 в big-endian представлении)
+    char subchunk1Id[4];
+
+    // 16 для формата PCM.
+    // Это оставшийся размер подцепочки, начиная с этой позиции.
+    unsigned long subchunk1Size;
+
+    // Аудио формат, полный список можно получить здесь http://audiocoding.ru/wav_formats.txt
+    // Для PCM = 1 (то есть, Линейное квантование).
+    // Значения, отличающиеся от 1, обозначают некоторый формат сжатия.
+    unsigned short audioFormat;
+
+    // Количество каналов. Моно = 1, Стерео = 2 и т.д.
+    unsigned short numChannels;
+
+    // Частота дискретизации. 8000 Гц, 44100 Гц и т.д.
+    unsigned long sampleRate;
+
+    // sampleRate * numChannels * bitsPerSample/8
+    unsigned long byteRate;
+
+    // numChannels * bitsPerSample/8
+    // Количество байт для одного сэмпла, включая все каналы.
+    unsigned short blockAlign;
+
+    // Так называемая "глубиная" или точность звучания. 8 бит, 16 бит и т.д.
+    unsigned short bitsPerSample;
+
+    // Подцепочка "data" содержит аудио-данные и их размер.
+
+    // Содержит символы "data"
+    // (0x64617461 в big-endian представлении)
+    char subchunk2Id[4];
+
+    // numSamples * numChannels * bitsPerSample/8
+    // Количество байт в области данных.
+    unsigned long subchunk2Size;
+
+    // Далее следуют непосредственно Wav данные.
+} Wavheader ;
+
 double global_fRez2;
 double global_ss2;
 double global_filter2;
@@ -1260,9 +1326,9 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 	}
 
 
-	return CDialog::PreTranslateMessage(pMsg);
+	//return CDialog::PreTranslateMessage(pMsg);
 
-	//return 0;
+	return 0;
 }
 
 double freq_1=0;
@@ -1530,6 +1596,9 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 		{
 			if (!file.Open("rawdata.pcm", file.modeWrite|file.modeCreate))
 			{
+
+				file.Write(&Wavheader,sizeof(Wavheader));
+
 				badopen=1;
 			}
 		}
@@ -2623,6 +2692,13 @@ void CDTFM_GeneratorDlg::MidiKeyPress(BYTE key, BYTE value)
 
 int gMouseMove=FALSE;
 
+
+//возвращает "1" если точка pt находится в области rt)
+int PointInBox(CRect rt, CPoint pt)
+{
+	return rt.PtInRect(pt);
+}
+
 //отработка нажатия левой клавиши мыши
 //нужно начать воспроизведение звука
 //если курсор попадает в зону пианоролла
@@ -2661,6 +2737,7 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	key=key%7;
 	//if (key<0) return;
 
+
 	int key_real=key;
 
 	if		(key_real==1) key_real+=1;
@@ -2671,6 +2748,11 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	else if (key_real==6) key_real+=5;
 	
 	key_real+=(octave+1)*12;
+
+	CString str;
+	str.Format("%i %i %i %i",key, key_real, point.x, point.y);
+	SetWindowText(str);
+
 
 	if (key_real>=128) return;
 	
