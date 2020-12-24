@@ -887,6 +887,106 @@ extern int ASIO_buflen;
 
 CMenu menu;
 
+//>>>>>>>>>
+int **blackKeyBufData = NULL;
+int blackKeyBufWidth = -1;
+int blackKeyBufHeight = -1;
+
+void BlackKeyBuf_Build( int nOct, int whiteKeyW, int whiteKeyH, int blackKeyW, int blackKeyH )
+{
+	int		i, j, k;
+	int		x, y;
+	int		realKeyNum;
+
+	blackKeyBufWidth = nOct * whiteKeyW * 7;
+	blackKeyBufHeight = whiteKeyH;
+
+	blackKeyBufData = new int* [whiteKeyH];
+	
+	for( i = 0; i < whiteKeyH; i++ )
+	{
+		blackKeyBufData[i] = new int [blackKeyBufWidth];
+	}
+
+	for( i = 0; i < whiteKeyH; i++ )
+	{
+		for( j = 0; j < blackKeyBufWidth; j++ )
+			blackKeyBufData[i][j] = 0;
+	}
+
+	for( i = 0; i < nOct; i++ )
+	{
+		for( j = 0; j < 5; j++ )
+		{
+			if (j == 0) k = 1;
+			if (j == 1) k = 2;
+			if (j == 2) k = 4;
+			if (j == 3) k = 5;
+			if (j == 4) k = 6;
+
+			realKeyNum = 12 * i;
+			
+			if (j == 0) realKeyNum += 1;
+			if (j == 1) realKeyNum += 3;
+			if (j == 2) realKeyNum += 6;
+			if (j == 3) realKeyNum += 8;
+			if (j == 4) realKeyNum += 10;
+
+			int		xc = whiteKeyW * (7 * i + k);
+
+			int		x1 = xc - blackKeyW / 2;
+			int		x2 = xc + blackKeyW / 2;
+			int		y1 = 0;
+			int		y2 = blackKeyH;
+
+			for( y = y1; y <= y2; y++ )
+			{
+				for( x = x1; x <= x2; x++ )
+				{
+					blackKeyBufData[y][x] = realKeyNum + 1;
+				}
+			}
+		}
+	}
+}
+
+void BlackKeyBuf_Destroy( )
+{
+	int		i;
+
+	if (blackKeyBufData != NULL)
+	{
+		for( i = 0; i < blackKeyBufHeight; i++ )
+		{
+			if (blackKeyBufData[i] != NULL)
+			{
+				delete [] blackKeyBufData[i];
+				blackKeyBufData[i] = NULL;
+			}
+		}
+		blackKeyBufData = NULL;
+	}
+	
+	blackKeyBufWidth = -1;
+	blackKeyBufHeight = -1;
+}
+
+int BlackKeyBuf_GetInfo( int mouseX, int mouseY )
+{
+	int		key;
+	
+	if (mouseX < 0) return -1;
+	if (mouseX >= blackKeyBufWidth) return -1;
+	if (mouseY < 0) return -1;
+	if (mouseY >= blackKeyBufHeight) return -1;
+
+	key = blackKeyBufData[mouseY][mouseX];
+
+	if (key == 0) return 0;
+	return key;
+}
+//>>>>>>>>>
+
 BOOL CDTFM_GeneratorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -952,6 +1052,10 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	//CircleSliderIndicator * cCircleSlider_echo_time=NULL;	//время эха
 	//CircleSliderIndicator * cCircleSlider_echo_decay=NULL;	//затухание эха
+
+	//>>>>>>>>>>>>>
+	BlackKeyBuf_Build( 10, KEY_L, KEY_H, 6, 38 );
+	//>>>>>>>>>>>>>
 
 	cCircleSlider_echo_time = new CircleSliderIndicator(rt9.left, rt9.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
@@ -2118,7 +2222,6 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 
 	ReleaseDC(dc);
 
-
 	CDialog::OnTimer(nIDEvent);
 
 }
@@ -2730,7 +2833,6 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-
 	//???????
 	int key=(point.x-KEY_X)/KEY_L;
 	int octave=key/7;
@@ -2753,6 +2855,16 @@ void CDTFM_GeneratorDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	str.Format("%i %i %i %i",key, key_real, point.x, point.y);
 	SetWindowText(str);
 
+	//>>>>>>
+	int blackKeyIndex;
+	int mouseX = point.x - KEY_X;
+	int mouseY = point.y - KEY_Y;
+
+	blackKeyIndex = BlackKeyBuf_GetInfo( mouseX, mouseY );
+	
+	if (blackKeyIndex > 0)
+		key_real = 12 + blackKeyIndex-1;
+	//>>>>>>
 
 	if (key_real>=128) return;
 	
@@ -3000,6 +3112,17 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	else if (key_real==6) key_real+=5;
 	
 	key_real+=(octave+1)*12;
+
+	//>>>>>>>>
+	int blackKeyIndex;
+	int mouseX = point.x - KEY_X;
+	int mouseY = point.y - KEY_Y;
+
+	blackKeyIndex = BlackKeyBuf_GetInfo( mouseX, mouseY );
+
+	if (blackKeyIndex > 0)
+		key_real = 12 + blackKeyIndex-1;
+	//>>>>>>>>>
 
 	if (key_real>=0 && key_real<=128)// && Keys[key_real].press==FALSE) 
 	{
