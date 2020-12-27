@@ -46,15 +46,15 @@ CDTFM_GeneratorDlg::CDTFM_GeneratorDlg(CWnd* pParent /*=NULL*/)
 	m_no_sustain = FALSE;
 	m_piano_mouse_click = TRUE;
 	m_ctrl_key_use = FALSE;
-	m_check_saw3 = TRUE;
-	m_filter_off = TRUE;
-	m_write_rawdata_pcm = FALSE;
+	m_check_saw3 = FALSE;
 	m_sample_rate = 0;
 	m_rez_min = _T("-0.5");
 	m_rez_max = _T("4");
 	m_check_filter2 = FALSE;
 	m_garmonic_mode = FALSE;
 	m_garmonic_base_freq = _T("50");
+	m_write_wav = FALSE;
+	m_check_filter1 = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -65,6 +65,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_STATIC_SIN_SAW_MODE, m_static_sin_saw_mode);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER10, m_static_slider10);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER9, m_static_slider9);
 	DDX_Control(pDX, IDC_EDIT_GLOBAL_FILTER2, m_global_filter2);
@@ -126,14 +127,14 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_PIANO_MOUSE_CLICK, m_piano_mouse_click);
 	DDX_Check(pDX, IDC_CHECK_CTRL_KEY, m_ctrl_key_use);
 	DDX_Check(pDX, IDC_CHECK_SAW, m_check_saw3);
-	DDX_Check(pDX, IDC_CHECK_FILTER_OFF, m_filter_off);
-	DDX_Check(pDX, IDC_CHECK_WRITE_RAWDATA_PCM, m_write_rawdata_pcm);
 	DDX_Text(pDX, IDC_EDIT_SAMPLE_RATE, m_sample_rate);
 	DDX_Text(pDX, IDC_EDIT_REZ_MIN, m_rez_min);
 	DDX_Text(pDX, IDC_EDIT_REZ_MAX, m_rez_max);
 	DDX_Check(pDX, IDC_CHECK_FILTER2, m_check_filter2);
 	DDX_Check(pDX, IDC_CHECK_GARMONIC_MODE, m_garmonic_mode);
 	DDX_Text(pDX, IDC_EDIT_GARMONIC_BASE_FREQ, m_garmonic_base_freq);
+	DDX_Check(pDX, IDC_CHECK_WRITE_WAVDATA, m_write_wav);
+	DDX_Check(pDX, IDC_CHECK_FILTER1, m_check_filter1);
 	//}}AFX_DATA_MAP
 }
 
@@ -171,16 +172,56 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_PLUS_XSCALE_WAVEGRAPHIC, OnButtonPlusXscaleWavegraphic)
 	ON_BN_CLICKED(IDC_BUTTON_MINUS_XSCALE_WAVEGRAPHIC, OnButtonMinusXscaleWavegraphic)
 	ON_BN_CLICKED(IDC_CHECK_GARMONIC_MODE, OnCheckGarmonicMode)
+	ON_BN_CLICKED(IDC_CHECK_WRITE_WAVDATA, OnCheckWriteWavdata)
+	ON_BN_CLICKED(IDC_CHECK_SAW, OnCheckSaw)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
+int 
+	SAMPLE_RATE=48000;
+	//SAMPLE_RATE=44100*2;
+	//SAMPLE_RATE=48000;
 
+CFile filewav, file;
+int badopenwav=0;
 
 // Структура, описывающая заголовок WAV файла.
 struct WAVHEADER
 {
+	WAVHEADER()
+	{
+		chunkId[0]='R';
+		chunkId[1]='I';
+		chunkId[2]='F';
+		chunkId[3]='F';
+
+		format[0]='W';
+		format[1]='A';
+		format[2]='V';
+		format[3]='E';
+
+		subchunk1Id[0]='f';
+		subchunk1Id[1]='m';
+		subchunk1Id[2]='t';
+		subchunk1Id[3]=' ';
+
+		subchunk1Size=16;
+		audioFormat=1; //PCM
+		numChannels=2;	//STEREO
+		sampleRate=SAMPLE_RATE;
+		bitsPerSample=16;
+
+		byteRate=sampleRate * numChannels * bitsPerSample/8;
+
+		blockAlign=numChannels * bitsPerSample/8;
+
+		subchunk2Id[0]='d';
+		subchunk2Id[1]='a';
+		subchunk2Id[2]='t';
+		subchunk2Id[3]='a';
+	}
     // WAV-формат начинается с RIFF-заголовка:
 
     // Содержит символы "RIFF" в ASCII кодировке
@@ -324,7 +365,7 @@ HMIDIIN hmidiIn;
 
 CString ENDL="\r\n";
 
-CFile file;
+//CFile file;
 
 BYTE *PlayWriten=NULL;
 DWORD PlayWritenSize=0;
@@ -365,10 +406,6 @@ double	AMPLITUDE_DECREMENT;//5/2048.0;
 
 int IdMidiOpen=-1;
 
-int 
-	SAMPLE_RATE=0;
-	//SAMPLE_RATE=44100*2;
-	//SAMPLE_RATE=48000;
 
 //double myMin = -0.7;
 //double myMax = 0.7;
@@ -690,12 +727,12 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 			
 			double sawSource = Keys[keyN].sawSource1 + Keys[keyN].sawSource2+ tmp1 + tmp2;
 
-			if (g_mainwindow->m_filter_off)
+			if (g_mainwindow->m_check_filter1 == 0)
 			{
 				Keys[keyN].filter1=sawSource;
 			}
 
-			if (g_mainwindow->m_filter_off == false)
+			else
 			{
 				filterSpeed = //500 * (cCircleSlider_filterspeed->GetValue()+1);
 
@@ -1450,6 +1487,8 @@ int delay_buffer_full=1;
 
 short int DelayBuffer[MaxDelayBufferSize]={0};
 
+int numSamples=0;	//сколько записано в файл
+
 //самая важная функция - заполнение буфера звуковыми сгенерированными данными
 //size размер буфера в байтах, size/2 - число выборок, т.к. одна выборка имеет тип WORD (16bit)
 void FillBuffer(short *plbuf, int size, int samplerate)
@@ -1691,27 +1730,14 @@ void FillBuffer(short *plbuf, int size, int samplerate)
 	}
 
 	//запись в файл 
-	int badopen=0;
 	if (g_mainwindow)
-	if (g_mainwindow->m_write_rawdata_pcm)
+		if (g_mainwindow->m_write_wav)
 	{
-		CFile file;
-		if (!file.Open("rawdata.pcm", file.modeWrite))//|file.modeCreate))
+		if (!badopenwav)
 		{
-			if (!file.Open("rawdata.pcm", file.modeWrite|file.modeCreate))
-			{
-
-				file.Write(&Wavheader,sizeof(Wavheader));
-
-				badopen=1;
-			}
-		}
-		
-		if (!badopen)
-		{
-			file.SeekToEnd();
-			file.Write(plbuf,size);
-			file.Close();
+			//file.SeekToEnd();
+			filewav.Write(plbuf,size);
+			numSamples+=size/4;
 		}
 	}
 
@@ -3427,4 +3453,71 @@ void CDTFM_GeneratorDlg::OnCheckGarmonicMode()
 	Invalidate(FALSE);
 	UpdateWindow();
 	m_status_text.SetFocus();
+}
+
+void CDTFM_GeneratorDlg::OnCheckWriteWavdata() 
+{
+	// TODO: Add your control notification handler code here
+	GetData;
+
+	//если нажали опции write wav
+	if (m_write_wav)
+	{
+		numSamples=0;
+
+		//если не смогли открыть (например файл открыт в звуковом редакторе)
+		if (!filewav.Open("rawdata.wav", file.modeWrite|file.modeCreate|file.typeBinary))
+		{
+			
+			badopenwav=1;
+
+			//галочку сбрасываем (как бы не даем нажать)
+			m_write_wav=0;
+			PutData;
+		}
+		else
+		{
+			badopenwav=0;
+
+
+			filewav.SeekToBegin();
+			filewav.Write(&Wavheader,sizeof(Wavheader));
+		}
+
+	}
+	else
+	{
+
+		filewav.SeekToBegin();
+	    Wavheader.subchunk2Size=numSamples * Wavheader.numChannels * Wavheader.bitsPerSample/8;
+		filewav.Write(&Wavheader,sizeof(Wavheader));
+			
+		// 36 + subchunk2Size, или более точно:
+		// 4 + (8 + subchunk1Size) + (8 + subchunk2Size)
+		// Это оставшийся размер цепочки, начиная с этой позиции.
+		// Иначе говоря, это размер файла - 8, то есть,
+		// исключены поля chunkId и chunkSize.
+		Wavheader.chunkSize=36 + Wavheader.subchunk2Size;
+
+		filewav.SeekToEnd();
+		filewav.Close();
+
+		numSamples=0;
+	}
+	
+}
+
+void CDTFM_GeneratorDlg::OnCheckSaw() 
+{
+	// TODO: Add your control notification handler code here
+	GetData;
+	if (m_check_saw3)
+	{
+		m_static_sin_saw_mode.SetWindowText("saw");
+	}
+	else
+	{
+		m_static_sin_saw_mode.SetWindowText("sin");
+	}
+	
 }

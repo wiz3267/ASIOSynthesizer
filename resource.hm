@@ -1,6 +1,8 @@
 // Microsoft Developer Studio generated Help ID include file.
 // Used by DTFM_Generator.rc
 //
+#define HIDC_EDIT_FREQ_MODULATION_START \
+                                        0x80660464    // IDD_DTFM_GENERATOR_DIALOG
 #define HIDC_EDIT_GARMONIC_5            0x806603fc    // IDD_DTFM_GENERATOR_DIALOG
 #define HIDC_EDIT_GARMONIC_6            0x806603fd    // IDD_DTFM_GENERATOR_DIALOG
 #define HIDC_EDIT_GARMONIC_BASE_FREQ    0x80660403    // IDD_DTFM_GENERATOR_DIALOG

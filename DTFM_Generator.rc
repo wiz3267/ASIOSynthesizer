@@ -81,8 +81,8 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\DTFM_Generator.ico"
 IDD_DTFM_GENERATOR_DIALOG DIALOGEX 0, 0, 655, 303
 STYLE WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | 
     WS_THICKFRAME
-EXSTYLE WS_EX_APPWINDOW
-CAPTION "ASIO Sintezher. Version 1.1.8.5"
+EXSTYLE WS_EX_CONTEXTHELP | WS_EX_APPWINDOW
+CAPTION "ASIO Sintezher. Version 1.1.8.8"
 FONT 8, "MS Sans Serif"
 BEGIN
     EDITTEXT        IDC_AMPLITUDE,167,45,29,12,ES_AUTOHSCROLL | WS_DISABLED
@@ -90,17 +90,17 @@ BEGIN
     EDITTEXT        IDC_EDIT_SCALE,167,75,29,14,ES_AUTOHSCROLL | NOT 
                     WS_TABSTOP,0,HIDC_EDIT_SCALE
     CONTROL         "Slider1",IDC_SLIDERM6,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,307,60,14,68
+                    TBS_VERT | WS_TABSTOP,307,60,14,17
     CONTROL         "Slider1",IDC_SLIDERM5,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,325,60,14,68
+                    TBS_VERT | WS_TABSTOP,329,60,14,17
     CONTROL         "Slider1",IDC_SLIDERM4,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,343,60,14,68
+                    TBS_VERT | WS_TABSTOP,346,60,14,68
     CONTROL         "Slider1",IDC_SLIDERM3,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,365,60,14,68
+                    TBS_VERT | WS_TABSTOP,310,97,14,19
     CONTROL         "Slider1",IDC_SLIDERM2,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,387,60,14,68
+                    TBS_VERT | WS_TABSTOP,366,60,14,68
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | WS_TABSTOP,403,60,14,68
+                    TBS_VERT | WS_TABSTOP,390,60,14,68
     CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | 
                     TBS_VERT | WS_TABSTOP,423,60,14,68
     CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_AUTOTICKS | 
@@ -116,15 +116,15 @@ BEGIN
     EDITTEXT        IDC_EDIT_GARMONIC_6,497,130,18,14,ES_AUTOHSCROLL | NOT 
                     WS_TABSTOP,0,HIDC_EDIT_GARMONIC_6
     LTEXT           "Amplitude",IDC_STATIC,121,45,32,8
-    EDITTEXT        IDC_EDIT1,529,48,122,104,ES_MULTILINE | ES_AUTOVSCROLL | 
+    EDITTEXT        IDC_EDIT1,529,48,122,94,ES_MULTILINE | ES_AUTOVSCROLL | 
                     WS_VSCROLL
-    LTEXT           "sin",IDC_STATIC,403,129,10,8
-    LTEXT           "1/2",IDC_STATIC,385,129,15,8
-    LTEXT           "1/4",IDC_STATIC,345,129,13,8
-    LTEXT           "1/3",IDC_STATIC,365,129,14,8
+    LTEXT           "sin",IDC_STATIC_SIN_SAW_MODE,390,129,14,8
+    LTEXT           "1/2",IDC_STATIC,364,129,15,8
+    LTEXT           "1/4",IDC_STATIC,348,129,13,8
+    LTEXT           "1/3",IDC_STATIC,312,115,14,8
     LTEXT           "sqr",IDC_STATIC,424,129,10,8
-    LTEXT           "10g",IDC_STATIC,443,129,13,8
-    LTEXT           "4x",IDC_STATIC,463,129,8,8
+    LTEXT           "10g",IDC_STATIC,441,129,13,8
+    LTEXT           "piano",IDC_STATIC,458,129,18,8
     PUSHBUTTON      "Midi Open",IDC_BUTTON_MIDI_OPEN,27,45,42,14
     PUSHBUTTON      "Midi Close",IDC_BUTTON_MIDI_CLOSE,71,45,38,14,
                     WS_DISABLED
@@ -142,11 +142,11 @@ BEGIN
     EDITTEXT        IDC_EDIT_FREQ,167,104,29,14,ES_AUTOHSCROLL | ES_READONLY
     CONTROL         "Slider5",IDC_SLIDER_DECREMENT,"msctls_trackbar32",
                     TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,205,90,64,10
-    LTEXT           "1/5",IDC_STATIC,327,129,13,8
-    LTEXT           "1/6",IDC_STATIC,311,129,11,8
+    LTEXT           "1/5",IDC_STATIC,328,76,13,8
+    LTEXT           "1/6",IDC_STATIC,309,77,11,8
     EDITTEXT        IDC_EDIT_MIDI_NAME2,7,61,103,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    EDITTEXT        IDC_EDIT_SLIDER_DECREMENT,239,73,30,12,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_SLIDER_DECREMENT,239,73,14,12,ES_AUTOHSCROLL | 
                     ES_READONLY
     LTEXT           "A(La) Note",IDC_STATIC,121,61,35,8
     LTEXT           "Scale",IDC_STATIC,121,75,19,8
@@ -154,7 +154,7 @@ BEGIN
     EDITTEXT        IDC_EDIT_WAVE_LEN,167,117,29,14,ES_AUTOHSCROLL | 
                     ES_READONLY
     CONTROL         "Slider7",IDC_SLIDER_TOTAL_VOLUME,"msctls_trackbar32",
-                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,310,160,200,11
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,306,162,200,11
     EDITTEXT        IDC_EDIT_MODULATION,163,154,30,14,ES_AUTOHSCROLL
     LTEXT           "Use Modulation",IDC_STATIC,143,188,50,8
     EDITTEXT        IDC_EDIT_MODULATION_WHEEL,195,154,25,14,ES_AUTOHSCROLL | 
@@ -218,18 +218,18 @@ BEGIN
     PUSHBUTTON      "Demo melody",IDC_BUTTON_DEMO,5,155,105,14
     LTEXT           "CSlider3",IDC_STATIC_CSLIDER3,230,105,30,20,NOT 
                     WS_VISIBLE | WS_BORDER
-    LTEXT           "CSlid4",IDC_STATIC_CSLIDER4,275,45,25,20,NOT WS_VISIBLE | 
+    LTEXT           "CSlid4",IDC_STATIC_CSLIDER4,278,62,25,20,NOT WS_VISIBLE | 
                     WS_BORDER
-    LTEXT           "Filter",IDC_STATIC,255,45,16,8
-    LTEXT           "speed",IDC_STATIC,255,55,20,10
+    LTEXT           "Filter 1",IDC_STATIC,278,42,22,8
+    LTEXT           "speed",IDC_STATIC,277,51,20,10
     LTEXT           "CSlid5",IDC_STATIC_CSLIDER5,280,105,25,20,NOT 
                     WS_VISIBLE | WS_BORDER
-    LTEXT           "Filter\r\nspeed 2",IDC_STATIC,280,83,30,17
+    LTEXT           "Filter 2\r\nspeed",IDC_STATIC,280,86,30,17
     CONTROL         "saw",IDC_CHECK_SAW,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,404,140,29,10
-    CONTROL         "Filter OFF",IDC_CHECK_FILTER_OFF,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,230,176,46,10
-    CONTROL         "Write rawdata.pcm",IDC_CHECK_WRITE_RAWDATA_PCM,"Button",
+                    WS_TABSTOP,389,139,32,10
+    CONTROL         "Filter 1",IDC_CHECK_FILTER1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,389,151,37,10
+    CONTROL         "Write rawdata.wav",IDC_CHECK_WRITE_WAVDATA,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,230,185,75,10
     LTEXT           "Sample rate",IDC_STATIC,120,133,38,8
     EDITTEXT        IDC_EDIT_SAMPLE_RATE,167,131,29,12,ES_AUTOHSCROLL | 
@@ -238,20 +238,19 @@ BEGIN
                     WS_TABSTOP,0,HIDC_EDIT_REZ_MIN
     EDITTEXT        IDC_EDIT_REZ_MAX,560,170,29,14,ES_AUTOHSCROLL | NOT 
                     WS_TABSTOP,0,HIDC_EDIT_REZ_MAX
-    LTEXT           "rezMin",IDC_STATIC,535,155,22,8
-    LTEXT           "rezMax",IDC_STATIC,535,170,24,8
+    LTEXT           "rezMin2",IDC_STATIC,532,157,26,8
+    LTEXT           "rezMax2",IDC_STATIC,531,172,28,8
     LTEXT           "FillBufferTickCount",IDC_STATIC,5,175,60,8
     EDITTEXT        IDC_EDIT_FILL_BUFFER_TICKCOUNT,70,172,40,14,
                     ES_AUTOHSCROLL | WS_DISABLED
     LTEXT           "CSlider6",IDC_STATIC_CSLIDER6,180,224,30,20,NOT 
                     WS_VISIBLE | WS_BORDER
-    LTEXT           "CSlider7",IDC_STATIC_CSLIDER7,180,251,30,20,NOT 
+    LTEXT           "CSlider7",IDC_STATIC_CSLIDER7,181,263,30,20,NOT 
                     WS_VISIBLE | WS_BORDER
-    LTEXT           "freq",IDC_STATIC,158,227,15,10
-    LTEXT           "depth",IDC_STATIC,155,254,20,10
+    LTEXT           "depth",IDC_STATIC,185,251,20,8
     PUSHBUTTON      "RND",IDC_BUTTON_RND_GARMONIC,440,140,18,10
-    CONTROL         "Filter",IDC_CHECK_FILTER2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,440,150,31,10
+    CONTROL         "Filter 2",IDC_CHECK_FILTER2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,440,150,37,10
     PUSHBUTTON      "Save garmonics",IDC_BUTTON_SAVE_GARMONICS,260,229,55,14,
                     WS_DISABLED
     PUSHBUTTON      "Load garmonics",IDC_BUTTON_LOAD_GARMONICS,260,215,55,14,
@@ -281,13 +280,30 @@ BEGIN
                     WS_VISIBLE | WS_BORDER
     LTEXT           "Echo time",IDC_STATIC,225,215,32,8
     LTEXT           "Echo decay",IDC_STATIC,225,249,39,8
-    GROUPBOX        "Freq modulation",IDC_STATIC,150,215,65,65
+    GROUPBOX        "Freq modulation",IDC_STATIC,150,213,65,75
     PUSHBUTTON      "<<",IDC_BUTTON_PREV_GARMONICS,317,215,15,14
     PUSHBUTTON      ">>",IDC_BUTTON_NEXT_GARMONICS,317,229,15,14
     EDITTEXT        IDC_EDIT_INDEX_GARMONICS,317,246,16,14,ES_AUTOHSCROLL | 
                     NOT WS_TABSTOP,0,HIDC_EDIT_INDEX_GARMONICS
     PUSHBUTTON      "C",IDC_BUTTON_COPY_GARMONICS,318,260,15,14
     PUSHBUTTON      "P",IDC_BUTTON_PASTE_GARMONICS,318,274,15,14
+    EDITTEXT        IDC_EDIT_DEPTH_MODULATION_END,155,269,21,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DEPTH_MODULATION_START,155,256,21,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_FREQ_MODULATION_START,155,223,21,14,
+                    ES_AUTOHSCROLL,0,HIDC_EDIT_FREQ_MODULATION_START
+    EDITTEXT        IDC_EDIT_FREQ_MODULATION_END,155,235,21,14,
+                    ES_AUTOHSCROLL
+    LTEXT           "sin",IDC_STATIC_SIN_SAW_MODE2,309,85,12,8
+    LTEXT           "sin",IDC_STATIC_SIN_SAW_MODE3,329,84,12,8
+    LTEXT           "sin",IDC_STATIC_SIN_SAW_MODE4,349,137,12,8
+    LTEXT           "sin",IDC_STATIC_SIN_SAW_MODE5,314,121,12,8
+    LTEXT           "sin",IDC_STATIC_SIN_SAW_MODE6,365,137,12,8
+    GROUPBOX        "Filter 2 settings",IDC_STATIC,524,144,128,56
+    LTEXT           "Master volume",IDC_STATIC_SIN_SAW_MODE7,310,152,59,8
+    COMBOBOX        IDC_COMBO_SIN_WAV,301,135,39,45,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_DIALOG_SETTINGS DIALOG DISCARDABLE  0, 0, 186, 93
@@ -324,6 +340,7 @@ BEGIN
     IDD_DTFM_GENERATOR_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
+        TOPMARGIN, 1
         BOTTOMMARGIN, 288
     END
 
@@ -365,6 +382,21 @@ BEGIN
     BEGIN
         MENUITEM "Keyboard keys",               ID_KEYBOARD_KEYS_MENU
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DTFM_GENERATOR_DIALOG DLGINIT
+BEGIN
+    IDC_COMBO_SIN_WAV, 0x403, 4, 0
+0x6973, 0x006e, 
+    IDC_COMBO_SIN_WAV, 0x403, 4, 0
+0x6173, 0x0077, 
+    0
 END
 
 #endif    // Russian resources

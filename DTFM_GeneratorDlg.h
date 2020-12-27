@@ -32,6 +32,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDTFM_GeneratorDlg)
 	enum { IDD = IDD_DTFM_GENERATOR_DIALOG };
+	CStatic	m_static_sin_saw_mode;
 	CStatic	m_static_slider10;
 	CStatic	m_static_slider9;
 	CEdit	m_global_filter2;
@@ -107,14 +108,14 @@ public:
 	BOOL	m_check_saw;
 	BOOL	m_check_saw2;
 	BOOL	m_check_saw3;
-	BOOL	m_filter_off;
-	BOOL	m_write_rawdata_pcm;
 	int		m_sample_rate;
 	CString	m_rez_min;
 	CString	m_rez_max;
 	BOOL	m_check_filter2;
 	BOOL	m_garmonic_mode;
 	CString	m_garmonic_base_freq;
+	BOOL	m_write_wav;
+	BOOL	m_check_filter1;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -167,6 +168,8 @@ protected:
 	afx_msg void OnButtonPlusXscaleWavegraphic();
 	afx_msg void OnButtonMinusXscaleWavegraphic();
 	afx_msg void OnCheckGarmonicMode();
+	afx_msg void OnCheckWriteWavdata();
+	afx_msg void OnCheckSaw();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
