@@ -1759,6 +1759,16 @@ void CDTFM_GeneratorDlg::OnClose()
 	OnButtonMidiClose();
 	DigIndicator::Free();
 	DigIndicatorValue::Free();
+
+
+	GetData;
+	if (m_write_wav==1)
+	{
+		m_write_wav=0;
+		PutData;
+		OnCheckWriteWavdata();
+	}
+
 	ExitDialog();
 }
 
@@ -3490,7 +3500,6 @@ void CDTFM_GeneratorDlg::OnCheckWriteWavdata()
 
 		filewav.SeekToBegin();
 	    Wavheader.subchunk2Size=numSamples * Wavheader.numChannels * Wavheader.bitsPerSample/8;
-		filewav.Write(&Wavheader,sizeof(Wavheader));
 			
 		// 36 + subchunk2Size, или более точно:
 		// 4 + (8 + subchunk1Size) + (8 + subchunk2Size)
@@ -3498,6 +3507,8 @@ void CDTFM_GeneratorDlg::OnCheckWriteWavdata()
 		// Иначе говоря, это размер файла - 8, то есть,
 		// исключены поля chunkId и chunkSize.
 		Wavheader.chunkSize=36 + Wavheader.subchunk2Size;
+
+		filewav.Write(&Wavheader,sizeof(Wavheader));
 
 		filewav.SeekToEnd();
 		filewav.Close();
