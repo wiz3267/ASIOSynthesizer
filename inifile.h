@@ -71,12 +71,19 @@ public:
 
 	void Create(DWORD,char* RegistryBase) {}
 
-	CINIFiles() 
+	void SetFileName(CString fname)
 	{
 		char buf[2048];
 		GetCurrentDirectory(2048, buf);
-		fileName=CString(buf)+"\\"+inifilename;
+		fileName=CString(buf)+"\\Presets\\"+fname;
 		appName="MidiInPiano";
+	}
+
+	CINIFiles() 
+	{
+
+		SetFileName(inifilename);
+
 	}
 	//void Create
 	CString QueryString(const CString & valuename)

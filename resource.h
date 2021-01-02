@@ -149,17 +149,22 @@
 #define IDC_STATIC_SIN_SAW_MODE5        1131
 #define IDC_STATIC_SIN_SAW_MODE6        1132
 #define IDC_STATIC_SIN_SAW_MODE7        1133
+#define IDC_LIST_PRESET                 1134
+#define IDC_BUTTON_SAVE_PRESET          1135
+#define IDC_BUTTON_LOAD_PRESET          1136
 #define ID_FILE_EXIT                    32771
 #define ID_SETTINGS_SETASIODEVICE       32772
 #define ID_KEYBOARD_KEYS_MENU           32773
+#define ID_SETTINGS_LOADPRESETS         32774
+#define ID_SETTINGS_SAVEPRESETS         32775
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        146
-#define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1128
+#define _APS_NEXT_COMMAND_VALUE         32776
+#define _APS_NEXT_CONTROL_VALUE         1135
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

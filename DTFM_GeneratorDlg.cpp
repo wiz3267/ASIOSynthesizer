@@ -65,6 +65,7 @@ void CDTFM_GeneratorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDTFM_GeneratorDlg)
+	DDX_Control(pDX, IDC_LIST_PRESET, m_list_preset);
 	DDX_Control(pDX, IDC_STATIC_SIN_SAW_MODE, m_static_sin_saw_mode);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER10, m_static_slider10);
 	DDX_Control(pDX, IDC_STATIC_CSLIDER9, m_static_slider9);
@@ -174,13 +175,19 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_GARMONIC_MODE, OnCheckGarmonicMode)
 	ON_BN_CLICKED(IDC_CHECK_WRITE_WAVDATA, OnCheckWriteWavdata)
 	ON_BN_CLICKED(IDC_CHECK_SAW, OnCheckSaw)
+	ON_COMMAND(ID_SETTINGS_LOADPRESETS, OnSettingsLoadpresets)
+	ON_COMMAND(ID_SETTINGS_SAVEPRESETS, OnSettingsSavepresets)
+	ON_LBN_SELCHANGE(IDC_LIST_PRESET, OnSelchangeListPreset)
+	ON_LBN_DBLCLK(IDC_LIST_PRESET, OnDblclkListPreset)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE_PRESET, OnButtonSavePreset)
+	ON_BN_CLICKED(IDC_BUTTON_LOAD_PRESET, OnButtonLoadPreset)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg message handlers
 int 
-	SAMPLE_RATE=48000;
+	SAMPLE_RATE=44100;
 	//SAMPLE_RATE=44100*2;
 	//SAMPLE_RATE=48000;
 
@@ -293,7 +300,8 @@ int GarmonicBaseFreq;
 double camerton = 110.0;
 double fadeOut = 1.00004; // От этого зависит время затухания клавиш пианино.
 //double piano_detune = 1.005; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
-double piano_detune = 1.002; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
+//double piano_detune = 1.002; // Погрешность настройки струн пианино. Для озвучки фильмов Чарли Чаплина лучше ставить побольше.
+double piano_detune = 1.000;
 
 DWORD FillBufferTickCount=0;
 
@@ -862,7 +870,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		double str2 = pow(piano_detune, Keys[keyN].pianostr2);
 		double str3 = pow(piano_detune, Keys[keyN].pianostr3);
 	
-		double freq1 = freq / 70.0;
+		double freq1 = freq / 70;
 		
         if(sin(Keys[keyN].frameCount / camerton * freq1) * Keys[keyN].polarity < 0){
 		
@@ -1024,10 +1032,9 @@ int BlackKeyBuf_GetInfo( int mouseX, int mouseY )
 }
 //>>>>>>>>>
 
-BOOL CDTFM_GeneratorDlg::OnInitDialog()
-{
-	CDialog::OnInitDialog();
 
+void CDTFM_GeneratorDlg::SetIniValue(char *fname)
+{
 	srand(GetTickCount()%65535);	//init rnd
 	{
 		for(int i=0; i<128; i++)
@@ -1048,17 +1055,85 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 		ini.QueryDoubleValue(randarray_amplitude[i], s.GetBuffer(0));//randarray_amplitude2[i];
 	}
 
+	BaseKeyboard=ini.QueryValue("BaseKeyboard");
+	if (!BaseKeyboard) BaseKeyboard=59;
 
-		
+	cCircleSlider_echo_time -> SetValue(ini.QueryValue("EchoTime"));
+	cCircleSlider_echo_decay -> SetValue(ini.QueryValue("EchoDecay"));
+	cCircleSlider_sqr -> SetValue(ini.QueryValue("SqrWaveToSin"));
+	cCircleSlider_6	->SetValue(ini.QueryValue("ModulationParam1"));
+	cCircleSlider_7	->SetValue(ini.QueryValue("ModulationParam2"));
+	cCircleSlider_attack->SetValue(ini.QueryValue("Attack"));
+	cCircleSlider_modulation->SetValue(ini.QueryValue("Modulation"));
+	cCircleSlider_detune->SetValue(ini.QueryValue("Detune"));
+	cCircleSlider_filterspeed->SetValue(ini.QueryValue("FilterSpeed"));
+	cCircleSlider_filterspeed2->SetValue(ini.QueryValue("FilterSpeed2"));
+
+	int temp=ini.QueryValue("MidiDevice");
+	char buf_midi[8];
+	itoa(temp,buf_midi,10);
+	m_midi_open_str=buf_midi;
+
+	m_garmonic_5=ini.QueryString("Garmonic5");
+	m_garmonic_6=ini.QueryString("Garmonic6");
+	
+
+	m_asio_device=global_asio_index;
+	m_size_asio_buffer=ASIO_buflen;
+
+	m_sample_rate=SAMPLE_RATE;
+
+		m_sl1.SetPos(100-ini.QueryValue("sl1"));
+		m_sl2.SetPos(100-ini.QueryValue("sl2"));
+		m_sl3.SetPos(100-ini.QueryValue("sl3"));
+		m_sl4.SetPos(100-ini.QueryValue("sl4"));
+		m_sl5.SetPos(100-ini.QueryValue("sl5"));
+		m_sl6.SetPos(100-ini.QueryValue("sl6"));
+
+
+		m_slm2.SetPos(100-ini.QueryValue("slm2"));
+		m_slm3.SetPos(100-ini.QueryValue("slm3"));
+		m_slm4.SetPos(100-ini.QueryValue("slm4"));
+		m_slm5.SetPos(100-ini.QueryValue("slm5"));
+		m_slm6.SetPos(100-ini.QueryValue("slm6"));
+
+
+		m_slider_decrement.SetPos(100-ini.QueryValue("sldecrement"));
+		m_slider_total_volume.SetPos(ini.QueryValue("sltotalvolume"));
+
+
+		m_check_saw3=ini.QueryValue("CheckSaw");
+		m_garmonic_mode=ini.QueryValue("GarmonicMode");
+		m_use_velocity=ini.QueryValue("UseVelocity");
+		m_no_sustain=ini.QueryValue("NoSustain");
+		m_piano_mouse_click=ini.QueryValue("PianoMouseClick");
+		m_ctrl_key_use=ini.QueryValue("CtrlKeyUse");
+		m_check_filter1=ini.QueryValue("CheckFilter1");
+		m_check_filter2=ini.QueryValue("CheckFilter2");
+		m_string_base_a=ini.QueryString("EditBaseA");
+
+		m_rez_max=ini.QueryString("RezMax2");
+		m_rez_min=ini.QueryString("RezMin2");
+
+		PutData;
+}
+
+BOOL CDTFM_GeneratorDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
 	menu.LoadMenu(IDR_MENU_MAIN);
 	SetMenu(&menu);
 
 	g_mainwindow=this;
 
-	BaseKeyboard=ini.QueryValue("BaseKeyboard");
-	if (!BaseKeyboard) BaseKeyboard=59;
-
-	m_check_saw=ini.QueryValue("CheckSaw");
+	m_list_preset.AddString("default");
+	for(int i=1; i<10;i++)
+	{
+		CString k;
+		k.Format("preset%i",i);
+		m_list_preset.AddString(k);
+	}
 
 
 	RECT rt, rt2, rt3, rt4, rt5, rt6, rt7,rt8, rt9, rt10;
@@ -1087,9 +1162,6 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	int x=rt.left,y=rt.top;
 
-	//CircleSliderIndicator * cCircleSlider_echo_time=NULL;	//время эха
-	//CircleSliderIndicator * cCircleSlider_echo_decay=NULL;	//затухание эха
-
 	//>>>>>>>>>>>>>
 	BlackKeyBuf_Build( 10, KEY_L, KEY_H, 6, 38 );
 	//>>>>>>>>>>>>>
@@ -1097,75 +1169,49 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	cCircleSlider_echo_time = new CircleSliderIndicator(rt9.left, rt9.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
 
-	cCircleSlider_echo_time -> SetValue(ini.QueryValue("EchoTime"));
 
 	cCircleSlider_echo_decay = new CircleSliderIndicator(rt10.left, rt10.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
-
-	cCircleSlider_echo_decay -> SetValue(ini.QueryValue("EchoDecay"));
 
 
 	cCircleSlider_sqr = new CircleSliderIndicator(rt8.left, rt8.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
 
-	cCircleSlider_sqr -> SetValue(ini.QueryValue("SqrWaveToSin"));
 
 	cCircleSlider_6= new CircleSliderIndicator(rt6.left, rt6.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
-
-	cCircleSlider_6	->SetValue(ini.QueryValue("ModulationParam1"));
 
 
 	cCircleSlider_7= new CircleSliderIndicator(rt7.left, rt7.top, CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
 
-	cCircleSlider_7	->SetValue(ini.QueryValue("ModulationParam2"));
-
 
 	cCircleSlider_attack = new CircleSliderIndicator(x,y, CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3,
 											  DigIndicatorValue::signTypeNotShow);
 
-	cCircleSlider_attack->SetValue(ini.QueryValue("Attack"));
+
 	
 	cCircleSlider_modulation = new CircleSliderIndicator(rt2.left,rt2.top, 
 		CircleSliderIndicator::typeOfElem4, 0,127, 0, true, 3, DigIndicatorValue::signTypeNotShow);
 
-	cCircleSlider_modulation->SetValue(ini.QueryValue("Modulation"));
+
 
 	cCircleSlider_detune = new CircleSliderIndicator(rt3.left,rt3.top, 
 		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);
 
-		cCircleSlider_detune->SetValue(ini.QueryValue("Detune"));
+
 
 	cCircleSlider_filterspeed=new CircleSliderIndicator(rt4.left,rt4.top, 
 		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
 
-	cCircleSlider_filterspeed->SetValue(ini.QueryValue("FilterSpeed"));
+	
 
 	cCircleSlider_filterspeed2 = new CircleSliderIndicator(rt5.left,rt5.top, 
 		CircleSliderIndicator::typeOfElem4, 0,100, 0, true, 3, DigIndicatorValue::signTypeNotShow);;
 
-	cCircleSlider_filterspeed2->SetValue(ini.QueryValue("FilterSpeed2"));
 
-	
-	//bool isSmallInd=1;
-	//BYTE c=0xf0;
-	//dInd1 = new DigIndicatorValue( 360, 85, RGB(c, c,c), RGB(0x00, 0x00, 0x00), isSmallInd );		
-	//dInd1->SetIntValue( 35,  4, 0, 0 );
-
-	int temp=ini.QueryValue("MidiDevice");
-	char buf_midi[8];
-	itoa(temp,buf_midi,10);
-	m_midi_open_str=buf_midi;
-
-	m_garmonic_5=ini.QueryString("Garmonic5");
-	m_garmonic_6=ini.QueryString("Garmonic6");
-	
-
-	m_asio_device=global_asio_index;
-	m_size_asio_buffer=ASIO_buflen;
-
-	m_sample_rate=SAMPLE_RATE;
+	SetIniValue();
+	OnCheckSaw();
 
 	PutData;
 
@@ -1189,26 +1235,7 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 
 	if (ini.IsExist())
 	{
-
-		m_sl1.SetPos(100-ini.QueryValue("sl1"));
-		m_sl2.SetPos(100-ini.QueryValue("sl2"));
-		m_sl3.SetPos(100-ini.QueryValue("sl3"));
-		m_sl4.SetPos(100-ini.QueryValue("sl4"));
-		m_sl5.SetPos(100-ini.QueryValue("sl5"));
-		m_sl6.SetPos(100-ini.QueryValue("sl6"));
-
-
-		m_slm2.SetPos(100-ini.QueryValue("slm2"));
-		m_slm3.SetPos(100-ini.QueryValue("slm3"));
-		m_slm4.SetPos(100-ini.QueryValue("slm4"));
-		m_slm5.SetPos(100-ini.QueryValue("slm5"));
-		m_slm6.SetPos(100-ini.QueryValue("slm6"));
-
-
-		m_slider_decrement.SetPos(100-ini.QueryValue("sldecrement"));
-		m_slider_total_volume.SetPos(ini.QueryValue("sltotalvolume"));
-
-		PutData;
+		//PutData;
 
 	}
 	else
@@ -1252,15 +1279,9 @@ BOOL CDTFM_GeneratorDlg::OnInitDialog()
 	SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS);
 
 	
-	//m_asio_device
-	//m_control_asio_device.SetFocus();
 	SetFocus();
 	//HANDLE hThread=GetCurrentThread();
 	//SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST);
-
-/*	CDC *dc=GetDC();
-	dc->Rectangle(x,y,x+5,y+5);
-	ReleaseDC(dc);*/
 
 	//ShowWindow(SW_NORMAL);
 	SetForegroundWindow();
@@ -1791,7 +1812,8 @@ BOOL CDTFM_GeneratorDlg::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, D
 }
 
 
-void CDTFM_GeneratorDlg::ExitDialog()
+//сохраняет все настройки
+int CDTFM_GeneratorDlg::SavePresets(char *fname)
 {
 	GetData;
 
@@ -1845,6 +1867,31 @@ void CDTFM_GeneratorDlg::ExitDialog()
 	ini.SetValue(100-m_slider_decrement.GetPos(), "sldecrement");
 	ini.SetValue(m_slider_total_volume.GetPos(), "sltotalvolume");
 
+
+	ini.SetValue(m_check_saw3,"CheckSaw");
+
+		ini.SetValue(m_garmonic_mode,"GarmonicMode");
+		ini.SetValue(m_use_velocity,"UseVelocity");
+		ini.SetValue(m_no_sustain, "NoSustain");
+		ini.SetValue(m_piano_mouse_click,"PianoMouseClick");
+		ini.SetValue(m_ctrl_key_use, "CtrlKeyUse");
+		ini.SetValue(m_check_filter1, "CheckFilter1");
+		ini.SetValue(m_check_filter2,"CheckFilter2");
+		ini.SetString(m_string_base_a, "EditBaseA");
+
+		ini.SetString(m_rez_max, "RezMax2");
+		ini.SetString(m_rez_min, "RezMin2");
+				
+
+
+	return TRUE;
+}
+
+void CDTFM_GeneratorDlg::ExitDialog()
+{
+	GetData;
+
+	SavePresets();
 	
 	EndDialog(0);
 }
@@ -3530,5 +3577,73 @@ void CDTFM_GeneratorDlg::OnCheckSaw()
 	{
 		m_static_sin_saw_mode.SetWindowText("sin");
 	}
+	
+}
+
+void CDTFM_GeneratorDlg::OnSettingsLoadpresets() 
+{
+	// TODO: Add your command handler code here
+
+	
+}
+
+void CDTFM_GeneratorDlg::OnSettingsSavepresets() 
+{
+	// TODO: Add your command handler code here
+	CFileDialog dlg(false,"*.ini");
+	
+	dlg.DoModal();
+	
+}
+
+
+
+
+
+void CDTFM_GeneratorDlg::OnSelchangeListPreset() 
+{
+}
+
+//двойной клик по лисnбоксу - загрузить пресет
+void CDTFM_GeneratorDlg::OnDblclkListPreset() 
+{
+	OnButtonLoadPreset();
+}
+
+void CDTFM_GeneratorDlg::OnButtonSavePreset() 
+{
+	// TODO: Add your control notification handler code here
+	int n=m_list_preset.GetCurSel();
+	if (n==0) return;
+
+	CString str;
+	str.Format("preset%i.ini",n);
+	
+
+	HANDLE hfile=CreateFile("Presets\\"+str,                // name of the write
+                       GENERIC_WRITE,          // open for writing
+                       0,                      // do not share
+                       NULL,                   // default security
+                       CREATE_NEW,             // create new file only
+                       FILE_ATTRIBUTE_NORMAL,  // normal file
+                       NULL);            
+	//CreateFile("Presets\\"+str,0,0,0,0,0,0);
+	CloseHandle(hfile);
+	
+	ini.SetFileName(str);
+	SavePresets();
+}
+
+void CDTFM_GeneratorDlg::OnButtonLoadPreset() 
+{
+	int n=m_list_preset.GetCurSel();
+	CString str;
+	if (n==0) str="MidiInPiano.ini"; //по умолчанию
+	else str.Format("preset%i.ini",n);
+	ini.SetFileName(str);
+	SetIniValue();
+
+	InvalidateRect(NULL, FALSE);
+	UpdateWindow();
 	
 }

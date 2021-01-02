@@ -105,7 +105,7 @@ int main(int asio_index, char **)
 	}
 	//BASS_ASIO_SetInfo(&info);
 
-	BASS_ASIO_SetRate(48000);
+	BASS_ASIO_SetRate(44100);
 
 	samrate=(int)BASS_ASIO_GetRate();
 

@@ -16,6 +16,8 @@ class CDTFM_GeneratorDlg : public CDialog
 {
 // Construction
 public:
+	int SavePresets(char *fname=NULL);
+	void SetIniValue(char *fname=NULL);
 	void ShowGarmonicStatus(int param);
 	void ShowGarmonics();
 	int ChangeGarmonicMouse(UINT nFlags, CPoint point, bool ShowGraphic);
@@ -32,6 +34,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDTFM_GeneratorDlg)
 	enum { IDD = IDD_DTFM_GENERATOR_DIALOG };
+	CListBox	m_list_preset;
 	CStatic	m_static_sin_saw_mode;
 	CStatic	m_static_slider10;
 	CStatic	m_static_slider9;
@@ -170,6 +173,12 @@ protected:
 	afx_msg void OnCheckGarmonicMode();
 	afx_msg void OnCheckWriteWavdata();
 	afx_msg void OnCheckSaw();
+	afx_msg void OnSettingsLoadpresets();
+	afx_msg void OnSettingsSavepresets();
+	afx_msg void OnSelchangeListPreset();
+	afx_msg void OnDblclkListPreset();
+	afx_msg void OnButtonSavePreset();
+	afx_msg void OnButtonLoadPreset();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
