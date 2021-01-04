@@ -1,4 +1,5 @@
 #include <stdafx.h>
+#include <math.h>
 #include "circleSliderIndicator.h"
 
 //! @brief Создать элемент с такими то координатми, типом элемента, начальным и конечным значением
@@ -189,6 +190,9 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		this->countOfIndicator = countOfIndicator;
 		this->signShowType = signShowType;
 	}
+
+	digInput = new DigIndicatorInput( 8, 600, 470, RGB( 0x40, 0x40, 0x40), RGB( 0xff, 0xff, 0x00 ), RGB( 0x00, 0x00, 0xff ) );
+	textInputCaptured = false;
 }
 
 //! @brief Деструктор
@@ -262,6 +266,40 @@ void CircleSliderIndicator::OnMouseMove( UINT nFlags,CPoint point )
 	pSlider->OnMouseMove( nFlags, point );
 }
 
+//! @brief Функция обрабатывает щелчок правой кнопки мыши
+//! @param nFlags - флаги нажатых клавиш
+//! @param point - координаты точки курсора мыши
+//! @return
+void CircleSliderIndicator::OnRButtonUp( UINT nFlags,CPoint point )
+{
+	double	r = pSlider->r2;
+	double	x = xSliderStart + 16;
+	double	y = ySliderStart + 16;
+	double	dx = x - point.x;
+	double	dy = y - point.y;
+	double	dx2 = dx * dx;
+	double	dy2 = dy * dy;
+	double	d = sqrt( dx2 + dy2 );
+
+	if (d < r && !digInput->GetIsUsed( ))
+	{
+		char	*tmp = digInput->GetResult();
+		char	str[80];
+
+		strcpy( str, tmp );
+
+		for( int i = 0; str[i]; i++ )
+			str[i] = ' ';
+
+		digInput->SetText( str );
+		digInput->SetCursorPos( 0 );
+//		digInput->SetPosition( point.x, point.y );
+			
+		textInputCaptured = true;
+		digInput->SetIsUsed( );
+	}
+}
+
 //! @brief Функция обновления (перерисовки) изображения на экране
 //! @param pDC - контекст устройства
 //! @return
@@ -292,6 +330,29 @@ void CircleSliderIndicator::OnPaint( CDC *pDC )
 
 	if (pIndValue != NULL)
 		delete pIndValue;
+}
+
+//! @brief Фукнкция обновления (перерисоки) текстового поля ввода
+//! @param pDC - контекст устройства
+//! @return
+void CircleSliderIndicator::OnPaintDigInput( CDC *pDC )
+{
+	if (digInput->GetIsUsed( ))
+	{
+		if (textInputCaptured) 
+		{
+			digInput->SetCursorStatus( true );
+			digInput->OnPaint( pDC );
+		}
+	}
+}
+
+//! @brief Функция стирания текстового поля ввода
+//! @param pDC - контекст устройства
+//! @return
+void CircleSliderIndicator::OnClearArea( CDC *pDC )
+{
+	digInput->ClearArea( pDC );
 }
 
 //! @brief Функция установки текущего значения
@@ -361,3 +422,44 @@ void CircleSliderIndicator::SetValue( double value )
 	}
 }
 
+//! @brief Обработка нажатия на клавишу (нужна для текстового поля ввода)
+//! @param keyPressed - нажатая клавиша
+//! @return нажата ли клавиша ввода
+bool CircleSliderIndicator::HandleKey( int keyPressed )
+{
+	if (textInputCaptured)
+	{
+		digInput->HandleKey( keyPressed );
+
+		if (keyPressed == VK_RETURN)
+		{
+			char	*str = digInput->GetResult( );
+			double	val;
+
+			for( int i = 0; str[i]; i++ )
+			{
+				if (str[i] == 'P') str[i] = '.';
+			}
+
+			sscanf( str, "%lf", &val );
+			
+			if (val >= doubleValue1 && val <= doubleValue2) 
+			{
+				if ((int)val == val) val += 0.01;
+				SetValue( val );
+			}
+
+			digInput->ResetIsUsed( );
+			textInputCaptured = false;
+			return true;
+		}
+	}
+	return false;	
+}
+
+//! @brief Проверка, захвачен ли фокус текстового ввода
+//! @return true - если фокус захвачен, иначе false
+bool CircleSliderIndicator::IsTextInputCaptured( )
+{
+	return textInputCaptured;
+}

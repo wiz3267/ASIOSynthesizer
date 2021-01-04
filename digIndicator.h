@@ -9,8 +9,9 @@ public:
 		indTypeSmall = 1,
 		indTypeNormal = 2
 	};
-private:	
+
 	int		xStart, yStart;
+private:	
 	long	bColor;
 	long	fColor;
 	

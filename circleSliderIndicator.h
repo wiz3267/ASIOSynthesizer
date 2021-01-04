@@ -4,6 +4,7 @@
 #include "circleSlider.h"
 #include "digIndicator.h"
 #include "digIndicatorValue.h"
+#include "digIndicatorInput.h"
 
 class CircleSliderIndicator 
 {
@@ -46,6 +47,8 @@ public:
 	int		typeOfElem;
 
 	bool	redraw;	//элемент нужно перерисовать
+	bool	textInputCaptured;
+	DigIndicatorInput *digInput;
 	
 public:
 
@@ -90,10 +93,35 @@ public:
 	//! @return
 	void OnMouseMove( UINT nFlags,CPoint point );
 
+	//! @brief Функция обрабатывает щелчок правой кнопки мыши
+	//! @param nFlags - флаги нажатых клавиш
+	//! @param point - координаты точки курсора мыши
+	//! @return
+	void OnRButtonUp( UINT nFlags,CPoint point );
+
 	//! @brief Функция обновления (перерисовки) изображения на экране
 	//! @param pDC - контекст устройства
 	//! @return
 	void OnPaint( CDC *pDC );
+
+	//! @brief Фукнкция обновления (перерисоки) текстового поля ввода
+	//! @param pDC - контекст устройства
+	//! @return
+	void OnPaintDigInput( CDC *pDC );
+
+	//! @brief Функция стирания текстового поля ввода
+	//! @param pDC - контекст устройства
+	//! @return
+	void OnClearArea( CDC *pDC );
+
+	//! @brief Обработка нажатия на клавишу (нужна для текстового поля ввода)
+	//! @param keyPressed - нажатая клавиша
+	//! @return нажата ли клавиша ввода
+	bool HandleKey( int keyPressed );
+
+	//! @brief Проверка, захвачен ли фокус текстового ввода
+	//! @return true - если фокус захвачен, иначе false
+	bool IsTextInputCaptured( );
 };
 
 #endif

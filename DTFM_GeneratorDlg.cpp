@@ -15,6 +15,7 @@
 #include "circleSliderIndicator.h"
 #include "digIndicator.h"
 #include "digIndicatorValue.h"
+#include "digIndicatorInput.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CDTFM_GeneratorDlg dialog
@@ -1421,6 +1422,65 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 
 	if (pMsg->message == WM_KEYDOWN)
 	{
+		bool	enterPressed[10];		
+		
+		//>>>>
+		enterPressed[0] = cCircleSlider_attack->HandleKey( nChar );
+		enterPressed[1] = cCircleSlider_modulation->HandleKey( nChar );		
+		enterPressed[2] = cCircleSlider_detune->HandleKey( nChar );
+		enterPressed[3] = cCircleSlider_filterspeed->HandleKey( nChar );		
+		enterPressed[4] = cCircleSlider_filterspeed2->HandleKey( nChar );
+		enterPressed[5] = cCircleSlider_6->HandleKey( nChar );		
+		enterPressed[6] = cCircleSlider_7->HandleKey( nChar );
+		enterPressed[7] = cCircleSlider_sqr->HandleKey( nChar );		
+		enterPressed[8] = cCircleSlider_echo_time->HandleKey( nChar );
+		enterPressed[9] = cCircleSlider_echo_decay->HandleKey( nChar );		
+
+		bool	isCaptured = false;
+
+		if (cCircleSlider_attack->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_modulation->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_detune->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_filterspeed->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_filterspeed2->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_6->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_7->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_sqr->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_echo_time->IsTextInputCaptured( )) isCaptured = true;
+		if (cCircleSlider_echo_decay->IsTextInputCaptured( )) isCaptured = true;
+
+		if (nChar == VK_RETURN)
+		{
+			CDC	*pDC = GetDC();
+			
+			if (enterPressed[0]) cCircleSlider_attack->OnPaint( pDC );
+			if (enterPressed[1]) cCircleSlider_modulation->OnPaint( pDC );
+			if (enterPressed[2]) cCircleSlider_detune->OnPaint( pDC );
+			if (enterPressed[3]) cCircleSlider_filterspeed->OnPaint( pDC );
+			if (enterPressed[4]) cCircleSlider_filterspeed2->OnPaint( pDC );
+			if (enterPressed[5]) cCircleSlider_6->OnPaint( pDC );
+			if (enterPressed[6]) cCircleSlider_7->OnPaint( pDC );
+			if (enterPressed[7]) cCircleSlider_sqr->OnPaint( pDC );
+			if (enterPressed[8]) cCircleSlider_echo_time->OnPaint( pDC );
+			if (enterPressed[9]) cCircleSlider_echo_decay->OnPaint( pDC );
+
+			if (enterPressed[0]) cCircleSlider_attack->OnClearArea( pDC );
+			if (enterPressed[1]) cCircleSlider_modulation->OnClearArea( pDC );
+			if (enterPressed[2]) cCircleSlider_detune->OnClearArea( pDC );
+			if (enterPressed[3]) cCircleSlider_filterspeed->OnClearArea( pDC );
+			if (enterPressed[4]) cCircleSlider_filterspeed2->OnClearArea( pDC );
+			if (enterPressed[5]) cCircleSlider_6->OnClearArea( pDC );
+			if (enterPressed[6]) cCircleSlider_7->OnClearArea( pDC );
+			if (enterPressed[7]) cCircleSlider_sqr->OnClearArea( pDC );
+			if (enterPressed[8]) cCircleSlider_echo_time->OnClearArea( pDC );
+			if (enterPressed[9]) cCircleSlider_echo_decay->OnClearArea( pDC );
+		
+			ReleaseDC( pDC );
+		}
+
+		if (isCaptured) nChar = -1;
+
+		//>>>>
 
 		if (nChar==VK_LEFT)
 		{
@@ -2275,6 +2335,25 @@ void CDTFM_GeneratorDlg::OnTimer(UINT nIDEvent)
 		ReleaseDC(dc);
 
 	}
+
+	//>>>>
+	{
+		CDC	*dc = GetDC();
+		
+		cCircleSlider_attack->OnPaintDigInput( dc );
+		cCircleSlider_modulation->OnPaintDigInput( dc );		
+		cCircleSlider_detune->OnPaintDigInput( dc );
+		cCircleSlider_filterspeed->OnPaintDigInput( dc );		
+		cCircleSlider_filterspeed2->OnPaintDigInput( dc );
+		cCircleSlider_6->OnPaintDigInput( dc );		
+		cCircleSlider_7->OnPaintDigInput( dc );
+		cCircleSlider_sqr->OnPaintDigInput( dc );		
+		cCircleSlider_echo_time->OnPaintDigInput( dc );
+		cCircleSlider_echo_decay->OnPaintDigInput( dc );		
+		
+		ReleaseDC(dc);
+	}
+	//>>>>
 
 	MaxSound=0;
 	//Overload=0;
@@ -3243,6 +3322,17 @@ void CDTFM_GeneratorDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CDTFM_GeneratorDlg::OnRButtonUp(UINT nFlags, CPoint point) 
 {
+	cCircleSlider_attack->OnRButtonUp( nFlags, point );
+	cCircleSlider_modulation->OnRButtonUp( nFlags, point );
+	cCircleSlider_detune->OnRButtonUp( nFlags, point );
+	cCircleSlider_filterspeed->OnRButtonUp( nFlags, point );
+	cCircleSlider_filterspeed2->OnRButtonUp( nFlags, point );
+	cCircleSlider_6->OnRButtonUp( nFlags, point );
+	cCircleSlider_7->OnRButtonUp( nFlags, point );
+	cCircleSlider_sqr->OnRButtonUp( nFlags, point );
+	cCircleSlider_echo_time->OnRButtonUp( nFlags, point );
+	cCircleSlider_echo_decay->OnRButtonUp( nFlags, point );
+	
 	// TODO: Add your message handler code here and/or call default
 	//Invalidate(TRUE);
 	CDialog::OnRButtonUp(nFlags, point);

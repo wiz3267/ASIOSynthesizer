@@ -68,8 +68,8 @@ DigIndicator::DigIndicator( int x, int y, long bColor, long fColor, int indSizeT
 			char	*s25 = "004400000000000000006600";
 			char	*s26 = "004000000000000000000600";
 			char	*s27 = "000055555555555555550000";
-			char	*s28 = "000555555555555555555088";
-			char	*s29 = "000055555555555555550088";
+			char	*s28 = "00055555555AA55555555088";
+			char	*s29 = "00005555555AA55555550088";
 			char	*s30 = "000000000000000000000000";
 			char	*s31 = "000000000000000000000000";
 
@@ -566,20 +566,21 @@ void DigIndicator::DrawBuffer( char c, bool needPoint )
 	int		gx, gy;
 	int		binCode = 0;
 	long	*pDat;
-									// 987654321
-	if (c == '0') binCode = 0x3f;	// 000111111
-	if (c == '1') binCode = 0x21;	// 000100001
-	if (c == '2') binCode = 0x5b;	// 001011011
-	if (c == '3') binCode = 0x73;	// 001110011
-	if (c == '4') binCode = 0x65;	// 001100101
-	if (c == '5') binCode = 0x76;	// 001110110
-	if (c == '6') binCode = 0x7e;	// 001111110
-	if (c == '7') binCode = 0x23;	// 000100011
-	if (c == '8') binCode = 0x7f;	// 001111111
-	if (c == '9') binCode = 0x77;	// 001110111
-	if (c == '-') binCode = 0x40;	// 001000000	
-	if (c == '+') binCode = 0x140;	// 101000000
-	if (c == ' ') binCode = 0x00;	// 000000000
+									// A987654321
+	if (c == '0') binCode = 0x3f;	// 0000111111
+	if (c == '1') binCode = 0x21;	// 0000100001
+	if (c == '2') binCode = 0x5b;	// 0001011011
+	if (c == '3') binCode = 0x73;	// 0001110011
+	if (c == '4') binCode = 0x65;	// 0001100101
+	if (c == '5') binCode = 0x76;	// 0001110110
+	if (c == '6') binCode = 0x7e;	// 0001111110
+	if (c == '7') binCode = 0x23;	// 0000100011
+	if (c == '8') binCode = 0x7f;	// 0001111111
+	if (c == '9') binCode = 0x77;	// 0001110111
+	if (c == '-') binCode = 0x40;	// 0001000000	
+	if (c == '+') binCode = 0x140;	// 0101000000
+	if (c == ' ') binCode = 0x00;	// 0000000000
+	if (c == 'P') binCode = 0x200;  // 1000000000
 
 	if (needPoint) binCode |= 0x80;
 
@@ -595,11 +596,12 @@ void DigIndicator::DrawBuffer( char c, bool needPoint )
 			if ((binCode & 0x02) != 0 && c == '2') color = fColor;		
 			if ((binCode & 0x04) != 0 && c == '3') color = fColor;
 			if ((binCode & 0x08) != 0 && c == '4') color = fColor;		
-			if ((binCode & 0x10) != 0 && c == '5') color = fColor;
+			if ((binCode & 0x10) != 0 && (c == '5' || c == 'A')) color = fColor;
 			if ((binCode & 0x20) != 0 && c == '6') color = fColor;		
 			if ((binCode & 0x40) != 0 && c == '7') color = fColor;
 			if ((binCode & 0x80) != 0 && c == '8') color = fColor;
 			if ((binCode & 0x100) != 0 && c == '9') color = fColor;
+			if ((binCode & 0x200) != 0 && c == 'A') color = fColor;
 		
 			*pDat++ = color;
 		}

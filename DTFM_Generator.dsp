@@ -108,6 +108,10 @@ SOURCE=.\digIndicator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\digIndicatorInput.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\digIndicatorValue.cpp
 # End Source File
 # Begin Source File
@@ -146,6 +150,10 @@ SOURCE=.\DialogASIOConnect.h
 # Begin Source File
 
 SOURCE=.\digIndicator.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\digIndicatorInput.h
 # End Source File
 # Begin Source File
 
