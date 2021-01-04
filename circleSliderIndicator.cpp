@@ -191,7 +191,7 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		this->signShowType = signShowType;
 	}
 
-	digInput = new DigIndicatorInput( 8, 600, 470, RGB( 0xf0, 0xf0, 0xf0), RGB( 0x00, 0x00, 0x00 ), RGB( 0x80, 0x80, 0x80 ) );
+	digInput = new DigIndicatorInput( 4, 600, 470, RGB( 0xf0, 0xf0, 0xf0), RGB( 0x00, 0x00, 0x00 ), RGB( 0x80, 0x80, 0x80 ) );
 	textInputCaptured = false;
 }
 
@@ -293,7 +293,7 @@ void CircleSliderIndicator::OnRButtonUp( UINT nFlags,CPoint point )
 
 		digInput->SetText( str );
 		digInput->SetCursorPos( 0 );
-//		digInput->SetPosition( point.x, point.y );
+		digInput->SetPosition( xSliderStart + 8, ySliderStart + 40);
 			
 		textInputCaptured = true;
 		digInput->SetIsUsed( );
