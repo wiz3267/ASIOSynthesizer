@@ -13,8 +13,10 @@ DigIndicatorInput::DigIndicatorInput( int nInd, int xOrigin, int yOrigin, long b
 	{
 //		indSizeX = 24;
 //		indList[i] = new DigIndicator( xOrigin + indSizeX * i, yOrigin, bColor, fColor, 2 );
-		indSizeX = 8;
-		indList[i] = new DigIndicator( xOrigin + indSizeX * i, yOrigin, bColor, fColor, 1 );
+//		indSizeX = 8;
+//		indList[i] = new DigIndicator( xOrigin + indSizeX * i, yOrigin, bColor, fColor, 1 );
+		indSizeX = 5;
+		indList[i] = new DigIndicator( xOrigin + indSizeX * i, yOrigin, bColor, fColor, 0 );
 	}
 
 	this->xOrigin = xOrigin;

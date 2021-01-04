@@ -527,6 +527,7 @@ void DigIndicator::DrawBufferSmall( char c, bool needPoint )
 	if (c == '-') charOffset = 11;
 	if (c == ' ') charOffset = 12;
 	if (c == '.') charOffset = 13;
+	if (c == 'P') charOffset = 13;
 	if (c >= '0' && c <= '9') charOffset = c - '0';
 
 	char	*pSource = smallSpriteTemp + charOffset * spriteBufferW * spriteBufferH;
