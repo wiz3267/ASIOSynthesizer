@@ -11,7 +11,10 @@ DigIndicatorInput::DigIndicatorInput( int nInd, int xOrigin, int yOrigin, long b
 
 	for( i = 0; i < nInd; i++ )
 	{
-		indList[i] = new DigIndicator( xOrigin + 24 * i, yOrigin, bColor, fColor, 2 );	
+//		indSizeX = 24;
+//		indList[i] = new DigIndicator( xOrigin + indSizeX * i, yOrigin, bColor, fColor, 2 );
+		indSizeX = 8;
+		indList[i] = new DigIndicator( xOrigin + indSizeX * i, yOrigin, bColor, fColor, 1 );
 	}
 
 	this->xOrigin = xOrigin;
@@ -124,7 +127,7 @@ void DigIndicatorInput::OnPaint( CDC *pDC )
 	for( i = 0; i < indCount; i++ )
 	{
 		indList[i]->SetColor( bColor, fColor );
-		indList[i]->xStart = xOrigin + 24 * i;
+		indList[i]->xStart = xOrigin + indSizeX * i;
 		indList[i]->yStart = yOrigin;
 	}
 	
@@ -149,7 +152,7 @@ void DigIndicatorInput::ClearArea( CDC *pDC )
 	for( i = 0; i < indCount; i++ )
 	{
 		indList[i]->SetColor( 0xf0f0f0L, 0xf0f0f0L );
-		indList[i]->xStart = xOrigin + 24 * i;
+		indList[i]->xStart = xOrigin + indSizeX * i;
 		indList[i]->yStart = yOrigin;
 	}
 	

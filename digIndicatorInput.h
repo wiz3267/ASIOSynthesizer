@@ -16,6 +16,7 @@ class DigIndicatorInput
 	long			cursorBColor;
 	static bool		isUsed;
 	bool			isShowCursor;
+	int				indSizeX;
 
 public:
 	DigIndicatorInput( int nInd, int xOrigin, int yOrigin, long bColor, long fColor, long cursorBColor );

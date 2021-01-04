@@ -1476,6 +1476,11 @@ BOOL CDTFM_GeneratorDlg::PreTranslateMessage(MSG* pMsg)
 			if (enterPressed[9]) cCircleSlider_echo_decay->OnClearArea( pDC );
 		
 			ReleaseDC( pDC );
+
+			for( int i = 0; i < 10; i++ )
+			{
+				if (enterPressed[i]) nChar = -1;
+			}
 		}
 
 		if (isCaptured) nChar = -1;

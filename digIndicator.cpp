@@ -145,7 +145,7 @@ DigIndicator::DigIndicator( int x, int y, long bColor, long fColor, int indSizeT
 			char	*s05 = "040090060";
 			char	*s06 = "040090060";
 			char	*s07 = "040000060";
-			char	*s08 = "005555500";
+			char	*s08 = "0055A5500";
 			char	*s09 = "000000008";
 
 			strcpy( spriteTemp1[0], s00 );

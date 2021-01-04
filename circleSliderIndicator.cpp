@@ -191,7 +191,7 @@ CircleSliderIndicator::CircleSliderIndicator( int x, int y, int typeOfElem, doub
 		this->signShowType = signShowType;
 	}
 
-	digInput = new DigIndicatorInput( 8, 600, 470, RGB( 0x40, 0x40, 0x40), RGB( 0xff, 0xff, 0x00 ), RGB( 0x00, 0x00, 0xff ) );
+	digInput = new DigIndicatorInput( 8, 600, 470, RGB( 0xf0, 0xf0, 0xf0), RGB( 0x00, 0x00, 0x00 ), RGB( 0x80, 0x80, 0x80 ) );
 	textInputCaptured = false;
 }
 
