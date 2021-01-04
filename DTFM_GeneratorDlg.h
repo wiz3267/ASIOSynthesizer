@@ -179,6 +179,7 @@ protected:
 	afx_msg void OnDblclkListPreset();
 	afx_msg void OnButtonSavePreset();
 	afx_msg void OnButtonLoadPreset();
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

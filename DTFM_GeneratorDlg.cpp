@@ -182,6 +182,7 @@ BEGIN_MESSAGE_MAP(CDTFM_GeneratorDlg, CDialog)
 	ON_LBN_DBLCLK(IDC_LIST_PRESET, OnDblclkListPreset)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_PRESET, OnButtonSavePreset)
 	ON_BN_CLICKED(IDC_BUTTON_LOAD_PRESET, OnButtonLoadPreset)
+	ON_WM_LBUTTONDBLCLK()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3741,4 +3742,11 @@ void CDTFM_GeneratorDlg::OnButtonLoadPreset()
 	InvalidateRect(NULL, FALSE);
 	UpdateWindow();
 	
+}
+
+void CDTFM_GeneratorDlg::OnLButtonDblClk(UINT nFlags, CPoint point) 
+{
+	// TODO: Add your message handler code here and/or call default
+	
+	CDialog::OnLButtonDblClk(nFlags, point);
 }
