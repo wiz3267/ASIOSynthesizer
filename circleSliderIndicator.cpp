@@ -300,6 +300,38 @@ void CircleSliderIndicator::OnRButtonUp( UINT nFlags,CPoint point )
 	}
 }
 
+//! @brief Функция обрабатывает двойной щелчок левой кнопкой мыши
+//! @param nFlags - флаги нажатых клавиш
+//! @param point - координаты точки курсора мыши
+//! @return
+void CircleSliderIndicator::OnLButtonDoubleClick( UINT nFlags,CPoint point )
+{
+	double	x1 = xSliderStart + 8;
+	double	y1 = ySliderStart + 40 - 8;
+	double	x2 = x1 + 5 * 3;
+	double	y2 = y1 + 7;
+	double	x = point.x;
+	double	y = point.y;
+
+	if (x >= x1 && x <= x2 && y >= y1 && y <= y2 && !digInput->GetIsUsed( ))
+	{
+		char	*tmp = digInput->GetResult();
+		char	str[80];
+
+		strcpy( str, tmp );
+
+		for( int i = 0; str[i]; i++ )
+			str[i] = ' ';
+
+		digInput->SetText( str );
+		digInput->SetCursorPos( 0 );
+		digInput->SetPosition( xSliderStart + 8, ySliderStart + 40);
+			
+		textInputCaptured = true;
+		digInput->SetIsUsed( );
+	}
+}
+
 //! @brief Функция обновления (перерисовки) изображения на экране
 //! @param pDC - контекст устройства
 //! @return

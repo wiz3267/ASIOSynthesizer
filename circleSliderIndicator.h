@@ -99,6 +99,12 @@ public:
 	//! @return
 	void OnRButtonUp( UINT nFlags,CPoint point );
 
+	//! @brief Функция обрабатывает двойной щелчок левой кнопкой мыши
+	//! @param nFlags - флаги нажатых клавиш
+	//! @param point - координаты точки курсора мыши
+	//! @return
+	void OnLButtonDoubleClick( UINT nFlags,CPoint point );
+
 	//! @brief Функция обновления (перерисовки) изображения на экране
 	//! @param pDC - контекст устройства
 	//! @return

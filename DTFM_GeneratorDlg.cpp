@@ -3747,6 +3747,16 @@ void CDTFM_GeneratorDlg::OnButtonLoadPreset()
 void CDTFM_GeneratorDlg::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
-	
+	cCircleSlider_attack->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_modulation->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_detune->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_filterspeed->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_filterspeed2->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_6->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_7->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_sqr->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_echo_time->OnLButtonDoubleClick( nFlags, point );
+	cCircleSlider_echo_decay->OnLButtonDoubleClick( nFlags, point );
+
 	CDialog::OnLButtonDblClk(nFlags, point);
 }
