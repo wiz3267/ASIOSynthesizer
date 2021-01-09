@@ -872,7 +872,7 @@ double Piano(int keyN,double Ampl, double freq, double t, double phase, int & fl
 		double str2 = pow(piano_detune, Keys[keyN].pianostr2);
 		double str3 = pow(piano_detune, Keys[keyN].pianostr3);
 	
-		double freq1 = freq / 70;
+		double freq1 = freq / 64;
 		
         if(sin(Keys[keyN].frameCount / camerton * freq1) * Keys[keyN].polarity < 0){
 		
